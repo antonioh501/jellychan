@@ -14,10 +14,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
   check on watched items, outlined heart. Go to series, previous episode, versions and delete moved to the menu.
 - Thinner and shorter progress bar on cards.
 - Pressing OK on a card shrinks it briefly instead of showing a ripple.
+- Home carousel info line: only parental rating, community score and critic score.
+- Main action pill on item pages matches the carousel buttons: blue at rest, white when focused.
+- Series with a next up episode: Play all moved to the menu to avoid two Play icons.
 
 ### Fixed
 - Square focus highlight around round cast & crew photos.
 - The back arrow on library pages is now a working button.
+- Focused row of popup menus no longer overflows the rounded menu shape.
 
 ## [0.1.0-alpha.1] - 2026-11-04
 

@@ -30,7 +30,6 @@ import org.jellyfin.androidtv.ui.navigation.NavigationRepository
 import org.jellyfin.androidtv.ui.presentation.CardPresenter
 import org.jellyfin.androidtv.ui.presentation.MutableObjectAdapter
 import org.jellyfin.androidtv.util.ImageHelper
-import org.jellyfin.androidtv.util.InfoLayoutHelper
 import org.jellyfin.androidtv.util.PlaybackHelper
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.client.extensions.itemsApi
@@ -66,7 +65,7 @@ class HomeSpotlightRow(val items: List<BaseItemDto>) : Row(), HomeFragmentRow {
 					recursive = true,
 					sortBy = setOf(ItemSortBy.RANDOM),
 					imageTypes = setOf(ImageType.BACKDROP),
-					fields = setOf(ItemFields.OVERVIEW, ItemFields.GENRES, ItemFields.MEDIA_SOURCES),
+					fields = setOf(ItemFields.OVERVIEW, ItemFields.GENRES),
 					limit = ITEM_COUNT,
 				).content.items
 			} catch (error: Exception) {
@@ -118,6 +117,7 @@ class HomeSpotlightView @JvmOverloads constructor(
 		clipToPadding = false
 		descendantFocusability = FOCUS_AFTER_DESCENDANTS
 
+		binding.jcMeta.ratingsOnly = true
 		binding.jcPlay.setOnClickListener { current()?.let { playbackHelper.retrieveAndPlay(it.id, false, context) } }
 		binding.jcDetails.setOnClickListener { current()?.let { navigationRepository.navigate(Destinations.itemDetails(it.id)) } }
 
@@ -186,7 +186,7 @@ class HomeSpotlightView @JvmOverloads constructor(
 		if (logo != null) binding.jcLogo.load(logo, null, null, 1.0, 0)
 		binding.jcTitle.text = item.name
 
-		InfoLayoutHelper.addInfoRow(context, item, binding.jcMeta, true)
+		binding.jcMeta.item = item
 		binding.jcOverview.text = item.overview.orEmpty()
 		binding.jcOverview.isVisible = !item.overview.isNullOrBlank()
 

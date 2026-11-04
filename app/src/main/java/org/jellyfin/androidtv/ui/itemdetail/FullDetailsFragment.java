@@ -261,12 +261,12 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
                                 if (JavaCompat.getCanResume(mBaseItem)) {
                                     mResumeButton.setLabel(getString(R.string.lbl_resume_from, TimeUtils.formatMillis((mBaseItem.getUserData().getPlaybackPositionTicks() / 10000) - getResumePreroll())));
                                 }
+                                showMoreButtonIfNeeded();
                                 if (resumeVisible) {
                                     mResumeButton.requestFocus();
                                 } else if (playButton != null && ViewKt.isVisible(playButton)) {
                                     playButton.requestFocus();
                                 }
-                                showMoreButtonIfNeeded();
                             }
                             updateWatched();
                             MyDetailsOverviewRowPresenter.ViewHolder viewHolder = mDorPresenter.getViewHolder();
@@ -1118,6 +1118,8 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
             if (!isSeries) mResumeButton.setLabel(getString(R.string.jc_resume));
 
             playButton.setPill(!resumeVisible);
+            // Next up and play all side by side look like the same action: play all moves to the menu
+            playButton.setVisibility(isSeries && resumeVisible ? View.GONE : View.VISIBLE);
             if (!isSeries) {
                 playButton.setIcon(resumeVisible ? R.drawable.jc_ic_restart : R.drawable.jc_ic_play_outline, null);
                 playButton.setLabel(getString(resumeVisible ? R.string.lbl_from_beginning : R.string.lbl_play));
@@ -1131,7 +1133,8 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
         if (mVersionsButton != null) mVersionsButton.setVisibility(View.GONE);
         if (deleteButton != null) deleteButton.setVisibility(View.GONE);
 
-        boolean hasMenu = episodeTrailer || goToSeriesButton != null || mPrevItemId != null || mVersionsButton != null || deleteButton != null;
+        boolean playInMenu = playButton != null && !ViewKt.isVisible(playButton);
+        boolean hasMenu = playInMenu || episodeTrailer || goToSeriesButton != null || mPrevItemId != null || mVersionsButton != null || deleteButton != null;
         moreButton.setVisibility(hasMenu ? View.VISIBLE : View.GONE);
     }
 

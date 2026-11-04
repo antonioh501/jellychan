@@ -44,6 +44,7 @@
 
         <item name="preferenceTheme">@style/PreferenceThemeOverlayLeanback</item>
         <item name="android:popupMenuStyle">@style/PopupMenu</item>
+        <item name="android:dropDownListViewStyle">@style/JcPopupMenuList</item>
         <item name="android:popupWindowStyle">@style/PopupWindow</item>
 
         <!-- Rounding Values -->

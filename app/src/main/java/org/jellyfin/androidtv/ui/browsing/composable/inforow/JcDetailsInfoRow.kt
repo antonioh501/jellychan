@@ -48,12 +48,15 @@ private fun seriesYears(item: BaseItemDto): String? {
 /**
  * JellyChan: metadata line of the episode, movie and series pages. Empty fields are skipped and the items are
  * only separated by spacing, so a missing value never leaves a separator behind.
+ *
+ * @param ratingsOnly Show only the parental, community and critic ratings (home carousel).
  */
 @Composable
 fun JcDetailsInfoRow(
 	item: BaseItemDto,
 	runtime: String?,
 	endTime: String?,
+	ratingsOnly: Boolean = false,
 ) {
 	val userPreferences = koinInject<UserPreferences>()
 	val showRatings = userPreferences[UserPreferences.defaultRatingType] != RatingType.RATING_HIDDEN
@@ -67,15 +70,21 @@ fun JcDetailsInfoRow(
 		horizontalArrangement = Arrangement.spacedBy(16.dp),
 		verticalAlignment = Alignment.CenterVertically,
 	) {
-		when (item.type) {
-			BaseItemKind.EPISODE -> {
+		when {
+			ratingsOnly -> {
+				officialRating?.let { InfoRowParentalRating(it) }
+				communityRating?.let { InfoRowCommunityRating(it / 10f) }
+				criticRating?.let { InfoRowCriticRating(it / 100f) }
+			}
+
+			item.type == BaseItemKind.EPISODE -> {
 				InfoRowDate(item)
 				InfoRowText(runtime)
 				communityRating?.let { InfoRowCommunityRating(it / 10f) }
 				InfoRowText(endsAt)
 			}
 
-			BaseItemKind.SERIES -> {
+			item.type == BaseItemKind.SERIES -> {
 				InfoRowText(seriesYears(item))
 				officialRating?.let { InfoRowParentalRating(it) }
 				communityRating?.let { InfoRowCommunityRating(it / 10f) }
@@ -103,6 +112,7 @@ class JcDetailsInfoRowView @JvmOverloads constructor(
 	private val _item = MutableStateFlow<BaseItemDto?>(null)
 	private val _runtime = MutableStateFlow<String?>(null)
 	private val _endTime = MutableStateFlow<String?>(null)
+	private val _ratingsOnly = MutableStateFlow(false)
 
 	var item: BaseItemDto?
 		get() = _item.value
@@ -122,6 +132,12 @@ class JcDetailsInfoRowView @JvmOverloads constructor(
 			_endTime.value = value
 		}
 
+	var ratingsOnly: Boolean
+		get() = _ratingsOnly.value
+		set(value) {
+			_ratingsOnly.value = value
+		}
+
 	init {
 		isFocusable = false
 		descendantFocusability = FOCUS_BLOCK_DESCENDANTS
@@ -132,7 +148,8 @@ class JcDetailsInfoRowView @JvmOverloads constructor(
 		val item by _item.collectAsState()
 		val runtime by _runtime.collectAsState()
 		val endTime by _endTime.collectAsState()
+		val ratingsOnly by _ratingsOnly.collectAsState()
 
-		item?.let { JcDetailsInfoRow(it, runtime, endTime) }
+		item?.let { JcDetailsInfoRow(it, runtime, endTime, ratingsOnly) }
 	}
 }

@@ -7,3 +7,6 @@ local.properties
 .kotlin/
 build/
 captures/
+
+# Claude Code local notes (IP, credenziali locali)
+CLAUDE.local.md

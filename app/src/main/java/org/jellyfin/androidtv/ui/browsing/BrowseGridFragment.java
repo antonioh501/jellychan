@@ -730,6 +730,10 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
     private void addTools() {
         // JellyChan: header title, tabs, tools row and A-Z index like the web TV layout
         binding.jcLibraryTitle.setText(mainTitle);
+        binding.jcLibraryBack.setOnClickListener(v -> {
+            if (navigationRepository.getValue().getCanGoBack()) navigationRepository.getValue().goBack();
+            else navigationRepository.getValue().reset(Destinations.INSTANCE.getHome());
+        });
         setupTabs();
         setupAlphaIndex();
 
@@ -842,6 +846,8 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
         mLibraryTab = createTab(mainTitle);
         mLibraryTab.setActivated(!favoritesOnly);
         mLibraryTab.setOnClickListener(v -> setFavoritesOnly(false));
+        mLibraryTab.setNextFocusLeftId(R.id.jc_library_back);
+        mLibraryTab.setNextFocusUpId(R.id.jc_library_back);
 
         if (isMovies) {
             android.widget.Button suggestions = createTab(getString(R.string.lbl_suggested));

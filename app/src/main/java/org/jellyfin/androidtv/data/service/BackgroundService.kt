@@ -55,6 +55,21 @@ class BackgroundService(
 	val blurBackground get() = _blurBackground.asStateFlow()
 	val enabled get() = _enabled.asStateFlow()
 
+	// JellyChan: "spotlight" mode keeps the backdrop sharp and clear at the top (item details header)
+	private var _spotlight = MutableStateFlow(false)
+	val spotlight get() = _spotlight.asStateFlow()
+	fun setSpotlight(enabled: Boolean) {
+		_spotlight.value = enabled
+	}
+
+	// JellyChan: muted trailer played full screen behind the home spotlight (carousel)
+	private var _trailerUrl = MutableStateFlow<String?>(null)
+	val trailerUrl get() = _trailerUrl.asStateFlow()
+	val trailerEnded = kotlinx.coroutines.flow.MutableSharedFlow<String>(extraBufferCapacity = 1)
+	fun setTrailer(url: String?) {
+		_trailerUrl.value = url
+	}
+
 	/**
 	 * Use all available backdrops from [baseItem] as background.
 	 */

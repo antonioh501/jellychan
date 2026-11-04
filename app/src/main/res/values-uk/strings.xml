@@ -316,7 +316,7 @@
     <string name="pref_subtitles_background_summary">Відображає чорне тло за субтитрами</string>
     <string name="pref_subtitles_background_title">Увімкнути тло</string>
     <string name="searchable_settings_description">Медіа</string>
-    <string name="searchable_hint">Пошук в Jellyfin</string>
+    <string name="searchable_hint">Пошук в JellyChan</string>
     <string name="home_section_i">Розділ %1$d</string>
     <string name="home_section_none">Жодного</string>
     <string name="home_section_livetv">Телеканали</string>
@@ -336,7 +336,7 @@
     <string name="license_artifact">Артефакт</string>
     <string name="license_version">Версія</string>
     <string name="license_description">Опис</string>
-    <string name="licenses_link_description">Переглянути ліцензії бібліотек, використаних застосунком Jellyfin</string>
+    <string name="licenses_link_description">Переглянути ліцензії бібліотек, використаних застосунком JellyChan</string>
     <string name="licenses_link">Ліцензії</string>
     <string name="select_version">Версія</string>
     <string name="advanced_settings">Додатково</string>
@@ -363,10 +363,10 @@
     <string name="no_user_warning">Не знайшли жодних облікових записів!
 \nДодати новий обліковий запис можна натиснувши кнопку «Додати обліковий запис».</string>
     <string name="welcome_content">Щоб розпочати роботу, підключіться до свого медіасервера.</string>
-    <string name="welcome_title">Вітаємо в Jellyfin!</string>
+    <string name="welcome_title">Вітаємо в JellyChan!</string>
     <string name="saved_servers">Збережені сервери</string>
     <string name="press_to_close">Натисніть для закриття</string>
-    <string name="no_network_permissions">Jellyfin вимагає дозволів мережі для функціонування</string>
+    <string name="no_network_permissions">JellyChan вимагає дозволів мережі для функціонування</string>
     <string name="pref_theme_muted_purple">Приглушена (фіолетова)</string>
     <string name="lbl_switch_user">Переключити обліковий запис</string>
     <string name="user_picker_last_user_summary">Використовувати останній активний обліковий запис</string>
@@ -378,7 +378,7 @@
     <string name="lbl_use_series_thumbnails">Надавати перевагу мініатюрам серіалів</string>
     <string name="lbl_hide_unwatched_count">Коли елемент переглянуто</string>
     <string name="pref_watched_indicator">Відображати індикатор перегляду</string>
-    <string name="login_help_description">Jellyfin вимагає наявності сервера, до якого підʼєднуватиметься. Радимо скористатися документацією на docs.jellyfin.org або сканувати QR код для початку роботи з Jellyfin.</string>
+    <string name="login_help_description">JellyChan вимагає наявності сервера, до якого підʼєднуватиметься. Радимо скористатися документацією на docs.jellyfin.org або сканувати QR код для початку роботи з Jellyfin.</string>
     <string name="login_help_title">Потрібна допомога\?</string>
     <string name="connect_manually_by_address">Введіть адресу сервера</string>
     <string name="discovered_servers_empty">В локальній мережі не виявлено серверів.</string>
@@ -454,7 +454,7 @@
     <string name="color_white">Білий</string>
     <string name="color_yellow">Жовтий</string>
     <string name="app_notification_beta">Додаток оновлено до %1$s
-\nДякуємо за участь у бета-програмі Jellyfin.</string>
+\nДякуємо за участь у бета-програмі JellyChan.</string>
     <string name="color_darkgrey">Темно-сірий</string>
     <string name="color_black">Чорний</string>
     <string name="color_green">Зелений</string>
@@ -475,7 +475,7 @@
     </plurals>
     <string name="lbl_latest_in">Нещодавно додано у %1$s</string>
     <string name="pref_screensaver_inapp_enabled">Використовувати вбудовану заставку</string>
-    <string name="pref_screensaver_inapp_enabled_description">Відображає заставку Jellyfin, коли додаток певний час простоює</string>
+    <string name="pref_screensaver_inapp_enabled_description">Відображає заставку JellyChan, коли додаток певний час простоює</string>
     <string name="pref_screensaver_inapp_timeout">Запустити заставку через</string>
     <plurals name="hours">
         <item quantity="one">%1$s година</item>

@@ -246,7 +246,7 @@ class UserPreferences(context: Context) : SharedPreferenceStore(
 		/**
 		 * Enable TrickPlay in legacy player user interface while seeking.
 		 */
-		var trickPlayEnabled = booleanPreference("trick_play_enabled", false)
+		var trickPlayEnabled = booleanPreference("trick_play_enabled", true) // JellyChan: on by default
 
 		/**
   		 * Enable PGS subtitle direct-play.

@@ -106,7 +106,7 @@ private fun ButtonRow(
 	modifier = Modifier
 		.defaultMinSize(
 			minWidth = 58.dp,
-			minHeight = 40.dp
+			minHeight = 30.dp // JellyChan: compact pills
 		)
 		.padding(contentPadding),
 	horizontalArrangement = Arrangement.Center,

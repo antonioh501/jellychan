@@ -55,12 +55,21 @@ public class VideoPlayerAdapter extends PlayerAdapter {
 
     @Override
     public void next() {
-        playbackController.next();
+        if (playbackController.hasNextItem()) playbackController.next();
+        else playAdjacentEpisode(true);
+    }
+
+    // JellyChan: fall back to the series' adjacent episode when the queue has none
+    private void playAdjacentEpisode(boolean forward) {
+        org.jellyfin.sdk.model.api.BaseItemDto item = playbackController.getCurrentlyPlayingItem();
+        if (item == null || item.getType() != org.jellyfin.sdk.model.api.BaseItemKind.EPISODE || leanbackOverlayFragment == null) return;
+        EpisodeNavigation.playAdjacent(leanbackOverlayFragment.requireContext(), item, forward);
     }
 
     @Override
     public void previous() {
-        playbackController.prev();
+        if (playbackController.hasPreviousItem()) playbackController.prev();
+        else playAdjacentEpisode(false);
     }
 
     @Override

@@ -1246,24 +1246,21 @@ public class CustomPlaybackOverlayFragment extends Fragment implements LiveTvGui
             // set other information
             tvGuideBinding.guideCurrentTitle.setText(current.getName());
 
-            // Update the title and subtitle
+            // JellyChan: single-line header like the web player: "Series - S1:E1 - Title (year)"
+            StringBuilder header = new StringBuilder();
             if (current.getType() == BaseItemKind.EPISODE) {
-                binding.itemTitle.setText(current.getSeriesName());
-                binding.itemSubtitle.setText(BaseItemExtensionsKt.getDisplayName(current, requireContext()));
+                if (current.getSeriesName() != null) header.append(current.getSeriesName()).append(" - ");
+                if (current.getParentIndexNumber() != null && current.getIndexNumber() != null)
+                    header.append("S").append(current.getParentIndexNumber()).append(":E").append(current.getIndexNumber()).append(" - ");
+                header.append(current.getName() != null ? current.getName() : "");
             } else {
-                binding.itemTitle.setText(current.getName());
+                header.append(current.getName() != null ? current.getName() : "");
             }
-            // Update the logo
-            String imageUrl = imageHelper.getValue().getLogoImageUrl(current, 440);
-            if (imageUrl != null) {
-                binding.itemLogo.setVisibility(View.VISIBLE);
-                binding.itemTitle.setVisibility(View.GONE);
-                binding.itemLogo.setContentDescription(current.getName());
-                binding.itemLogo.load(imageUrl, null, null, 1.0, 0);
-            } else {
-                binding.itemLogo.setVisibility(View.GONE);
-                binding.itemTitle.setVisibility(View.VISIBLE);
-            }
+            if (current.getProductionYear() != null) header.append(" (").append(current.getProductionYear()).append(")");
+            binding.itemTitle.setText(header.toString());
+            binding.itemTitle.setVisibility(View.VISIBLE);
+            binding.itemSubtitle.setVisibility(View.GONE);
+            binding.itemLogo.setVisibility(View.GONE);
 
             if (playbackControllerContainer.getValue().getPlaybackController().isLiveTv()) {
                 prepareChannelAdapter();

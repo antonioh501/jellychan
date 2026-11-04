@@ -28,7 +28,7 @@
         android:layout_below="@+id/imageButton"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="2dp"
-        android:alpha=".7"
+        android:textColor="@color/jc_text_dim"
         android:gravity="center"
         android:maxLines="2"
         android:paddingStart="5dp"

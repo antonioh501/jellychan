@@ -33,8 +33,9 @@ class UserViewCardPresenter(
 				cardWidth = 133
 				cardHeight = 75
 			} else {
-				cardWidth = 224
-				cardHeight = 126
+				// JellyChan: same tile size as the other home rows
+				cardWidth = 158
+				cardHeight = 89
 			}
 
 			val fillWidth = (cardWidth * cardView.resources.displayMetrics.density).roundToInt()

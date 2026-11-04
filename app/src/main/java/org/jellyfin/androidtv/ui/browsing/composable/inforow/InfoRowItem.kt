@@ -1,6 +1,7 @@
 package org.jellyfin.androidtv.ui.browsing.composable.inforow
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -39,8 +40,9 @@ fun InfoRowItem(
 
 	val modifier = when {
 		backgroundColor.alpha > 0f -> Modifier
-			.background(backgroundColor, RoundedCornerShape(3.dp))
-			.padding(horizontal = 5.dp)
+			.background(backgroundColor, RoundedCornerShape(4.dp))
+			.border(1.dp, Color(0x80D1D5DB), RoundedCornerShape(4.dp))
+			.padding(horizontal = 6.dp)
 
 		else -> Modifier
 	}

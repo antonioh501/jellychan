@@ -12,6 +12,18 @@
         android:layout_alignParentBottom="false"
         android:id="@+id/rowsFragment" />
 
+    <!-- JellyChan: person photo stays fixed while the right column scrolls -->
+    <org.jellyfin.androidtv.ui.AsyncImageView
+        android:id="@+id/jcPersonFixedPhoto"
+        android:layout_width="211dp"
+        android:layout_height="317dp"
+        android:layout_marginStart="53dp"
+        android:layout_marginTop="112dp"
+        android:background="@drawable/shape_card"
+        android:outlineProvider="background"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
     <org.jellyfin.androidtv.ui.ClockUserView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

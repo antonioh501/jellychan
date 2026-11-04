@@ -86,7 +86,13 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
-		adapter = MutableObjectAdapter<Row>(PositionableListRowPresenter())
+		adapter = MutableObjectAdapter<Row>(
+			androidx.leanback.widget.ClassPresenterSelector().apply {
+				addClassPresenter(ListRow::class.java, PositionableListRowPresenter())
+				// JellyChan: full screen spotlight carousel as first row
+				addClassPresenter(HomeSpotlightRow::class.java, HomeSpotlightPresenter())
+			}
+		)
 
 		lifecycleScope.launch(Dispatchers.IO) {
 			val currentUser = withTimeout(30.seconds) {
@@ -94,10 +100,21 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 			}
 
 			// Start out with default sections
-			val homesections = userSettingPreferences.activeHomesections
+			// JellyChan: Next up and Continue watching first, My media below them (like the web theme)
+			val homesections = userSettingPreferences.activeHomesections.sortedBy {
+				when (it) {
+					HomeSectionType.NEXT_UP -> 0
+					HomeSectionType.RESUME -> 1
+					HomeSectionType.LIBRARY_TILES_SMALL, HomeSectionType.LIBRARY_BUTTONS -> 2
+					else -> 3
+				}
+			}
 
 			// Make sure the rows are empty
 			val rows = mutableListOf<HomeFragmentRow>()
+
+			// JellyChan: spotlight carousel
+			val spotlightRow = HomeSpotlightRow.load(api)
 
 			// Check for coroutine cancellation
 			if (!isActive) return@launch
@@ -125,6 +142,7 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 				val cardPresenter = CardPresenter()
 
 				// Add rows in order
+				spotlightRow.addToRowsAdapter(requireContext(), cardPresenter, adapter as MutableObjectAdapter<Row>)
 				notificationsRow.addToRowsAdapter(requireContext(), cardPresenter, adapter as MutableObjectAdapter<Row>)
 				nowPlaying.addToRowsAdapter(requireContext(), cardPresenter, adapter as MutableObjectAdapter<Row>)
 				for (row in rows) row.addToRowsAdapter(requireContext(), cardPresenter, adapter as MutableObjectAdapter<Row>)
@@ -260,6 +278,11 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 			rowViewHolder: RowPresenter.ViewHolder?,
 			row: Row?,
 		) {
+			// JellyChan: the spotlight row manages the background itself
+			if (row is HomeSpotlightRow) {
+				currentItem = null
+				return
+			}
 			if (item !is BaseRowItem) {
 				currentItem = null
 				//fill in default background
@@ -271,7 +294,8 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 				val itemRowAdapter = row.adapter as? ItemRowAdapter
 				itemRowAdapter?.loadMoreItemsIfNeeded(itemRowAdapter.indexOf(item))
 
-				backgroundService.setBackground(item.baseItem)
+				// JellyChan: plain background below the carousel, like the web home
+				backgroundService.clearBackgrounds()
 			}
 		}
 	}

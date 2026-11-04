@@ -43,6 +43,15 @@ import org.jellyfin.androidtv.util.apiclient.getUrl
 import org.jellyfin.androidtv.util.apiclient.primaryImage
 import org.jellyfin.sdk.api.client.ApiClient
 import org.koin.compose.koinInject
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.sp
 
 enum class MainToolbarActiveButton {
 	User,
@@ -78,10 +87,16 @@ private fun MainToolbar(
 	val navigationRepository = koinInject<NavigationRepository>()
 	val mediaManager = koinInject<MediaManager>()
 	val sessionRepository = koinInject<SessionRepository>()
+	val serverRepository = koinInject<org.jellyfin.androidtv.auth.repository.ServerRepository>()
+	val session by sessionRepository.currentSession.collectAsState()
+	val serverName by produceState<String?>(null, session) {
+		value = session?.let { serverRepository.getServer(it.serverId)?.name }
+	}
 	val activity = LocalActivity.current
+	// JellyChan: active tab is a light grey pill, like the library tabs
 	val activeButtonColors = ButtonDefaults.colors(
-		containerColor = JellyfinTheme.colorScheme.buttonActive,
-		contentColor = JellyfinTheme.colorScheme.onButtonActive,
+		containerColor = Color(0xFFD1D5DB),
+		contentColor = Color(0xFF111827),
 	)
 
 	Toolbar(
@@ -89,11 +104,84 @@ private fun MainToolbar(
 			.focusRestorer(focusRequester)
 			.focusGroup(),
 		start = {
+			// JellyChan logo and server name
+			Row(verticalAlignment = Alignment.CenterVertically) {
+				Image(
+					painter = painterResource(R.drawable.jc_logo_mark),
+					contentDescription = null,
+					modifier = Modifier.size(24.dp),
+				)
+				Spacer(Modifier.width(10.dp))
+				Text(
+					text = serverName ?: stringResource(R.string.app_name),
+					fontSize = 15.sp,
+					fontWeight = FontWeight.SemiBold,
+					color = Color.White,
+					maxLines = 1,
+				)
+				Spacer(Modifier.width(16.dp))
+				ToolbarButtons {
+					NowPlayingComposable(
+						onFocusableChange = {},
+					)
+				}
+			}
+		},
+		center = {
+			ToolbarButtons(
+				modifier = Modifier
+					.focusRequester(focusRequester)
+			) {
+				ProvideTextStyle(JellyfinTheme.typography.default.copy(fontWeight = FontWeight.Medium)) {
+					Button(
+						onClick = {
+							if (activeButton != MainToolbarActiveButton.Home) {
+								navigationRepository.navigate(
+									Destinations.home,
+									replace = true,
+								)
+							}
+						},
+						colors = if (activeButton == MainToolbarActiveButton.Home) activeButtonColors else ButtonDefaults.colors(),
+						// JellyChan: compact pill with icon, like the web tabs
+						contentPadding = PaddingValues(horizontal = 15.dp, vertical = 6.dp),
+						content = {
+							Icon(
+								imageVector = ImageVector.vectorResource(R.drawable.ic_house),
+								contentDescription = null,
+								modifier = Modifier.size(15.dp),
+							)
+							Spacer(Modifier.width(8.dp))
+							Text(stringResource(R.string.lbl_home), fontSize = 12.sp)
+						}
+					)
+					Button(
+						onClick = {
+							if (activeButton != MainToolbarActiveButton.Search) {
+								navigationRepository.navigate(Destinations.search())
+							}
+						},
+						colors = if (activeButton == MainToolbarActiveButton.Search) activeButtonColors else ButtonDefaults.colors(),
+						// JellyChan: compact pill with icon, like the web tabs
+						contentPadding = PaddingValues(horizontal = 15.dp, vertical = 6.dp),
+						content = {
+							Icon(
+								imageVector = ImageVector.vectorResource(R.drawable.ic_search),
+								contentDescription = null,
+								modifier = Modifier.size(15.dp),
+							)
+							Spacer(Modifier.width(8.dp))
+							Text(stringResource(R.string.lbl_search), fontSize = 12.sp)
+						}
+					)
+				}
+			}
+		},
+		end = {
 			ToolbarButtons {
 				val userImagePainter = rememberAsyncImagePainter(userImage)
 				val userImageState by userImagePainter.state.collectAsState()
 				val userImageVisible = userImageState is AsyncImagePainter.State.Success
-
 				IconButton(
 					onClick = {
 						if (activeButton != MainToolbarActiveButton.User) {
@@ -125,43 +213,6 @@ private fun MainToolbar(
 					}
 				}
 
-				NowPlayingComposable(
-					onFocusableChange = {},
-				)
-			}
-		},
-		center = {
-			ToolbarButtons(
-				modifier = Modifier
-					.focusRequester(focusRequester)
-			) {
-				ProvideTextStyle(JellyfinTheme.typography.default.copy(fontWeight = FontWeight.Bold)) {
-					Button(
-						onClick = {
-							if (activeButton != MainToolbarActiveButton.Home) {
-								navigationRepository.navigate(
-									Destinations.home,
-									replace = true,
-								)
-							}
-						},
-						colors = if (activeButton == MainToolbarActiveButton.Home) activeButtonColors else ButtonDefaults.colors(),
-						content = { Text(stringResource(R.string.lbl_home)) }
-					)
-					Button(
-						onClick = {
-							if (activeButton != MainToolbarActiveButton.Search) {
-								navigationRepository.navigate(Destinations.search())
-							}
-						},
-						colors = if (activeButton == MainToolbarActiveButton.Search) activeButtonColors else ButtonDefaults.colors(),
-						content = { Text(stringResource(R.string.lbl_search)) }
-					)
-				}
-			}
-		},
-		end = {
-			ToolbarButtons {
 				IconButton(
 					onClick = {
 						activity?.startActivity(ActivityDestinations.userPreferences(activity))

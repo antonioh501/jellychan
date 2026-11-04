@@ -56,7 +56,7 @@ fun ToolbarClock(
 	val currentTime by rememberCurrentTime()
 	Text(
 		text = currentTime,
-		fontSize = 20.sp,
+		fontSize = 15.sp, // JellyChan
 		color = Color.White,
 		modifier = modifier,
 	)

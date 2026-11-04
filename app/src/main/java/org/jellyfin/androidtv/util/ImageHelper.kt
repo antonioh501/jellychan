@@ -39,6 +39,12 @@ class ImageHelper(
 			return ASPECT_RATIO_16_9
 		}
 
+		// JellyChan: landscape rows (e.g. Continue watching) also use landscape art for movies/videos
+		if (preferParentThumb && item.type != BaseItemKind.EPISODE &&
+			(item.imageTags?.containsKey(ImageType.THUMB) == true || !item.backdropImageTags.isNullOrEmpty())) {
+			return ASPECT_RATIO_16_9
+		}
+
 		val primaryAspectRatio = item.primaryImageAspectRatio;
 		if (item.type == BaseItemKind.EPISODE) {
 			if (primaryAspectRatio != null) return primaryAspectRatio

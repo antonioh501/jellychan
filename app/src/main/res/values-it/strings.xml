@@ -292,7 +292,7 @@
     <string name="lbl_remove_users">Questo rimuoverà anche tutti gli utenti associati</string>
     <string name="lbl_manage_servers">Gestisci i server</string>
     <string name="pref_default_rating">Tipo di rating preferito</string>
-    <string name="login_help_description">Jellyfin ha bisogno di un server a cui connettersi. Visita la nostra documentazione su docs.jellyfin.org o scansiona il codice QR per iniziare con Jellyfin.</string>
+    <string name="login_help_description">JellyChan ha bisogno di un server Jellyfin a cui connettersi. Visita docs.jellyfin.org o scansiona il codice QR per iniziare con Jellyfin.</string>
     <string name="login_help_title">Hai bisogno d\'aiuto\?</string>
     <string name="connect_manually_by_address">Inserisci l\'indirizzo del server</string>
     <string name="discovered_servers_empty">Nessun server trovato nella rete locale.</string>
@@ -311,7 +311,7 @@
     <string name="user_picker_disable_title">Disabilita</string>
     <string name="auto_sign_in">Login automatico</string>
     <string name="lbl_switch_user">Cambia utente</string>
-    <string name="no_network_permissions">Jellyfin richiede i permessi di rete per funzionare</string>
+    <string name="no_network_permissions">JellyChan richiede i permessi di rete per funzionare</string>
     <string name="lbl_time_range">%1$s–%2$s</string>
     <string name="lbl_name_date">%1$s (%2$s)</string>
     <string name="lbl_on_channel">Su %1$s</string>
@@ -333,7 +333,7 @@
     <string name="no_user_warning">Non abbiamo trovato alcun utente!
 \nAggiungi un nuovo utente premendo il pulsante \"Aggiungi utente\".</string>
     <string name="welcome_content">Connettiti al tuo server per incominciare.</string>
-    <string name="welcome_title">Benvenuto su Jellyfin!</string>
+    <string name="welcome_title">Benvenuto su JellyChan!</string>
     <string name="saved_servers">Server salvati</string>
     <string name="press_to_close">Premi per chiudere</string>
     <string name="pref_theme_muted_purple">Viola tenue</string>
@@ -353,7 +353,7 @@
     <string name="license_artifact">artefatto</string>
     <string name="license_version">Versione</string>
     <string name="license_description">Descrizione</string>
-    <string name="licenses_link_description">Visualizza le licenze delle librerie usate dall\'app Jellyfin</string>
+    <string name="licenses_link_description">Visualizza le licenze delle librerie usate dall\'app JellyChan</string>
     <string name="licenses_link">Licenze</string>
     <string name="select_version">Versione</string>
     <string name="last_use">Usato di recente</string>
@@ -372,7 +372,7 @@
     <string name="home_section_library">I miei media</string>
     <string name="home_section_latest_media">Ultimi media aggiunti</string>
     <string name="searchable_settings_description">Media</string>
-    <string name="searchable_hint">Cerca in Jellyfin</string>
+    <string name="searchable_hint">Cerca in JellyChan</string>
     <string name="pref_subtitles_size">Dimensioni testo</string>
     <string name="pref_subtitles_background_summary">Mostra lo sfondo nero dietro i sottotitoli</string>
     <string name="pref_subtitles_background_title">Abilita lo sfondo</string>
@@ -456,7 +456,7 @@
     <string name="item_deletion_failed">Impossibile rimuovere %1$s</string>
     <string name="pref_enable_media_management">Abilita la gestione dei media</string>
     <string name="app_notification_beta">App aggiornata a %1$s
-\nGrazie per la partecipazione al programma Jellyfin beta.</string>
+\nGrazie per la partecipazione al test di JellyChan.</string>
     <string name="pref_enable_media_management_description">Mostra l\'opzione per gestire i media durante la navigazione</string>
     <string name="item_delete_confirm_message">Sei sicuro di voler eliminare questo elemento dal server\? L\'operazione non può essere annullata.</string>
     <string name="item_delete_confirm_title">Elimina elemento</string>
@@ -466,7 +466,7 @@
         <item quantity="other">%1$s ore</item>
     </plurals>
     <string name="pref_screensaver">Salvaschermo</string>
-    <string name="pref_screensaver_inapp_enabled_description">Motra il salvaschermo Jellyfin mentre l\'app è aperta</string>
+    <string name="pref_screensaver_inapp_enabled_description">Motra il salvaschermo JellyChan mentre l\'app è aperta</string>
     <string name="pref_screensaver_inapp_timeout">Avvia il salvaschermo dopo</string>
     <plurals name="minutes">
         <item quantity="one">%1$s minuto</item>
@@ -600,4 +600,9 @@
     <string name="lbl_still_watching_very_long">8 episodi o 240 minuti</string>
     <string name="still_watching_label">Stai ancora guardando?</string>
     <string name="pref_subtitles_position">Distanza dal basso</string>
+    <string name="jc_details">Dettagli</string>
+    <string name="jc_counter">1-%1$d di %1$d</string>
+    <string name="jc_person_born">Nascita: %1$s (%2$d anni)</string>
+    <string name="jc_person_birthplace">Luogo di nascita: %1$s</string>
+    <string name="jc_person_born_died">Nascita: %1$s · Morte: %2$s (%3$d anni)</string>
 </resources>

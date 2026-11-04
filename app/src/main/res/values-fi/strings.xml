@@ -252,7 +252,7 @@
     <string name="server_issue_unable_to_connect">Yhdistäminen epäonnistui</string>
     <string name="pref_subtitles_size">Tekstin koko</string>
     <string name="pref_subtitles_background_summary">Näytä tekstitysten tausta</string>
-    <string name="searchable_hint">Etsi Jellyfinistä</string>
+    <string name="searchable_hint">Etsi JellyChanistä</string>
     <string name="home_section_i">Päävalikko %1$d</string>
     <string name="home_section_none">Ei mitään</string>
     <string name="home_section_next_up">Seuraavaksi</string>
@@ -273,9 +273,9 @@
     <string name="who_is_watching">Kuka katselee\?</string>
     <string name="no_user_warning">Tilejä ei löytynyt!
 \nLisää uusi tili painamalla \"Lisää tili\".</string>
-    <string name="welcome_title">Tervetuloa Jellyfiniin!</string>
+    <string name="welcome_title">Tervetuloa JellyChaniin!</string>
     <string name="saved_servers">Tallennetut palvelimet</string>
-    <string name="no_network_permissions">Jellyfin tarvitsee toimiakseen verkon käyttöoikeuden</string>
+    <string name="no_network_permissions">JellyChan tarvitsee toimiakseen verkon käyttöoikeuden</string>
     <string name="pref_theme_muted_purple">Vaimea violetti</string>
     <string name="lbl_switch_user">Vaihda tiliä</string>
     <string name="user_picker_last_user_summary">Käytä viimeksi käytettyä tiliä</string>
@@ -372,7 +372,7 @@
     <string name="license_repository">Ohjelmavarasto</string>
     <string name="license_website">Verkkosivusto</string>
     <string name="license_description">Kuvaus</string>
-    <string name="licenses_link_description">Tutki Jellyfin-sovelluksen hyödyntämien kirjastojen lisenssejä</string>
+    <string name="licenses_link_description">Tutki JellyChan-sovelluksen hyödyntämien kirjastojen lisenssejä</string>
     <string name="licenses_link">Lisenssit</string>
     <string name="advanced_settings">Lisäasetukset</string>
     <string name="always_authenticate_description">Tämän valitseminen poistaa automaattisen sisäänkirjautumisen käytöstä</string>
@@ -394,7 +394,7 @@
     <string name="user_picker_disable_title">Poista käytöstä</string>
     <string name="lbl_use_series_thumbnails_description">Käytä sarjojen thumbnail-kuvia näytettäesä jaksoja</string>
     <string name="lbl_hide_unwatched_count">Kun nimike on katsottu</string>
-    <string name="login_help_description">Jellyfin tarvitsee palvelimen, johon yhdistää. Lue lisää Jellyfinin käytön aloituksesta osoitteesta docs.jellyfin.org tai lue QR-koodi.</string>
+    <string name="login_help_description">JellyChan tarvitsee palvelimen, johon yhdistää. Lue lisää Jellyfinin käytön aloituksesta osoitteesta docs.jellyfin.org tai lue QR-koodi.</string>
     <string name="login_help_title">Tarvitsetko apua\?</string>
     <string name="connect_manually_by_address">Syötä palvelimen osoite</string>
     <string name="discovered_servers_empty">Paikallisesta verkosta ei löytynyt palvelimia.</string>
@@ -453,7 +453,7 @@
     <string name="color_pink">Pinkki</string>
     <string name="color_cyan">Syaani</string>
     <string name="app_notification_beta">Sovellus päivitettiin versioon %1$s
-\nKiitos osallistumisesta Jellyfinin betatestaukseen.</string>
+\nKiitos osallistumisesta JellyChanin betatestaukseen.</string>
     <string name="item_deleted">%1$s poistettiin</string>
     <string name="item_deletion_failed">Kohdetta %1$s ei voitu poistaa</string>
     <string name="pref_enable_media_management">Ota median hallinta käyttöön</string>
@@ -466,7 +466,7 @@
         <item quantity="one">%1$s minuutti</item>
         <item quantity="other">%1$s minuuttia</item>
     </plurals>
-    <string name="pref_screensaver_inapp_enabled_description">Näytä Jellyfinin näytönsäästäjä sovelluksen ollessa avoinna</string>
+    <string name="pref_screensaver_inapp_enabled_description">Näytä JellyChanin näytönsäästäjä sovelluksen ollessa avoinna</string>
     <string name="pref_screensaver_inapp_timeout">Käynnistä näytönsäästäjä kun on kulunut</string>
     <plurals name="seconds">
         <item quantity="one">%1$s sekunti</item>

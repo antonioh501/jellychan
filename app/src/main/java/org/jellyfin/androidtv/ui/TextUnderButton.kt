@@ -26,8 +26,20 @@ class TextUnderButton @JvmOverloads constructor(
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) defaultFocusHighlightEnabled = false
 	}
 
+	// JellyChan: icon-only buttons, the label appears only under the focused one
+	override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: android.graphics.Rect?) {
+		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
+		updateLabelVisibility()
+	}
+
+	private fun updateLabelVisibility() {
+		if (binding.label.text.isNullOrEmpty()) return
+		binding.label.visibility = if (isFocused) VISIBLE else INVISIBLE
+	}
+
 	fun setLabel(text: String?) {
 		binding.label.isVisible = text != null
+		if (text != null) binding.label.visibility = if (isFocused) VISIBLE else INVISIBLE
 		binding.label.text = text
 		binding.imageButton.contentDescription = text
 	}

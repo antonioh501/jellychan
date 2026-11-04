@@ -54,9 +54,20 @@ public class CardPresenter extends Presenter {
         mShowInfo = showInfo;
     }
 
+    // JellyChan: rows use cards ~15% smaller; library grids keep their computed size
+    private float mSizeScale = 0.85f;
+
+    // JellyChan: use landscape art (thumb/backdrop) for movies and videos in this row
+    private boolean mLandscapeVideos = false;
+
+    public void setLandscapeVideos(boolean landscapeVideos) {
+        mLandscapeVideos = landscapeVideos;
+    }
+
     public CardPresenter(boolean showInfo, ImageType imageType, int staticHeight) {
         this(showInfo, staticHeight);
         mImageType = imageType;
+        mSizeScale = 1f;
     }
 
     public CardPresenter(boolean showInfo, int staticHeight) {
@@ -94,6 +105,7 @@ public class CardPresenter extends Presenter {
         public void setItem(BaseRowItem m, ImageType imageType, int lHeight, int pHeight, int sHeight) {
             mItem = m;
             isUserView = false;
+            mCardView.setCircle(m.getBaseRowType() == org.jellyfin.androidtv.ui.itemhandling.BaseRowType.Person);
             switch (mItem.getBaseRowType()) {
 
                 case BaseItem:
@@ -194,7 +206,14 @@ public class CardPresenter extends Presenter {
                                 aspect = ImageHelper.ASPECT_RATIO_2_3;
                             break;
                     }
-                    cardHeight = !m.getStaticHeight() ? (aspect > 1 ? lHeight : pHeight) : sHeight;
+                    if (mLandscapeVideos && itemDto.getType() != BaseItemKind.EPISODE
+                            && (itemDto.getType() == BaseItemKind.MOVIE || itemDto.getType() == BaseItemKind.VIDEO || itemDto.getType() == BaseItemKind.MUSIC_VIDEO)
+                            && ((itemDto.getImageTags() != null && itemDto.getImageTags().containsKey(org.jellyfin.sdk.model.api.ImageType.THUMB))
+                                || (itemDto.getBackdropImageTags() != null && !itemDto.getBackdropImageTags().isEmpty()))) {
+                        aspect = ImageHelper.ASPECT_RATIO_16_9;
+                    }
+                    // JellyChan: in home rows a static height only applies to landscape tiles, posters keep their size
+                    cardHeight = !m.getStaticHeight() ? (aspect > 1 ? lHeight : pHeight) : ((mSizeScale < 1f && aspect <= 1) ? pHeight : sHeight);
                     cardWidth = (int) (aspect * cardHeight);
                     if (cardWidth < 5) {
                         cardWidth = 115;  //Guard against zero size images causing picasso to barf
@@ -272,8 +291,9 @@ public class CardPresenter extends Presenter {
                     mDefaultCardImage = ContextCompat.getDrawable(mCardView.getContext(), R.drawable.tile_port_tv);
                     break;
                 case Person:
-                    cardHeight = !m.getStaticHeight() ? pHeight : sHeight;
-                    cardWidth = (int) (ImageHelper.ASPECT_RATIO_7_9 * cardHeight);
+                    // JellyChan: round, square photos for cast & crew
+                    cardHeight = 110;
+                    cardWidth = 110;
                     mCardView.setMainImageDimensions(cardWidth, cardHeight);
                     mDefaultCardImage = ContextCompat.getDrawable(mCardView.getContext(), R.drawable.tile_port_person);
                     break;
@@ -322,6 +342,7 @@ public class CardPresenter extends Presenter {
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         LegacyImageCardView cardView = new LegacyImageCardView(parent.getContext(), mShowInfo);
+        cardView.setSizeScale(mSizeScale);
         cardView.setFocusable(true);
         cardView.setFocusableInTouchMode(true);
 
@@ -342,7 +363,9 @@ public class CardPresenter extends Presenter {
         BaseRowItem rowItem = (BaseRowItem) item;
 
         ViewHolder holder = (ViewHolder) viewHolder;
-        holder.setItem(rowItem, mImageType, 130, 150, mStaticHeight);
+        // JellyChan: home rows use web-sized 16:9 tiles (about 157x89dp)
+        boolean jcRow = mSizeScale < 1f;
+        holder.setItem(rowItem, mImageType, jcRow ? 105 : 130, 150, jcRow && mStaticHeight == 150 ? 105 : mStaticHeight);
 
         holder.mCardView.setTitleText(rowItem.getCardName(holder.mCardView.getContext()));
         holder.mCardView.setContentText(rowItem.getSubText(holder.mCardView.getContext()));
@@ -355,7 +378,8 @@ public class CardPresenter extends Presenter {
         } else {
             holder.mCardView.setPlayingIndicator(false);
 
-            if (rowItem.getBaseItem() != null && rowItem.getBaseItem().getType() != BaseItemKind.USER_VIEW) {
+            // JellyChan: no rating badges under the cards (clean title + year like the web)
+            if (false && rowItem.getBaseItem() != null && rowItem.getBaseItem().getType() != BaseItemKind.USER_VIEW) {
                 RatingType ratingType = KoinJavaComponent.<UserPreferences>get(UserPreferences.class).get(UserPreferences.Companion.getDefaultRatingType());
                 if (ratingType == RatingType.RATING_TOMATOES) {
                     Drawable badge = rowItem.getBadgeImage(holder.view.getContext(), imageHelper.getValue());
@@ -385,6 +409,17 @@ public class CardPresenter extends Presenter {
                 }
             } else {
                 image = JellyfinImageKt.getItemImages(rowItem.getBaseItem()).get(org.jellyfin.sdk.model.api.ImageType.PRIMARY);
+            }
+
+            // JellyChan: landscape card without thumb -> use the backdrop instead of the portrait poster
+            if (aspect == ImageHelper.ASPECT_RATIO_16_9 && !isUserView && rowItem.getBaseItem().getType() != BaseItemKind.EPISODE
+                    && (image == null || image.getType() == org.jellyfin.sdk.model.api.ImageType.PRIMARY)) {
+                JellyfinImage thumb = JellyfinImageKt.getItemImages(rowItem.getBaseItem()).get(org.jellyfin.sdk.model.api.ImageType.THUMB);
+                if (thumb != null) {
+                    image = thumb;
+                } else if (!JellyfinImageKt.getItemBackdropImages(rowItem.getBaseItem()).isEmpty()) {
+                    image = JellyfinImageKt.getItemBackdropImages(rowItem.getBaseItem()).get(0);
+                }
             }
         }
 

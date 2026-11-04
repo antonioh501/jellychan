@@ -20,7 +20,7 @@ class LibraryPreferences(
 	companion object {
 		val posterSize = enumPreference("PosterSize", PosterSize.MED)
 		val imageType = enumPreference("ImageType", ImageType.POSTER)
-		val gridDirection = enumPreference("GridDirection", GridDirection.HORIZONTAL)
+		val gridDirection = enumPreference("GridDirection", GridDirection.VERTICAL) // JellyChan: vertical poster grid like the web
 		val enableSmartScreen = booleanPreference("SmartScreen", false)
 
 		// Filters

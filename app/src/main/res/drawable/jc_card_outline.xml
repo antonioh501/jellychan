@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JellyChan: white rounded outline around the focused card -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="?attr/cardRounding" />
+    <stroke android:width="2dp" android:color="#FFFFFFFF" />
+</shape>

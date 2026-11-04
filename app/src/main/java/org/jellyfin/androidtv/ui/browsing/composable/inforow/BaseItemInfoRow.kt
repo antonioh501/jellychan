@@ -244,6 +244,7 @@ fun BaseItemInfoRow(
 	item: BaseItemDto,
 	mediaSource: MediaSourceInfo?,
 	includeRuntime: Boolean,
+	includeSeasonEpisode: Boolean = true,
 ) {
 	val userPreferences = koinInject<UserPreferences>()
 	val ratingType = userPreferences[UserPreferences.defaultRatingType]
@@ -259,7 +260,7 @@ fun BaseItemInfoRow(
 
 		when (item.type) {
 			BaseItemKind.EPISODE -> {
-				InfoRowSeasonEpisode(item)
+				if (includeSeasonEpisode) InfoRowSeasonEpisode(item)
 				InfoRowDate(item)
 				if (includeRuntime) item.runTimeTicks?.ticks?.let { BaseItemInfoRowRuntime(it) }
 				item.officialRating?.let { InfoRowParentalRating(it) }
@@ -390,6 +391,14 @@ class BaseItemInfoRowView @JvmOverloads constructor(
 	private val _item = MutableStateFlow<BaseItemDto?>(null)
 	private val _mediaSource = MutableStateFlow<MediaSourceInfo?>(null)
 	private val _includeRuntime = MutableStateFlow(false)
+	private val _includeSeasonEpisode = MutableStateFlow(true)
+
+	// JellyChan: the details header already shows "S1:E1 — Title"
+	var includeSeasonEpisode: Boolean
+		get() = _includeSeasonEpisode.value
+		set(value) {
+			_includeSeasonEpisode.value = value
+		}
 
 	var item: BaseItemDto?
 		get() = _item.value
@@ -419,7 +428,8 @@ class BaseItemInfoRowView @JvmOverloads constructor(
 		val item by _item.collectAsState()
 		val mediaSource by _mediaSource.collectAsState()
 		val includeRuntime by _includeRuntime.collectAsState()
+		val includeSeasonEpisode by _includeSeasonEpisode.collectAsState()
 
-		item?.let { BaseItemInfoRow(it, mediaSource, includeRuntime) }
+		item?.let { BaseItemInfoRow(it, mediaSource, includeRuntime, includeSeasonEpisode) }
 	}
 }

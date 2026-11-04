@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JellyChan mark, single colour (tinted by the caller) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="#FFFFFF"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <group android:translateY="-2">
+    <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M18,56 C18,30 32,14 50,14 C68,14 82,30 82,56 Q76,62 71,57 Q66,63 60.5,57 Q55,63 50,57 Q45,63 39.5,57 Q34,63 29,57 Q24,62 18,56 Z M37.6,40 A3.4,4.0 0 1 0 44.4,40 A3.4,4.0 0 1 0 37.6,40 Z M55.6,40 A3.4,4.0 0 1 0 62.4,40 A3.4,4.0 0 1 0 55.6,40 Z" />
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M31,62 C27,70 35,74 31,82" />
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M43,63 C40,72 47,76 43,88" />
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M57,63 C60,72 53,76 57,88" />
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M69,62 C73,70 65,74 69,82" />
+    </group>
+</vector>

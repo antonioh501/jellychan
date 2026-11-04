@@ -1,13 +1,26 @@
 <resources>
+    <!-- JellyChan palette -->
+    <color name="jc_darker">#111827</color>
+    <color name="jc_lighter">#1D2635</color>
+    <color name="jc_header">#CC1E2836</color>
+    <color name="jc_drawer">#F21E2836</color>
+    <color name="jc_selector">#384252</color>
+    <color name="jc_border">#47505C</color>
+    <color name="jc_text">#D1D5DB</color>
+    <color name="jc_text_dim">#9CA3AF</color>
+    <color name="jc_pill">#E5E7EB</color>
+    <color name="jc_accent">#5D55E7</color>
+    <color name="jc_track">#59808080</color>
+
     <!-- Base Colors -->
     <color name="jellyfin_blue">#00a4dc</color>
     <color name="jellyfin_purple">#aa5cc3</color>
     <color name="midnight_blue">#031A6B</color>
     <color name="indigo_dye">#033860</color>
     <color name="spanish_blue">#1E76BA</color>
-    <color name="grey">#303030</color>
+    <color name="grey">#1F2937</color>
     <color name="grey_light">#4b4b4b</color>
-    <color name="not_quite_black">#101010</color>
+    <color name="not_quite_black">#111827</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="red">#CC3333</color>
@@ -20,7 +33,7 @@
     <color name="black_transparent_light">#74000000</color>
 
     <!-- Progressbar Background -->
-    <color name="grey_transparent">#CC4b4b4b</color>
+    <color name="grey_transparent">#59808080</color>
 
     <!-- Gradients -->
     <color name="dark_green_gradient_start">#c306610a</color>
@@ -41,28 +54,29 @@
     <color name="guide_kids_bg">#32039BE5</color>
 
     <!-- button_default -->
-    <color name="button_default_normal_background">#B3747474</color>
+    <color name="button_default_normal_background">#CC1E2836</color>
     <color name="button_default_disabled_background">#33747474</color>
-    <color name="button_default_highlight_background">#E6CCCCCC</color>
-    <color name="button_default_normal_text">#DDDDDD</color>
+    <color name="button_default_highlight_background">#E5E7EB</color>
+    <color name="button_default_normal_text">#D1D5DB</color>
     <color name="button_default_disabled_text">#686868</color>
-    <color name="button_default_highlight_text">#444444</color>
+    <color name="button_default_highlight_text">#111827</color>
     <color name="button_default_activated_text">#CC3333</color>
     <color name="button_default_progress_background">#33000000</color>
 
     <!-- input_default -->
-    <color name="input_default_stroke">#B3747474</color>
+    <color name="input_default_stroke">#47505C</color>
     <color name="input_default_disabled_background">#33747474</color>
-    <color name="input_default_highlight_background">#DDDDDD</color>
-    <color name="input_default_normal_text">#DDDDDD</color>
+    <color name="input_default_highlight_background">#E5E7EB</color>
+    <color name="input_default_normal_text">#D1D5DB</color>
     <color name="input_default_disabled_text">#686868</color>
-    <color name="input_default_highlight_text">#444444</color>
+    <color name="input_default_highlight_text">#111827</color>
 
     <!-- popup_menu -->
-    <color name="popup_menu_background">#202124</color>
+    <color name="popup_menu_background">#F21E2836</color>
 
     <!-- Card Background Color -->
-    <color name="lb_basic_card_info_bg_color">@color/grey</color>
+    <color name="lb_basic_card_info_bg_color">@android:color/transparent</color>
+    <color name="lb_basic_card_title_text_color">#D1D5DB</color>
 
-    <color name="background_filter">#94101010</color>
+    <color name="background_filter">#B3111827</color>
 </resources>

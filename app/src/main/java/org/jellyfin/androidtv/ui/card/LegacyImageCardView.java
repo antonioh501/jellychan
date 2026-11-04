@@ -57,6 +57,36 @@ public class LegacyImageCardView extends BaseCardView {
         setForeground(null);
     }
 
+    // JellyChan: round photos for people (cast & crew)
+    private boolean circle = false;
+
+    public void setCircle(boolean value) {
+        if (circle == value) return;
+        circle = value;
+        binding.mainImage.setBackgroundResource(value ? R.drawable.jc_circle_image_background : R.drawable.shape_card_image_background);
+        binding.mainImage.invalidateOutline();
+        updateFocusOutline();
+    }
+
+    // JellyChan: white rounded outline on the focused card
+    private void updateFocusOutline() {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.M) return;
+        boolean highlighted = isFocused() || isSelected();
+        binding.mainImage.setForeground(highlighted ? androidx.core.content.ContextCompat.getDrawable(getContext(), circle ? R.drawable.jc_card_outline_circle : R.drawable.jc_card_outline) : null);
+    }
+
+    @Override
+    protected void onFocusChanged(boolean gainFocus, int direction, @Nullable android.graphics.Rect previouslyFocusedRect) {
+        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+        updateFocusOutline();
+    }
+
+    @Override
+    public void setSelected(boolean selected) {
+        super.setSelected(selected);
+        updateFocusOutline();
+    }
+
     public void setBanner(int bannerResource) {
         if (mBanner == null) {
             mBanner = new ImageView(getContext());
@@ -87,7 +117,16 @@ public class LegacyImageCardView extends BaseCardView {
         setMainImageDimensions(width, height, ImageView.ScaleType.CENTER_CROP);
     }
 
+    // JellyChan: global card size factor (rows use smaller cards than the stock app)
+    private float sizeScale = 1f;
+
+    public void setSizeScale(float scale) {
+        sizeScale = scale;
+    }
+
     public void setMainImageDimensions(int width, int height, ImageView.ScaleType scaleType) {
+        width = Math.round(width * sizeScale);
+        height = Math.round(height * sizeScale);
         ViewGroup.LayoutParams lp = binding.mainImage.getLayoutParams();
         lp.width = Math.round(width * getResources().getDisplayMetrics().density);
         lp.height = Math.round(height * getResources().getDisplayMetrics().density);

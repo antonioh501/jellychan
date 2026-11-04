@@ -153,10 +153,13 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
     private final Lazy<ImageHelper> imageHelper = inject(ImageHelper.class);
     private final Lazy<InteractionTrackerViewModel> interactionTracker = inject(InteractionTrackerViewModel.class);
 
+    private FragmentFullDetailsBinding jcBinding;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         FragmentFullDetailsBinding binding = FragmentFullDetailsBinding.inflate(getLayoutInflater(), container, false);
+        jcBinding = binding;
 
         BUTTON_SIZE = Utils.convertDpToPixel(requireContext(), 40);
 
@@ -282,6 +285,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
     public void onPause() {
         super.onPause();
         stopClock();
+        backgroundService.getValue().setSpotlight(false);
     }
 
     @Override
@@ -418,7 +422,12 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
 
             mDetailsOverviewRow = new MyDetailsOverviewRow(item);
 
-            String primaryImageUrl = imageHelper.getValue().getLogoImageUrl(mBaseItem, 600);
+            String primaryImageUrl = imageHelper.getValue().getLogoImageUrl(mBaseItem, 800);
+            mDetailsOverviewRow.setHasLogo(primaryImageUrl != null);
+            // JellyChan: episode thumbnail shown above the series logo
+            if (item.getType() == BaseItemKind.EPISODE) {
+                mDetailsOverviewRow.setEpisodeThumbUrl(imageHelper.getValue().getPrimaryImageUrl(item, null, Utils.convertDpToPixel(requireContext(), 180)));
+            }
             if (primaryImageUrl == null) {
                 primaryImageUrl = imageHelper.getValue().getPrimaryImageUrl(mBaseItem, false, null, posterHeight);
             }
@@ -473,6 +482,15 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
             ClassPresenterSelector ps = new ClassPresenterSelector();
             ps.addClassPresenter(MyDetailsOverviewRow.class, mDorPresenter);
             mListRowPresenter = new CustomListRowPresenter(Utils.convertDpToPixel(requireContext(), 10));
+            if (mBaseItem.getType() == BaseItemKind.PERSON) {
+                // JellyChan: rows start under the text column, like the web person page
+                mListRowPresenter.setStartPadding(Utils.convertDpToPixel(requireContext(), 272));
+                if (jcBinding != null) {
+                    jcBinding.jcPersonFixedPhoto.setVisibility(View.VISIBLE);
+                    jcBinding.jcPersonFixedPhoto.setClipToOutline(true);
+                    jcBinding.jcPersonFixedPhoto.load(detailsOverviewRow.getImageDrawable(), null, null, 1.0, 0);
+                }
+            }
             ps.addClassPresenter(ListRow.class, mListRowPresenter);
             mRowsAdapter = new MutableObjectAdapter<Row>(ps);
             mRowsFragment.setAdapter(mRowsAdapter);
@@ -769,7 +787,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
             }
             buttonLabel = getString(R.string.lbl_resume_from, TimeUtils.formatMillis(startPos));
         }
-        mResumeButton = TextUnderButton.create(requireContext(), R.drawable.ic_resume, buttonSize, 2, buttonLabel, new View.OnClickListener() {
+        mResumeButton = TextUnderButton.create(requireContext(), R.drawable.jc_ic_resume_outline, buttonSize, 2, buttonLabel, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FullDetailsFragmentHelperKt.resumePlayback(FullDetailsFragment.this, v);
@@ -781,7 +799,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
             boolean isSeries = baseItem.getType() == BaseItemKind.SERIES;
             boolean isStarted = baseItem.getUserData().getPlayedPercentage() != null && baseItem.getUserData().getPlayedPercentage() > 0;
 
-            playButton = TextUnderButton.create(requireContext(), R.drawable.ic_play, buttonSize, 2, getString(BaseItemExtensionsKt.isLiveTv(mBaseItem) ? R.string.lbl_tune_to_channel : Utils.getSafeValue(mBaseItem.isFolder(), false) ? R.string.lbl_play_all : R.string.lbl_play), new View.OnClickListener() {
+            playButton = TextUnderButton.create(requireContext(), R.drawable.jc_ic_play_outline, buttonSize, 2, getString(BaseItemExtensionsKt.isLiveTv(mBaseItem) ? R.string.lbl_tune_to_channel : Utils.getSafeValue(mBaseItem.isFolder(), false) ? R.string.lbl_play_all : R.string.lbl_play), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     play(mBaseItem, 0, false);

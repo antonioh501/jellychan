@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JellyChan player: rounded transport icon (fill + round-joined stroke, like the web player) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <path android:pathData="M7,5.5 L9.8,5.5 L9.8,18.5 L7,18.5 Z" android:fillColor="#fff" android:strokeColor="#fff" android:strokeWidth="1.8" android:strokeLineJoin="round" android:strokeLineCap="round" />
+    <path android:pathData="M14.2,5.5 L17,5.5 L17,18.5 L14.2,18.5 Z" android:fillColor="#fff" android:strokeColor="#fff" android:strokeWidth="1.8" android:strokeLineJoin="round" android:strokeLineCap="round" />
+</vector>

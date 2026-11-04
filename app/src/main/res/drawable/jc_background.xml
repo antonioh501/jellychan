@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JellyChan backgroundGradient: linear-gradient(0deg, #111827 35%, #1d2635) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient android:angle="90" android:startColor="#111827" android:centerColor="#111827"
+        android:centerY="0.35" android:endColor="#1D2635" android:type="linear" />
+    <size android:width="960dp" android:height="540dp" />
+</shape>

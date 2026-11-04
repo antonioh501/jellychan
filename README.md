@@ -1,89 +1,77 @@
-<h1 align="center">Jellyfin Android TV</h1>
-<h3 align="center">Part of the <a href="https://jellyfin.org">Jellyfin Project</a></h3>
+<p align="center">
+<img alt="JellyChan" src="branding/jellychan-banner.png" width="480"/>
+</p>
+
+<h3 align="center">An elegant Android TV and Fire TV client for Jellyfin</h3>
+
+<p align="center">
+<a href="LICENSE"><img alt="GPL 2.0 License" src="https://img.shields.io/badge/license-GPL--2.0-blue.svg"/></a>
+<img alt="Status" src="https://img.shields.io/badge/status-alpha-orange.svg"/>
+</p>
 
 ---
 
-<p align="center">
-<img alt="Logo banner" src="https://raw.githubusercontent.com/jellyfin/jellyfin-ux/master/branding/SVG/banner-logo-solid.svg?sanitize=true"/>
-<br/><br/>
-<a href="https://github.com/jellyfin/jellyfin-androidtv">
-<img alt="GPL 2.0 License" src="https://img.shields.io/github/license/jellyfin/jellyfin-androidtv.svg"/>
-</a>
-<a href="https://github.com/jellyfin/jellyfin-androidtv/releases">
-<img alt="Current Release" src="https://img.shields.io/github/release/jellyfin/jellyfin-androidtv.svg"/>
-</a>
-<a href="https://translate.jellyfin.org/projects/jellyfin-android/jellyfin-androidtv/">
-<img alt="Translation Status" src="https://translate.jellyfin.org/widgets/jellyfin-android/-/jellyfin-androidtv/svg-badge.svg"/>
-</a>
-<br/>
-<a href="https://opencollective.com/jellyfin">
-<img alt="Donate" src="https://img.shields.io/opencollective/all/jellyfin.svg?label=backers"/>
-</a>
-<a href="https://features.jellyfin.org">
-<img alt="Feature Requests" src="https://img.shields.io/badge/fider-vote%20on%20features-success.svg"/>
-</a>
-<a href="https://matrix.to/#/+jellyfin:matrix.org">
-<img alt="Chat on Matrix" src="https://img.shields.io/matrix/jellyfin:matrix.org.svg?logo=matrix"/>
-</a>
-<a href="https://www.reddit.com/r/jellyfin">
-<img alt="Join our Subreddit" src="https://img.shields.io/badge/reddit-r%2Fjellyfin-%23FF5700.svg"/>
-</a>
-<br/>
-<a href="https://play.google.com/store/apps/details?id=org.jellyfin.androidtv">
-<img width="153" alt="Jellyfin on Google Play" src="https://jellyfin.org/images/store-icons/google-play.png"/>
-</a>
-<a href="https://www.amazon.com/gp/aw/d/B07TX7Z725">
-<img width="153" alt="Jellyfin on Amazon Appstore" src="https://jellyfin.org/images/store-icons/amazon.png"/>
-</a>
-<a href="https://f-droid.org/en/packages/org.jellyfin.androidtv/">
-<img width="153" alt="Jellyfin on F-Droid" src="https://jellyfin.org/images/store-icons/fdroid.png"/>
-</a>
-<br/>
-<a href="https://repo.jellyfin.org/releases/client/androidtv/">Download archive</a>
-</p>
+JellyChan is an unofficial client for [Jellyfin](https://jellyfin.org) media servers, built for Android TV and
+Amazon Fire TV. It is a fork of the official
+[Jellyfin for Android TV](https://github.com/jellyfin/jellyfin-androidtv) app with a redesigned interface:
+dark navy palette, Inter typography, rounded cards and pill buttons, and a cinematic layout for home,
+item pages and the player.
 
-Jellyfin Android TV is a Jellyfin client for Android TV, Nvidia Shield, and Amazon Fire TV devices.
-We welcome all contributions and pull requests! If you have a larger feature in mind please open an
-issue so we can discuss the implementation before you start. 
+> **JellyChan is not affiliated with or endorsed by the Jellyfin project.** "Jellyfin" is used here only to
+> describe compatibility. You need your own Jellyfin server to use the app.
 
-## Translating
+## Features
 
-Translations can be improved very easily from our
-[Weblate](https://translate.jellyfin.org/projects/jellyfin-android/jellyfin-androidtv) instance.
-Look through the following graphic to see if your native language could use some work!
+- **Home** — full-screen spotlight carousel with random movies and series, backdrop and muted local
+  trailer, followed by Next up, Continue watching and My media rows.
+- **Item pages** — full backdrop with centered clear logo, metadata, actions and overview; compact episode
+  header with thumbnail.
+- **Cast & crew** — round photos; person page with fixed portrait and scrolling biography and filmography.
+- **Library** — tabs (Library, Suggested, Favorites, Genres), shuffle, sort and filters, A–Z quick index,
+  8-column poster grid.
+- **Player** — single-line controls, previous/next episode, favorite toggle, subtitles and audio always
+  visible, trickplay preview on seek, remaining time and end time.
 
-<a href="https://translate.jellyfin.org/engage/jellyfin-android/">
-<img alt="Detailed Translation Status" src="https://translate.jellyfin.org/widgets/jellyfin-android/-/jellyfin-androidtv/multi-auto.svg"/>
-</a>
+## Screenshots
 
-## Build Process
+_Coming soon._
 
-### Dependencies
+## Install
 
-- Android Studio
+JellyChan is currently distributed as an APK only.
 
-### Build
+1. Download the latest `jellychan-v*.apk` from [Releases](../../releases).
+2. Sideload it on your device (on Fire TV, for example, with the *Downloader* app or `adb install`).
+3. Open JellyChan, enter your server address and sign in (password or Quick Connect).
 
-1. Clone or download this repository
+Requirements: Android 5.0 (API 21) or newer, Jellyfin server 10.10 or newer.
 
-   ```sh
-   git clone https://github.com/jellyfin/jellyfin-androidtv.git
-   cd jellyfin-androidtv
-   ```
+## Versioning
 
-2. Open the project in Android Studio and run it from there or build an APK directly through Gradle:
+JellyChan follows [Semantic Versioning](https://semver.org). Pre-releases are tagged `vX.Y.Z-alpha.N` and
+`vX.Y.Z-beta.N`. The version is set by `jellychan.version` in `gradle.properties`; see
+[CHANGELOG.md](CHANGELOG.md) for what changed in each release.
 
-   ```sh
-   ./gradlew assembleDebug
-   ```
-   
-   Add the Android SDK to your PATH environment variable or create the ANDROID_SDK_ROOT variable for
-   this to work.
+## Building
 
-### Deploy to device/emulator
+```sh
+./gradlew assembleDebug        # debug build, installs next to a release build
+./gradlew assembleRelease      # release build (signing via KEYSTORE_* environment variables)
+```
 
-   ```sh
-   ./gradlew installDebug
-   ```
+The APK is written to `app/build/outputs/apk/`. JDK 21 and the Android SDK are required.
 
-*You can also replace the "Debug" with "Release" to get an optimized release binary.*
+## Credits
+
+- Based on [Jellyfin for Android TV](https://github.com/jellyfin/jellyfin-androidtv) by the Jellyfin
+  contributors (see [CONTRIBUTORS.md](CONTRIBUTORS.md)). The internal Kotlin package keeps the upstream
+  name `org.jellyfin.androidtv` to make merging upstream changes easier.
+- Visual design inspired by [ElegantFin](https://github.com/lscambo13/ElegantFin), a Jellyfin web theme
+  by lscambo13. No code from ElegantFin is included.
+- Uses the [Jellyfin Kotlin SDK](https://github.com/jellyfin/jellyfin-sdk-kotlin) and the
+  [Inter](https://rsms.me/inter/) typeface (SIL Open Font License).
+
+## License
+
+JellyChan is free software released under the [GNU General Public License v2.0](LICENSE), the same license as
+the upstream project.

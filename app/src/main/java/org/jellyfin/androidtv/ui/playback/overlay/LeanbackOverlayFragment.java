@@ -51,6 +51,10 @@ public class LeanbackOverlayFragment extends PlaybackSupportFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // JellyChan: replace the flat dim with top/bottom gradients
+        View background = view.findViewById(androidx.leanback.R.id.playback_fragment_background);
+        if (background != null) background.setBackgroundResource(org.jellyfin.androidtv.R.drawable.jc_player_scrim);
+
         super.hideControlsOverlay(false);
     }
 

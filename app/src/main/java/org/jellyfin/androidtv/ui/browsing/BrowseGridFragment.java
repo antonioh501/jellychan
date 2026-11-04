@@ -12,6 +12,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import org.koin.java.KoinJavaComponent;
+import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 
@@ -51,6 +54,7 @@ import org.jellyfin.androidtv.ui.itemhandling.ItemLauncher;
 import org.jellyfin.androidtv.ui.itemhandling.ItemRowAdapter;
 import org.jellyfin.androidtv.ui.itemhandling.ItemRowAdapterHelperKt;
 import org.jellyfin.androidtv.ui.navigation.ActivityDestinations;
+import org.jellyfin.androidtv.ui.navigation.Destinations;
 import org.jellyfin.androidtv.ui.navigation.NavigationRepository;
 import org.jellyfin.androidtv.ui.presentation.CardPresenter;
 import org.jellyfin.androidtv.ui.presentation.HorizontalGridPresenter;
@@ -126,7 +130,7 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
     private int mCardsScreenStride = 0;
     private double mCardFocusScale = 1.15; // 115%, just a default we use the resource card_scale_focus otherwise
     private final int MIN_NUM_CARDS = 5; // minimum number of visible cards we allow, this results in more empty space
-    private final double CARD_SPACING_PCT = 1.0; // 100% expressed as relative to the padding_left/top, which depends on the mCardFocusScale and AspectRatio
+    private final double CARD_SPACING_PCT = 2.5; // JellyChan: was 1.0 // 100% expressed as relative to the padding_left/top, which depends on the mCardFocusScale and AspectRatio
     private final double CARD_SPACING_HORIZONTAL_BANNER_PCT = 0.5; // 50% allow horizontal card overlapping for banners, otherwise spacing is too large
     private final int VIEW_SELECT_UPDATE_DELAY = 250; // delay in ms until we update the top-row info for a selected item
 
@@ -139,8 +143,8 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
         // init with some working defaults
         DisplayMetrics display = requireContext().getResources().getDisplayMetrics();
         // top + bottom in dp, elements scale with density so adjust accordingly
-        mGridHeight = Math.round(display.heightPixels / getResources().getDisplayMetrics().density - 130.6f);
-        mGridWidth = Math.round(display.widthPixels / getResources().getDisplayMetrics().density);
+        mGridHeight = Math.round(display.heightPixels / getResources().getDisplayMetrics().density - 175f); // JellyChan header
+        mGridWidth = Math.round(display.widthPixels / getResources().getDisplayMetrics().density) - 90; // JellyChan: A-Z index + web-like side margins
 
 
         mActivity = getActivity();
@@ -152,10 +156,17 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
         mPosterSizeSetting = libraryPreferences.get(LibraryPreferences.Companion.getPosterSize());
         mImageType = libraryPreferences.get(LibraryPreferences.Companion.getImageType());
         mGridDirection = libraryPreferences.get(LibraryPreferences.Companion.getGridDirection());
-        mCardFocusScale = getResources().getFraction(R.fraction.card_scale_focus, 1, 1);
+        // JellyChan: lay the grid out as if the focus zoom were 12% larger, so cards get
+        // more breathing room and the zoomed first row is never clipped at the top
+        mCardFocusScale = getResources().getFraction(R.fraction.card_scale_focus, 1, 1) + 0.12;
 
         if (mGridDirection.equals(GridDirection.VERTICAL))
-            setGridPresenter(new VerticalGridPresenter());
+        {
+            // JellyChan: flat cards, no focus shadow box behind the title
+            VerticalGridPresenter vgp = new VerticalGridPresenter();
+            vgp.setShadowEnabled(false);
+            setGridPresenter(vgp);
+        }
         else
             setGridPresenter(new HorizontalGridPresenter());
 
@@ -228,7 +239,8 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
             mGridView.setGravity(Gravity.CENTER_HORIZONTAL);
             mGridView.setPadding(mGridPaddingLeft, mGridPaddingTop, mGridPaddingLeft, mGridPaddingTop); // prevent initial card cutoffs
         }
-        mGridView.setHorizontalSpacing(mGridItemSpacingHorizontal);
+        // JellyChan: spacing values are computed in dp, apply them in pixels
+        mGridView.setHorizontalSpacing(Utils.convertDpToPixel(requireContext(), mGridItemSpacingHorizontal));
         mGridView.setVerticalSpacing(mGridItemSpacingVertical);
         mGridView.setFocusable(true);
         binding.rowsFragment.removeAllViews();
@@ -273,8 +285,7 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
 
     public void setItem(BaseRowItem item) {
         if (item != null) {
-            binding.title.setText(item.getFullName(requireContext()));
-            InfoLayoutHelper.addInfoRow(requireContext(), item.getBaseItem(), binding.infoRow, true);
+            // JellyChan: the header keeps the library name
         } else {
             binding.title.setText("");
             binding.infoRow.removeAllViews();
@@ -342,7 +353,8 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
 
     public void updateCounter(int position) {
         if (mAdapter != null) {
-            binding.counter.setText(MessageFormat.format("{0} | {1}", position, mAdapter.getTotalItems()));
+            int total = mAdapter.getTotalItems();
+            binding.counter.setText(total > 0 ? getString(R.string.jc_counter, total) : "");
         }
     }
 
@@ -400,17 +412,18 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
         if (mGridPresenter instanceof VerticalGridPresenter) {
             int numCols;
             switch (posterSize) {
+                // JellyChan: medium = 8 posters per row, like the web TV layout
                 case SMALLEST:
-                    numCols = imageType.equals(ImageType.BANNER) ? 6 : imageType.equals(ImageType.THUMB) ? 11 : 15;
+                    numCols = imageType.equals(ImageType.BANNER) ? 5 : imageType.equals(ImageType.THUMB) ? 7 : 12;
                     break;
                 case SMALL:
-                    numCols = imageType.equals(ImageType.BANNER) ? 5 : imageType.equals(ImageType.THUMB) ? 9 : 13;
+                    numCols = imageType.equals(ImageType.BANNER) ? 4 : imageType.equals(ImageType.THUMB) ? 6 : 10;
                     break;
                 case MED:
-                    numCols = imageType.equals(ImageType.BANNER) ? 4 : imageType.equals(ImageType.THUMB) ? 7 : 11;
+                    numCols = imageType.equals(ImageType.BANNER) ? 3 : imageType.equals(ImageType.THUMB) ? 5 : 8;
                     break;
                 case LARGE:
-                    numCols = imageType.equals(ImageType.BANNER) ? 3 : imageType.equals(ImageType.THUMB) ? 5 : 7;
+                    numCols = imageType.equals(ImageType.BANNER) ? 2 : imageType.equals(ImageType.THUMB) ? 4 : 6;
                     break;
                 case X_LARGE:
                     numCols = imageType.equals(ImageType.BANNER) ? 2 : imageType.equals(ImageType.THUMB) ? 3 : 5;
@@ -608,7 +621,7 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
     }
 
     private void buildAdapter() {
-        mCardPresenter = new CardPresenter(false, mImageType, mCardHeight);
+        mCardPresenter = new CardPresenter(mGridDirection.equals(GridDirection.VERTICAL), mImageType, mCardHeight); // JellyChan: title + year under posters
         mCardPresenter.setUniformAspect(true); // make grid layouts always uniform
 
         Timber.d("buildAdapter cardHeight <%s> getCardWidthBy <%s> chunks <%s> type <%s>", mCardHeight, (int) getCardWidthBy(mCardHeight, mImageType, mFolder), mRowDef.getChunkSize(), mRowDef.getQueryType().toString());
@@ -668,7 +681,8 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
                     setItem(null);
                     updateCounter(mAdapter.getTotalItems() > 0 ? 1 : 0);
                 }
-                mLetterButton.setVisibility(ItemSortBy.SORT_NAME.equals(mAdapter.getSortBy()) ? View.VISIBLE : View.GONE);
+                // JellyChan: the A-Z index only makes sense when sorted by name
+                if (binding != null) binding.jcAlphaIndex.setVisibility(ItemSortBy.SORT_NAME.equals(mAdapter.getSortBy()) ? View.VISIBLE : View.INVISIBLE);
                 if (mAdapter.getItemsLoaded() == 0) {
                     mGridView.setFocusable(false);
                     mHandler.postDelayed(() -> {
@@ -714,112 +728,168 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
     }
 
     private void addTools() {
-        //Add tools
-        int size = Utils.convertDpToPixel(requireContext(), 26);
+        // JellyChan: header title, tabs, tools row and A-Z index like the web TV layout
+        binding.jcLibraryTitle.setText(mainTitle);
+        setupTabs();
+        setupAlphaIndex();
 
-        mSortButton = new ImageButton(requireContext(), null, 0, R.style.Button_Icon);
-        mSortButton.setImageResource(R.drawable.ic_sort);
-        mSortButton.setMaxHeight(size);
-        mSortButton.setAdjustViewBounds(true);
-        mSortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Create sort menu
-                PopupMenu sortMenu = new PopupMenu(getActivity(), binding.toolBar, Gravity.END);
-                for (Map.Entry<Integer, SortOption> entry : sortOptions.entrySet()) {
-                    MenuItem item = sortMenu.getMenu().add(0, entry.getKey(), entry.getKey(), entry.getValue().name);
-                    item.setChecked(entry.getValue().value.equals(libraryPreferences.get(LibraryPreferences.Companion.getSortBy())));
-                }
-                sortMenu.getMenu().setGroupCheckable(0, true, true);
-                sortMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        mAdapter.setSortBy(Objects.requireNonNull(sortOptions.get(item.getItemId())));
-                        mAdapter.Retrieve();
-                        item.setChecked(true);
-                        updateDisplayPrefs();
-                        return true;
-                    }
-                });
-                sortMenu.show();
-            }
+        // Shuffle
+        ImageButton shuffle = createToolButton(R.drawable.ic_shuffle, R.string.lbl_shuffle_all);
+        shuffle.setOnClickListener(v -> KoinJavaComponent.<org.jellyfin.androidtv.util.PlaybackHelper>get(org.jellyfin.androidtv.util.PlaybackHelper.class)
+                .retrieveAndPlay(mFolder.getId(), true, requireContext()));
+        binding.toolBar.addView(shuffle);
+
+        // View settings
+        mSettingsButton = createToolButton(R.drawable.ic_grid, R.string.lbl_settings);
+        mSettingsButton.setOnClickListener(v -> {
+            boolean allowViewSelection = userViewsRepository.getValue().allowViewSelection(mFolder.getCollectionType());
+            startActivity(ActivityDestinations.INSTANCE.displayPreferences(getContext(), mFolder.getDisplayPreferencesId(), allowViewSelection));
         });
-        mSortButton.setContentDescription(getString(R.string.lbl_sort_by));
+        binding.toolBar.addView(mSettingsButton);
 
+        // Sort
+        mSortButton = createToolButton(R.drawable.ic_abc, R.string.lbl_sort_by);
+        mSortButton.setOnClickListener(v -> {
+            PopupMenu sortMenu = new PopupMenu(getActivity(), mSortButton, Gravity.CENTER);
+            for (Map.Entry<Integer, SortOption> entry : sortOptions.entrySet()) {
+                MenuItem item = sortMenu.getMenu().add(0, entry.getKey(), entry.getKey(), entry.getValue().name);
+                item.setChecked(entry.getValue().value.equals(libraryPreferences.get(LibraryPreferences.Companion.getSortBy())));
+            }
+            sortMenu.getMenu().setGroupCheckable(0, true, true);
+            sortMenu.setOnMenuItemClickListener(item -> {
+                mAdapter.setSortBy(Objects.requireNonNull(sortOptions.get(item.getItemId())));
+                mAdapter.Retrieve();
+                item.setChecked(true);
+                updateDisplayPrefs();
+                return true;
+            });
+            sortMenu.show();
+        });
         binding.toolBar.addView(mSortButton);
 
+        // Filter: unwatched only
         if (mRowDef.getQueryType() == QueryType.Items) {
-            mUnwatchedButton = new ImageButton(requireContext(), null, 0, R.style.Button_Icon);
-            mUnwatchedButton.setImageResource(R.drawable.ic_unwatch);
+            mUnwatchedButton = createToolButton(R.drawable.ic_filter, R.string.lbl_unwatched);
             mUnwatchedButton.setActivated(mAdapter.getFilters().isUnwatchedOnly());
-            mUnwatchedButton.setMaxHeight(size);
-            mUnwatchedButton.setAdjustViewBounds(true);
-            mUnwatchedButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    FilterOptions filters = mAdapter.getFilters();
-                    if (filters == null) filters = new FilterOptions();
-
-                    filters.setUnwatchedOnly(!filters.isUnwatchedOnly());
-                    mUnwatchedButton.setActivated(filters.isUnwatchedOnly());
-                    mAdapter.setFilters(filters);
-                    mAdapter.Retrieve();
-                    updateDisplayPrefs();
-                }
-            });
-            mUnwatchedButton.setContentDescription(getString(R.string.lbl_unwatched));
-            binding.toolBar.addView(mUnwatchedButton);
-        }
-
-        mFavoriteButton = new ImageButton(requireContext(), null, 0, R.style.Button_Icon);
-        mFavoriteButton.setImageResource(R.drawable.ic_heart);
-        mFavoriteButton.setActivated(mAdapter.getFilters().isFavoriteOnly());
-        mFavoriteButton.setMaxHeight(size);
-        mFavoriteButton.setAdjustViewBounds(true);
-        mFavoriteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            mUnwatchedButton.setOnClickListener(v -> {
                 FilterOptions filters = mAdapter.getFilters();
                 if (filters == null) filters = new FilterOptions();
-
-                filters.setFavoriteOnly(!filters.isFavoriteOnly());
-                mFavoriteButton.setActivated(filters.isFavoriteOnly());
+                filters.setUnwatchedOnly(!filters.isUnwatchedOnly());
+                mUnwatchedButton.setActivated(filters.isUnwatchedOnly());
                 mAdapter.setFilters(filters);
                 mAdapter.Retrieve();
                 updateDisplayPrefs();
-            }
-        });
-        mFavoriteButton.setContentDescription(getString(R.string.lbl_favorite));
-        binding.toolBar.addView(mFavoriteButton);
+            });
+            binding.toolBar.addView(mUnwatchedButton);
+        }
+    }
 
-        JumplistPopup jumplistPopup = new JumplistPopup();
-        mLetterButton = new ImageButton(requireContext(), null, 0, R.style.Button_Icon);
-        mLetterButton.setImageResource(R.drawable.ic_jump_letter);
-        mLetterButton.setMaxHeight(size);
-        mLetterButton.setAdjustViewBounds(true);
-        mLetterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Open letter jump popup
-                jumplistPopup.show();
-            }
-        });
-        mLetterButton.setContentDescription(getString(R.string.lbl_by_letter));
-        binding.toolBar.addView(mLetterButton);
+    private ImageButton createToolButton(int icon, int description) {
+        int size = Utils.convertDpToPixel(requireContext(), 30);
+        int pad = Utils.convertDpToPixel(requireContext(), 7);
+        int margin = Utils.convertDpToPixel(requireContext(), 6);
+        ImageButton button = new ImageButton(requireContext(), null, 0, R.style.Button_Icon);
+        button.setImageResource(icon);
+        button.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+        button.setPadding(pad, pad, pad, pad);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
+        lp.setMarginStart(margin);
+        lp.setMarginEnd(margin);
+        button.setLayoutParams(lp);
+        button.setContentDescription(getString(description));
+        return button;
+    }
 
-        mSettingsButton = new ImageButton(requireContext(), null, 0, R.style.Button_Icon);
-        mSettingsButton.setImageResource(R.drawable.ic_settings);
-        mSettingsButton.setMaxHeight(size);
-        mSettingsButton.setAdjustViewBounds(true);
-        mSettingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean allowViewSelection = userViewsRepository.getValue().allowViewSelection(mFolder.getCollectionType());
-                startActivity(ActivityDestinations.INSTANCE.displayPreferences(getContext(), mFolder.getDisplayPreferencesId(), allowViewSelection));
-            }
-        });
-        mSettingsButton.setContentDescription(getString(R.string.lbl_settings));
-        binding.toolBar.addView(mSettingsButton);
+    private android.widget.Button mLibraryTab;
+    private android.widget.Button mFavoritesTab;
+
+    private android.widget.Button createTab(String text) {
+        android.widget.Button tab = new android.widget.Button(requireContext(), null, 0);
+        tab.setText(text);
+        tab.setAllCaps(false);
+        tab.setTextSize(12);
+        tab.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.inter_medium));
+        tab.setTextColor(androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.jc_tab_text));
+        tab.setBackgroundResource(R.drawable.jc_tab_back);
+        tab.setStateListAnimator(null);
+        tab.setMinWidth(0);
+        tab.setMinHeight(0);
+        tab.setMinimumWidth(0);
+        tab.setMinimumHeight(0);
+        int ph = Utils.convertDpToPixel(requireContext(), 15);
+        tab.setPadding(ph, 0, ph, 0);
+        tab.setGravity(Gravity.CENTER);
+        tab.setIncludeFontPadding(false);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, Utils.convertDpToPixel(requireContext(), 29));
+        int m = Utils.convertDpToPixel(requireContext(), 6);
+        lp.setMarginStart(m);
+        lp.setMarginEnd(m);
+        tab.setLayoutParams(lp);
+        binding.jcTabs.addView(tab);
+        return tab;
+    }
+
+    private void setupTabs() {
+        boolean isMovies = mFolder.getCollectionType() == CollectionType.MOVIES;
+        boolean isShows = mFolder.getCollectionType() == CollectionType.TVSHOWS;
+        if (!isMovies && !isShows) {
+            binding.jcTabs.setVisibility(View.GONE);
+            return;
+        }
+
+        boolean favoritesOnly = mAdapter.getFilters() != null && mAdapter.getFilters().isFavoriteOnly();
+
+        mLibraryTab = createTab(mainTitle);
+        mLibraryTab.setActivated(!favoritesOnly);
+        mLibraryTab.setOnClickListener(v -> setFavoritesOnly(false));
+
+        if (isMovies) {
+            android.widget.Button suggestions = createTab(getString(R.string.lbl_suggested));
+            suggestions.setOnClickListener(v -> navigationRepository.getValue().navigate(Destinations.INSTANCE.librarySuggestions(mFolder)));
+        }
+
+        mFavoritesTab = createTab(getString(R.string.lbl_favorites));
+        mFavoritesTab.setActivated(favoritesOnly);
+        mFavoritesTab.setOnClickListener(v -> setFavoritesOnly(true));
+
+        android.widget.Button genres = createTab(getString(R.string.lbl_genres));
+        genres.setOnClickListener(v -> navigationRepository.getValue().navigate(Destinations.INSTANCE.libraryByGenres(mFolder, isMovies ? "Movie" : "Series")));
+    }
+
+    private void setFavoritesOnly(boolean favoritesOnly) {
+        FilterOptions filters = mAdapter.getFilters();
+        if (filters == null) filters = new FilterOptions();
+        if (filters.isFavoriteOnly() != favoritesOnly) {
+            filters.setFavoriteOnly(favoritesOnly);
+            mAdapter.setFilters(filters);
+            mAdapter.Retrieve();
+            updateDisplayPrefs();
+        }
+        if (mLibraryTab != null) mLibraryTab.setActivated(!favoritesOnly);
+        if (mFavoritesTab != null) mFavoritesTab.setActivated(favoritesOnly);
+    }
+
+    private void setupAlphaIndex() {
+        String letters = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        int size = Utils.convertDpToPixel(requireContext(), 15);
+        for (int i = 0; i < letters.length(); i++) {
+            final String letter = String.valueOf(letters.charAt(i));
+            TextView view = new TextView(requireContext());
+            view.setText(letter);
+            view.setTextSize(7.5f);
+            view.setGravity(Gravity.CENTER);
+            view.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.inter_medium));
+            view.setTextColor(androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.jc_alpha_text));
+            view.setBackgroundResource(R.drawable.jc_round_focus);
+            view.setFocusable(true);
+            view.setClickable(true);
+            view.setLayoutParams(new LinearLayout.LayoutParams(size, size));
+            view.setOnClickListener(v -> {
+                mAdapter.setStartLetter("#".equals(letter) ? null : letter);
+                loadGrid();
+            });
+            binding.jcAlphaIndex.addView(view);
+        }
     }
 
     class JumplistPopup {
@@ -908,7 +978,9 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
         public void run() {
             if (!getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) return;
 
-            backgroundService.getValue().setBackground(mCurrentItem.getBaseItem());
+            // JellyChan: plain navy background on the library page, like the web
+            if (!mGridDirection.equals(GridDirection.VERTICAL)) backgroundService.getValue().setBackground(mCurrentItem.getBaseItem());
+            else backgroundService.getValue().clearBackgrounds();
             setItem(mCurrentItem);
         }
     };
@@ -925,8 +997,7 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
                 backgroundService.getValue().clearBackgrounds();
             } else {
                 mCurrentItem = (BaseRowItem) item;
-                binding.title.setText(mCurrentItem.getName(requireContext()));
-                binding.infoRow.removeAllViews();
+                // JellyChan: the header keeps the library name
                 mHandler.postDelayed(mDelayedSetItem, VIEW_SELECT_UPDATE_DELAY);
 
                 if (!determiningPosterSize)

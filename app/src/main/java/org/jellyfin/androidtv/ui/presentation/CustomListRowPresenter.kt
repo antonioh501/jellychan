@@ -13,6 +13,9 @@ open class CustomListRowPresenter @JvmOverloads constructor(
 		headerPresenter = CustomRowHeaderPresenter()
 	}
 
+	// JellyChan: optional extra start padding (person page rows aligned with the text column)
+	var startPadding: Int? = null
+
 	override fun isUsingDefaultShadow() = false
 
 	override fun onSelectLevelChanged(holder: RowPresenter.ViewHolder) = Unit
@@ -22,6 +25,7 @@ open class CustomListRowPresenter @JvmOverloads constructor(
 
 		val view = holder.view?.parent as? View ?: return
 		if (topPadding != null) view.setPadding(view.paddingLeft, topPadding, view.paddingRight, view.paddingBottom)
+		startPadding?.let { view.setPaddingRelative(it, view.paddingTop, view.paddingEnd, view.paddingBottom) }
 
 		// Hide header view when the item doesn't have one
 		holder.headerViewHolder.view.isVisible = !(item is ListRow && item.headerItem == null)

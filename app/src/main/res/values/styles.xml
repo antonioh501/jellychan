@@ -7,6 +7,10 @@
 
     <style name="Widget.Jellyfin.Row.Header" parent="Widget.Leanback.Row.Header">
         <item name="android:textColor">?attr/headerTextColor</item>
+        <!-- JellyChan section titles: Inter SemiBold -->
+        <item name="android:fontFamily">@font/inter_semibold</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:letterSpacing">0</item>
     </style>
 
     <style name="player_progress" parent="android:Widget.ProgressBar.Horizontal">
@@ -17,8 +21,8 @@
 
     <style name="overlay_progress" parent="android:Widget.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/progress_bar</item>
-        <item name="android:minHeight">5sp</item>
-        <item name="android:maxHeight">5sp</item>
+        <item name="android:minHeight">4sp</item>
+        <item name="android:maxHeight">4sp</item>
     </style>
 
     <style name="WindowAnimation"></style>
@@ -81,11 +85,11 @@
 
     <style name="PopupMenu" parent="android:Widget.Material.PopupMenu">
         <item name="android:popupBackground">@drawable/popup_menu_back</item>
-        <item name="android:textColor">@color/indigo_dye</item>
+        <item name="android:textColor">@color/jc_text</item>
     </style>
 
     <style name="PopupWindow" parent="android:Widget.Material.PopupWindow">
         <item name="android:popupBackground">@drawable/popup_menu_back</item>
-        <item name="android:textColor">@color/indigo_dye</item>
+        <item name="android:textColor">@color/jc_text</item>
     </style>
 </resources>

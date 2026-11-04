@@ -84,6 +84,8 @@ open class BaseItemDtoBaseRowItem @JvmOverloads constructor(
 		baseItem?.type == BaseItemKind.AUDIO && baseItem.albumArtists != null -> baseItem.albumArtists?.joinToString(", ")
 		baseItem?.type == BaseItemKind.AUDIO && baseItem.albumArtist != null -> baseItem.albumArtist
 		baseItem?.type == BaseItemKind.AUDIO && baseItem.album != null -> baseItem.album
+		// JellyChan: episodes show the series name as card title (episode info goes in the subtitle)
+		baseItem?.type == BaseItemKind.EPISODE && baseItem.seriesName != null -> baseItem.seriesName
 		else -> baseItem?.getFullName(context)
 	}
 
@@ -116,6 +118,18 @@ open class BaseItemDtoBaseRowItem @JvmOverloads constructor(
 
 			"$title $timestamp"
 		}
+
+		// JellyChan: "S1:E2 - Title" under episode cards, like the web
+		BaseItemKind.EPISODE -> {
+			val season = baseItem.parentIndexNumber
+			val episode = baseItem.indexNumber
+			val prefix = if (season != null && episode != null) "S$season:E$episode - " else ""
+			if (baseItem.locationType == org.jellyfin.sdk.model.api.LocationType.VIRTUAL) baseItem.getSubName(context)
+			else prefix + baseItem.name.orEmpty()
+		}
+
+		// JellyChan: year under movie / series posters, like the web
+		BaseItemKind.MOVIE, BaseItemKind.SERIES, BaseItemKind.BOX_SET -> baseItem.productionYear?.toString() ?: baseItem.getSubName(context)
 
 		else -> baseItem?.getSubName(context)
 	}

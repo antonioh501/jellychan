@@ -5,9 +5,12 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.view.setPadding
+import androidx.core.widget.ImageViewCompat
 import org.jellyfin.androidtv.databinding.TextUnderButtonBinding
 import org.jellyfin.androidtv.util.dp
 
@@ -33,7 +36,7 @@ class TextUnderButton @JvmOverloads constructor(
 	}
 
 	private fun updateLabelVisibility() {
-		if (binding.label.text.isNullOrEmpty()) return
+		if (isPill || binding.label.text.isNullOrEmpty()) return
 		binding.label.visibility = if (isFocused) VISIBLE else INVISIBLE
 	}
 
@@ -41,11 +44,29 @@ class TextUnderButton @JvmOverloads constructor(
 		binding.label.isVisible = text != null
 		if (text != null) binding.label.visibility = if (isFocused) VISIBLE else INVISIBLE
 		binding.label.text = text
+		binding.jcPillText.text = text
 		binding.imageButton.contentDescription = text
+		if (isPill) binding.label.isVisible = false
+	}
+
+	// JellyChan: main action shown as a pill with icon and text
+	var isPill = false
+		set(value) {
+			if (field == value) return
+			field = value
+			binding.jcPill.isVisible = value
+			binding.imageButton.isVisible = !value
+			binding.label.isVisible = !value
+			updateLabelVisibility()
+		}
+
+	fun setIconTint(@ColorRes tint: Int) {
+		ImageViewCompat.setImageTintList(binding.imageButton, ContextCompat.getColorStateList(context, tint))
 	}
 
 	fun setIcon(@DrawableRes resource: Int, maxHeight: Int? = null) {
 		binding.imageButton.setImageResource(resource)
+		binding.jcPillIcon.setImageResource(resource)
 		binding.imageButton.maxHeight = maxHeight ?: Int.MAX_VALUE
 	}
 

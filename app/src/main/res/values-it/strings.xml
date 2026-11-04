@@ -605,4 +605,7 @@
     <string name="jc_person_born">Nascita: %1$s (%2$d anni)</string>
     <string name="jc_person_birthplace">Luogo di nascita: %1$s</string>
     <string name="jc_person_born_died">Nascita: %1$s · Morte: %2$s (%3$d anni)</string>
+    <string name="jc_resume">Riprendi</string>
+    <string name="jc_back">Indietro</string>
+    <string name="jc_present">In corso</string>
 </resources>

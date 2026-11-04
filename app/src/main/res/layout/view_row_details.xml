@@ -62,10 +62,32 @@
             android:shadowRadius="8"
             android:textColor="@color/white"
             android:textSize="40sp"
-            app:layout_constraintBottom_toTopOf="@id/fdMainInfoRow"
+            app:layout_constraintBottom_toTopOf="@id/jcOriginalTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             tools:text="fdTitle" />
+
+        <!-- Title in the original language, only when it differs from the displayed one -->
+        <TextView
+            android:id="@+id/jcOriginalTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/inter"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:shadowColor="#CC000000"
+            android:shadowDy="1"
+            android:shadowRadius="6"
+            android:textColor="@color/jc_text_dim"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/fdMainInfoRow"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Anatomie d'une chute"
+            tools:visibility="visible" />
 
         <LinearLayout
             android:id="@+id/fdMainInfoRow"

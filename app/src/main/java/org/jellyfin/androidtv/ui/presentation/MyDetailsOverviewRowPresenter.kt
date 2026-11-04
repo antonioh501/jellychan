@@ -2,10 +2,15 @@ package org.jellyfin.androidtv.ui.presentation
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.children
 import androidx.core.view.isVisible
+import androidx.core.view.setPadding
 import androidx.leanback.widget.RowPresenter
 import org.jellyfin.androidtv.ui.DetailRowView
+import org.jellyfin.androidtv.ui.browsing.composable.inforow.BaseItemInfoRowView
+import org.jellyfin.androidtv.ui.browsing.composable.inforow.JcDetailsInfoRowView
 import org.jellyfin.androidtv.ui.itemdetail.MyDetailsOverviewRow
+import org.jellyfin.androidtv.ui.itemdetail.usesJcDetailsLayout
 import org.jellyfin.androidtv.util.InfoLayoutHelper
 import org.jellyfin.androidtv.util.MarkdownRenderer
 import org.jellyfin.sdk.model.api.BaseItemKind
@@ -31,10 +36,21 @@ class MyDetailsOverviewRowPresenter(
 
 			setTitle(row.item.name)
 
-			InfoLayoutHelper.addInfoRow(view.context, row.item, row.item.mediaSources?.getOrNull(row.selectedMediaSourceIndex), binding.fdMainInfoRow, false)
-			for (i in 0 until binding.fdMainInfoRow.childCount) {
-				(binding.fdMainInfoRow.getChildAt(i) as? org.jellyfin.androidtv.ui.browsing.composable.inforow.BaseItemInfoRowView)
-					?.includeSeasonEpisode = row.item.type != BaseItemKind.EPISODE
+			val jcLayout = usesJcDetailsLayout(row.item)
+			val originalTitle = row.item.originalTitle
+				?.takeIf { jcLayout && it.isNotBlank() && !it.trim().equals(row.item.name?.trim(), ignoreCase = true) }
+			binding.jcOriginalTitle.text = originalTitle
+			binding.jcOriginalTitle.isVisible = originalTitle != null
+
+			if (jcLayout) {
+				setDetailsInfoRow(row)
+			} else {
+				detailsInfoRow?.isVisible = false
+				InfoLayoutHelper.addInfoRow(view.context, row.item, row.item.mediaSources?.getOrNull(row.selectedMediaSourceIndex), binding.fdMainInfoRow, false)
+				binding.fdMainInfoRow.children.filterIsInstance<BaseItemInfoRowView>().forEach {
+					it.isVisible = true
+					it.includeSeasonEpisode = row.item.type != BaseItemKind.EPISODE
+				}
 			}
 			binding.fdGenreRow.text = row.item.genres?.joinToString(" / ")
 
@@ -92,7 +108,7 @@ class MyDetailsOverviewRowPresenter(
 				binding.fdSummaryText.maxLines = 2
 			}
 
-			extraInfo = listOfNotNull(
+			extraInfo = if (jcLayout) emptyList() else listOfNotNull(
 				row.infoItem2?.value?.takeIf { it.isNotBlank() },
 				row.infoItem3?.let { item -> item.value?.takeIf { it.isNotBlank() }?.let { "${item.label} $it" } },
 			)
@@ -112,13 +128,41 @@ class MyDetailsOverviewRowPresenter(
 				val parent = button.parent
 				if (parent is ViewGroup) parent.removeView(button)
 
-				// JellyChan: slightly smaller action buttons on episodes
-				button.binding.imageButton.layoutParams = button.binding.imageButton.layoutParams.apply {
-					width = ((if (isEpisodeRow) 60 else 70) * view.resources.displayMetrics.density).toInt()
-					height = ((if (isEpisodeRow) 34 else 40) * view.resources.displayMetrics.density).toInt()
+				if (jcLayout) {
+					// Icon-only secondary actions, highlighted only when focused
+					button.binding.imageButton.setBackgroundResource(org.jellyfin.androidtv.R.drawable.jc_icon_button_back)
+					button.binding.imageButton.setPadding((10 * density).toInt())
+					button.binding.imageButton.layoutParams = (button.binding.imageButton.layoutParams as ViewGroup.MarginLayoutParams).apply {
+						width = (52 * density).toInt()
+						height = (44 * density).toInt()
+						topMargin = (2 * density).toInt()
+					}
+					button.binding.label.layoutParams = button.binding.label.layoutParams.apply {
+						width = (68 * density).toInt()
+					}
+					button.binding.label.setPadding(0, 0, 0, 0)
+				} else {
+					// JellyChan: slightly smaller action buttons on episodes
+					button.binding.imageButton.layoutParams = button.binding.imageButton.layoutParams.apply {
+						width = ((if (isEpisodeRow) 60 else 70) * view.resources.displayMetrics.density).toInt()
+						height = ((if (isEpisodeRow) 34 else 40) * view.resources.displayMetrics.density).toInt()
+					}
 				}
 				binding.fdButtonRow.addView(button)
 			}
+		}
+
+		private val detailsInfoRow: JcDetailsInfoRowView?
+			get() = binding.fdMainInfoRow.children.filterIsInstance<JcDetailsInfoRowView>().firstOrNull()
+
+		private fun setDetailsInfoRow(row: MyDetailsOverviewRow) {
+			binding.fdMainInfoRow.children.filterIsInstance<BaseItemInfoRowView>().forEach { it.isVisible = false }
+
+			val infoRow = detailsInfoRow ?: JcDetailsInfoRowView(view.context).also { binding.fdMainInfoRow.addView(it) }
+			infoRow.isVisible = true
+			infoRow.item = row.item
+			infoRow.runtime = row.infoItem2?.value
+			infoRow.endTime = row.infoItem3?.value
 		}
 
 		private fun setPerson(row: MyDetailsOverviewRow) {
@@ -171,6 +215,7 @@ class MyDetailsOverviewRowPresenter(
 
 		fun setInfoValue3(text: String?) {
 			binding.infoValue3.text = text
+			detailsInfoRow?.endTime = text
 			if (extraInfo.size == 2 && text != null) {
 				extraInfo = listOf(extraInfo[0], "$endsLabel $text")
 				updateExtraInfo()

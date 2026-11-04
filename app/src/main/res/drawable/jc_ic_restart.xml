@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JellyChan: circular arrow going backwards (play from the beginning) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M6.2,8.5 A7.5,7.5 0 1 1 4.5,13"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M6,3.8 L6,8.7 L10.9,8.7"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+</vector>

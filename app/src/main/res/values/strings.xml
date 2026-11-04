@@ -595,4 +595,7 @@
     <string name="jc_person_born">Born: %1$s (%2$d years old)</string>
     <string name="jc_person_birthplace">Birth place: %1$s</string>
     <string name="jc_person_born_died">Born: %1$s · Died: %2$s (%3$d years old)</string>
+    <string name="jc_resume">Resume</string>
+    <string name="jc_back">Back</string>
+    <string name="jc_present">Present</string>
 </resources>

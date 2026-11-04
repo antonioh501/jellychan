@@ -109,7 +109,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
     private int BUTTON_SIZE;
 
     TextUnderButton mResumeButton;
-    private TextUnderButton mVersionsButton;
+    TextUnderButton mVersionsButton;
     TextUnderButton mPrevButton;
     private TextUnderButton mRecordButton;
     private TextUnderButton mRecSeriesButton;
@@ -230,10 +230,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
     public void onResume() {
         super.onResume();
 
-        ClockBehavior clockBehavior = userPreferences.getValue().get(UserPreferences.Companion.getClockBehavior());
-        if (clockBehavior == ClockBehavior.ALWAYS || clockBehavior == ClockBehavior.IN_MENUS) {
-            startClock();
-        }
+        startClock();
 
         //Update information that may have changed - delay slightly to allow changes to take on the server
         new Handler().postDelayed(new Runnable() {
@@ -272,6 +269,8 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
                                 showMoreButtonIfNeeded();
                             }
                             updateWatched();
+                            MyDetailsOverviewRowPresenter.ViewHolder viewHolder = mDorPresenter.getViewHolder();
+                            if (viewHolder != null && MyDetailsOverviewRowKt.usesJcDetailsLayout(mBaseItem)) viewHolder.setInfoValue3(getEndTime());
                             mLastUpdated = Instant.now();
                             return null;
                         });
@@ -310,6 +309,13 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
         return false;
     }
 
+    // JellyChan: the end time is part of the metadata line, regardless of the clock preference
+    private boolean showEndTime() {
+        if (mBaseItem != null && MyDetailsOverviewRowKt.usesJcDetailsLayout(mBaseItem)) return true;
+        ClockBehavior clockBehavior = userPreferences.getValue().get(UserPreferences.Companion.getClockBehavior());
+        return clockBehavior == ClockBehavior.ALWAYS || clockBehavior == ClockBehavior.IN_MENUS;
+    }
+
     private void startClock() {
         mClockLoop = new Runnable() {
             @Override
@@ -320,7 +326,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
                 MyDetailsOverviewRowPresenter.ViewHolder viewholder = mDorPresenter.getViewHolder();
                 if (viewholder == null) return;
 
-                if (mBaseItem != null && ((mBaseItem.getRunTimeTicks() != null && mBaseItem.getRunTimeTicks() > 0) || mBaseItem.getRunTimeTicks() != null)) {
+                if (showEndTime() && mBaseItem != null && ((mBaseItem.getRunTimeTicks() != null && mBaseItem.getRunTimeTicks() > 0) || mBaseItem.getRunTimeTicks() != null)) {
                     viewholder.setInfoValue3(getEndTime());
                     mLoopHandler.postDelayed(this, 15000);
                 }
@@ -455,8 +461,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
 
                     if ((item.getRunTimeTicks() != null && item.getRunTimeTicks() > 0) || item.getRunTimeTicks() != null) {
                         mDetailsOverviewRow.setInfoItem2(new InfoItem(getString(R.string.lbl_runs), getRunTime()));
-                        ClockBehavior clockBehavior = userPreferences.getValue().get(UserPreferences.Companion.getClockBehavior());
-                        if (clockBehavior == ClockBehavior.ALWAYS || clockBehavior == ClockBehavior.IN_MENUS) {
+                        if (showEndTime()) {
                             mDetailsOverviewRow.setInfoItem3(new InfoItem(getString(R.string.lbl_ends), getEndTime()));
                         } else {
                             mDetailsOverviewRow.setInfoItem3(new InfoItem());
@@ -1082,8 +1087,52 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
 
         moreButton.setVisibility(View.GONE);
         mDetailsOverviewRow.addAction(moreButton);
-        if (mBaseItem.getType() != BaseItemKind.EPISODE)
+
+        if (MyDetailsOverviewRowKt.usesJcDetailsLayout(mBaseItem)) {
+            if (trailerButton != null && shuffleButton != null) mDetailsOverviewRow.moveActionBefore(trailerButton, shuffleButton);
+            if (mWatchedToggleButton != null) mWatchedToggleButton.setIconTint(R.color.jc_watched_tint);
+            moreButton.setIcon(R.drawable.jc_ic_more_vertical, null);
+            updateFavoriteIcon();
+            showMoreButtonIfNeeded();
+        } else if (mBaseItem.getType() != BaseItemKind.EPISODE) {
             showMoreButtonIfNeeded();  //Episodes check for previous and then call this above
+        }
+    }
+
+    // JellyChan: outlined heart, filled when the item is a favorite
+    void updateFavoriteIcon() {
+        if (favButton == null || !MyDetailsOverviewRowKt.usesJcDetailsLayout(mBaseItem)) return;
+        boolean favorite = mBaseItem.getUserData() != null && mBaseItem.getUserData().isFavorite();
+        favButton.setIcon(favorite ? R.drawable.jc_ic_heart_filled : R.drawable.jc_ic_heart_outline, null);
+    }
+
+    // JellyChan: main action as a pill, secondary actions in the row and everything else in the menu
+    private void updateJcActions() {
+        boolean isEpisode = mBaseItem.getType() == BaseItemKind.EPISODE;
+        boolean isSeries = mBaseItem.getType() == BaseItemKind.SERIES;
+
+        if (mResumeButton != null && playButton != null) {
+            boolean resumeVisible = ViewKt.isVisible(mResumeButton);
+            mResumeButton.setPill(true);
+            mResumeButton.setIcon(R.drawable.jc_ic_play_outline, null);
+            if (!isSeries) mResumeButton.setLabel(getString(R.string.jc_resume));
+
+            playButton.setPill(!resumeVisible);
+            if (!isSeries) {
+                playButton.setIcon(resumeVisible ? R.drawable.jc_ic_restart : R.drawable.jc_ic_play_outline, null);
+                playButton.setLabel(getString(resumeVisible ? R.string.lbl_from_beginning : R.string.lbl_play));
+            }
+        }
+
+        boolean episodeTrailer = isEpisode && trailerButton != null;
+        if (episodeTrailer) trailerButton.setVisibility(View.GONE);
+        if (goToSeriesButton != null) goToSeriesButton.setVisibility(View.GONE);
+        if (mPrevButton != null) mPrevButton.setVisibility(View.GONE);
+        if (mVersionsButton != null) mVersionsButton.setVisibility(View.GONE);
+        if (deleteButton != null) deleteButton.setVisibility(View.GONE);
+
+        boolean hasMenu = episodeTrailer || goToSeriesButton != null || mPrevItemId != null || mVersionsButton != null || deleteButton != null;
+        moreButton.setVisibility(hasMenu ? View.VISIBLE : View.GONE);
     }
 
     private void handleResumeButtonAndFocus(BaseItemDto nextUpEpisode) {
@@ -1102,6 +1151,14 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
         } else {
             playButton.requestFocus();
         }
+
+        // Series get here asynchronously, after the buttons are ready
+        if (moreButton != null) showMoreButtonIfNeeded();
+    }
+
+    void showVersionsMenu(View anchor) {
+        if (versions == null) versions = new ArrayList<>(mBaseItem.getMediaSources());
+        addVersionsMenu(anchor);
     }
 
     private void addVersionsMenu(View v) {
@@ -1122,7 +1179,8 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
 
                     mBaseItem = item;
                     mDorPresenter.getViewHolder().setItem(mDetailsOverviewRow);
-                    if (mVersionsButton != null) mVersionsButton.requestFocus();
+                    if (mVersionsButton != null && ViewKt.isVisible(mVersionsButton)) mVersionsButton.requestFocus();
+                    else if (moreButton != null) moreButton.requestFocus();
                     return null;
                 });
                 return true;
@@ -1135,6 +1193,11 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
     int collapsedOptions = 0;
 
     void showMoreButtonIfNeeded() {
+        if (MyDetailsOverviewRowKt.usesJcDetailsLayout(mBaseItem)) {
+            updateJcActions();
+            return;
+        }
+
         int visibleOptions = mDetailsOverviewRow.getVisibleActions();
 
         List<TextUnderButton> actionsList = new ArrayList<>();

@@ -5,6 +5,7 @@ import androidx.leanback.widget.Row
 import org.jellyfin.androidtv.data.model.InfoItem
 import org.jellyfin.androidtv.ui.TextUnderButton
 import org.jellyfin.sdk.model.api.BaseItemDto
+import org.jellyfin.sdk.model.api.BaseItemKind
 
 class MyDetailsOverviewRow @JvmOverloads constructor(
 	val item: BaseItemDto,
@@ -23,4 +24,18 @@ class MyDetailsOverviewRow @JvmOverloads constructor(
 
 	fun clearActions() = _actions.clear()
 	fun addAction(button: TextUnderButton) = _actions.add(button)
+
+	fun moveActionBefore(button: TextUnderButton, anchor: TextUnderButton) {
+		_actions.remove(button)
+		_actions.add(_actions.indexOf(anchor), button)
+	}
+}
+
+/**
+ * JellyChan: episodes, movies and series share the layout with original title, single metadata line,
+ * pill main action and icon-only secondary actions.
+ */
+fun usesJcDetailsLayout(item: BaseItemDto) = when (item.type) {
+	BaseItemKind.EPISODE, BaseItemKind.MOVIE, BaseItemKind.SERIES -> true
+	else -> false
 }

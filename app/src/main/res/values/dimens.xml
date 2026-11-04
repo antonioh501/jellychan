@@ -11,6 +11,10 @@
     <fraction name="lb_focus_zoom_factor_medium">@fraction/card_scale_focus</fraction>
     <fraction name="lb_focus_zoom_factor_large">@fraction/card_scale_focus</fraction>
 
+    <!-- JellyChan: resume progress bar on cards. Tweak thickness and length here only -->
+    <dimen name="jc_card_progress_height">3dp</dimen>
+    <integer name="jc_card_progress_width_percent">60</integer>
+
     <!-- JellyChan item header (spotlight) height -->
     <dimen name="jc_details_header_height">525dp</dimen>
 

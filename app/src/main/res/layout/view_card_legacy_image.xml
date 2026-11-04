@@ -20,8 +20,8 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/jcCardMain"
         android:duplicateParentState="true"
-        android:foreground="@drawable/ripple"
         android:gravity="start"
         android:visibility="gone"
         tools:ignore="UnusedAttribute"
@@ -55,15 +55,13 @@
             android:id="@+id/resumeProgress"
             style="@style/overlay_progress"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/jc_card_progress_height"
             android:layout_alignStart="@id/main_image"
-            android:layout_alignEnd="@id/main_image"
             android:layout_alignBottom="@+id/main_image"
             android:layout_marginBottom="5dp"
             android:max="100"
-            android:maxHeight="5sp"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
+            android:maxHeight="@dimen/jc_card_progress_height"
+            android:minHeight="@dimen/jc_card_progress_height"
             android:visibility="gone"
             tools:visibility="visible" />
 

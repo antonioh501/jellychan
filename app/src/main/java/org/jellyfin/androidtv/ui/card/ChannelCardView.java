@@ -15,8 +15,23 @@ import java.time.LocalDateTime;
 public class ChannelCardView extends FrameLayout {
     private ViewCardChannelBinding binding = ViewCardChannelBinding.inflate(LayoutInflater.from(getContext()), this, true);
 
+    // JellyChan: shrink on OK, same as the other cards
+    private final JcPressEffect pressEffect = new JcPressEffect(binding.getRoot());
+
     public ChannelCardView(Context context) {
         super(context);
+    }
+
+    @Override
+    public void setPressed(boolean pressed) {
+        super.setPressed(pressed);
+        if (pressEffect != null) pressEffect.setPressed(pressed);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        pressEffect.reset();
     }
 
     public void setItem(final BaseItemDto channel) {

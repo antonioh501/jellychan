@@ -23,6 +23,7 @@ import androidx.leanback.widget.Presenter
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.ui.GridButton
 import org.jellyfin.androidtv.ui.base.Text
+import org.jellyfin.androidtv.ui.card.JcPressEffect
 import org.jellyfin.androidtv.ui.itemhandling.GridButtonBaseRowItem
 
 class GridButtonPresenter @JvmOverloads constructor(
@@ -30,11 +31,24 @@ class GridButtonPresenter @JvmOverloads constructor(
 	private val imageHeight: Int = 110,
 ) : Presenter() {
 	private class ComposeViewWrapper(composeView: ComposeView) : FrameLayout(composeView.context) {
+		// JellyChan: shrink on OK, same as the other cards
+		private val pressEffect = JcPressEffect(composeView)
+
 		init {
 			isFocusable = true
 			isFocusableInTouchMode = true
 			descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
 			addView(composeView)
+		}
+
+		override fun setPressed(pressed: Boolean) {
+			super.setPressed(pressed)
+			pressEffect.setPressed(pressed)
+		}
+
+		override fun onDetachedFromWindow() {
+			super.onDetachedFromWindow()
+			pressEffect.reset()
 		}
 
 		// Hack to prevent Compose crash with leanback presenters

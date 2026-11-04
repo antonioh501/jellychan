@@ -55,6 +55,24 @@ public class LegacyImageCardView extends BaseCardView {
         });
 
         setForeground(null);
+        // JellyChan: the system highlight is a rectangle, focus is shown by updateFocusOutline()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) setDefaultFocusHighlightEnabled(false);
+        pressEffect = new JcPressEffect(binding.jcCardMain);
+    }
+
+    // JellyChan: shrink on OK instead of a ripple
+    private JcPressEffect pressEffect;
+
+    @Override
+    public void setPressed(boolean pressed) {
+        super.setPressed(pressed);
+        if (pressEffect != null) pressEffect.setPressed(pressed);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        pressEffect.reset();
     }
 
     // JellyChan: round photos for people (cast & crew)
@@ -133,8 +151,10 @@ public class LegacyImageCardView extends BaseCardView {
         binding.mainImage.setLayoutParams(lp);
         binding.mainImage.setScaleType(scaleType);
         if (mBanner != null) mBanner.setX(lp.width - BANNER_SIZE);
-        ViewGroup.LayoutParams lp2 = binding.resumeProgress.getLayoutParams();
-        lp2.width = lp.width;
+        // JellyChan: short bar centered on the card
+        ViewGroup.MarginLayoutParams lp2 = (ViewGroup.MarginLayoutParams) binding.resumeProgress.getLayoutParams();
+        lp2.width = lp.width * getResources().getInteger(R.integer.jc_card_progress_width_percent) / 100;
+        lp2.setMarginStart((lp.width - lp2.width) / 2);
         binding.resumeProgress.setLayoutParams(lp2);
     }
 

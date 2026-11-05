@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [0.1.0-alpha.2] - 2026-11-05
+
 ### Changed
 - Item pages for episodes, movies and series: title in the original language under the logo, single metadata
   line (date or years, runtime, rating badge, community and critic score, end time) without video quality and
@@ -56,5 +58,6 @@ First public pre-release. Based on Jellyfin for Android TV 0.19.10.
 - Rating badges on cards.
 - Profile picture in the player overlay.
 
-[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.1...HEAD
+[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.2...HEAD
+[0.1.0-alpha.2]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.1...v0.1.0-alpha.2
 [0.1.0-alpha.1]: https://github.com/antonioh501/jellychan/releases/tag/v0.1.0-alpha.1

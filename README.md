@@ -20,6 +20,10 @@ item pages and the player.
 > **JellyChan is not affiliated with or endorsed by the Jellyfin project.** "Jellyfin" is used here only to
 > describe compatibility. You need your own Jellyfin server to use the app.
 
+> **AI disclosure: JellyChan is primarily LLM-developed.** All changes on top of the upstream app were written
+> with [Claude](https://claude.ai), Anthropic's AI. The upstream code remains the work of the Jellyfin
+> contributors.
+
 ## Features
 
 - **Home** — full-screen spotlight carousel with random movies and series, backdrop and muted local

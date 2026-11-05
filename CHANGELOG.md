@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - Pressing OK on a card shrinks it briefly instead of showing a ripple.
 - Home carousel info line: only parental rating, community score and critic score.
 - Series with a next up episode: Play all moved to the menu to avoid two Play icons.
+- Home toolbar shows the full app logo instead of the server name.
 
 ### Fixed
 - Square focus highlight around round cast & crew photos.
@@ -23,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - Focused row of popup menus no longer overflows the rounded menu shape.
 - The back arrow in the player is now a working button: press up from the top controls to reach it.
 - In library grids you can now move down to a shorter last row from any column.
+- Logo in the toolbar no longer looks grainy.
 
 ## [0.1.0-alpha.1] - 2026-11-04
 

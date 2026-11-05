@@ -47,7 +47,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -87,11 +86,6 @@ private fun MainToolbar(
 	val navigationRepository = koinInject<NavigationRepository>()
 	val mediaManager = koinInject<MediaManager>()
 	val sessionRepository = koinInject<SessionRepository>()
-	val serverRepository = koinInject<org.jellyfin.androidtv.auth.repository.ServerRepository>()
-	val session by sessionRepository.currentSession.collectAsState()
-	val serverName by produceState<String?>(null, session) {
-		value = session?.let { serverRepository.getServer(it.serverId)?.name }
-	}
 	val activity = LocalActivity.current
 	// JellyChan: active tab is a light grey pill, like the library tabs
 	val activeButtonColors = ButtonDefaults.colors(
@@ -104,18 +98,18 @@ private fun MainToolbar(
 			.focusRestorer(focusRequester)
 			.focusGroup(),
 		start = {
-			// JellyChan logo and server name
+			// JellyChan: full app logo, the text is drawn live to stay sharp at this size
 			Row(verticalAlignment = Alignment.CenterVertically) {
 				Image(
 					painter = painterResource(R.drawable.jc_logo_mark),
 					contentDescription = null,
-					modifier = Modifier.size(24.dp),
 				)
-				Spacer(Modifier.width(10.dp))
+				Spacer(Modifier.width(8.dp))
 				Text(
-					text = serverName ?: stringResource(R.string.app_name),
-					fontSize = 15.sp,
-					fontWeight = FontWeight.SemiBold,
+					text = stringResource(R.string.app_name_release),
+					fontSize = 17.sp,
+					fontWeight = FontWeight.Bold,
+					letterSpacing = (-0.3).sp,
 					color = Color.White,
 					maxLines = 1,
 				)

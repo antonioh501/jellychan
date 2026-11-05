@@ -123,6 +123,7 @@ public class CustomPlaybackOverlayFragment extends Fragment implements LiveTvGui
 
     private boolean mFadeEnabled = false;
     private boolean mIsVisible = false;
+    private View mControlsFocusBeforeBack = null;
     private boolean mPopupPanelVisible = false;
     private boolean navigating = false;
 
@@ -177,6 +178,8 @@ public class CustomPlaybackOverlayFragment extends Fragment implements LiveTvGui
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = VlcPlayerInterfaceBinding.inflate(inflater, container, false);
         binding.textClock.setVideoPlayer(true);
+        binding.jcPlayerBack.setOnClickListener(v -> closePlayer());
+        binding.jcPlayerBack.setOnKeyListener(this::onPlayerBackKey);
 
         // inject the RowsSupportFragment in the popup container
         if (getChildFragmentManager().findFragmentById(R.id.rows_area) == null) {
@@ -559,6 +562,8 @@ public class CustomPlaybackOverlayFragment extends Fragment implements LiveTvGui
                     return true;
                 }
 
+                if (keyCode == KeyEvent.KEYCODE_DPAD_UP && focusPlayerBack()) return true;
+
                 if (keyCode != KeyEvent.KEYCODE_BACK && keyCode != KeyEvent.KEYCODE_BUTTON_B && keyCode != KeyEvent.KEYCODE_ESCAPE) {
                     if (mPopupPanelVisible) {
                         // up or down should close panel
@@ -713,6 +718,56 @@ public class CustomPlaybackOverlayFragment extends Fragment implements LiveTvGui
         closePlayer();
     }
 
+    // JellyChan: up from the topmost player control moves the focus to the back button
+    private boolean focusPlayerBack() {
+        if (!mIsVisible || mPopupPanelVisible || mGuideVisible) return false;
+
+        View focused = requireActivity().getCurrentFocus();
+        if (focused == null) return false;
+
+        View next = focused.focusSearch(View.FOCUS_UP);
+        if (next != null && next != focused && next != binding.jcPlayerBack) return false;
+
+        mControlsFocusBeforeBack = focused;
+        if (mFadeEnabled) startFadeTimer();
+        return binding.jcPlayerBack.requestFocus();
+    }
+
+    private void returnFocusToControls() {
+        View target = mControlsFocusBeforeBack;
+        mControlsFocusBeforeBack = null;
+        if (target != null && target.isAttachedToWindow() && target.requestFocus()) return;
+
+        View controls = leanbackOverlayFragment.getView();
+        if (controls != null) controls.requestFocus();
+    }
+
+    // The focus is outside the leanback overlay here, so its key listener does not run
+    private boolean onPlayerBackKey(View v, int keyCode, KeyEvent event) {
+        boolean keyDown = event.getAction() == KeyEvent.ACTION_DOWN;
+
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK:
+            case KeyEvent.KEYCODE_BUTTON_B:
+            case KeyEvent.KEYCODE_ESCAPE:
+                if (keyDown) leanbackOverlayFragment.hideOverlay();
+                return true;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                if (keyDown) {
+                    returnFocusToControls();
+                    if (mFadeEnabled) startFadeTimer();
+                }
+                return true;
+            case KeyEvent.KEYCODE_DPAD_UP:
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                if (keyDown && mFadeEnabled) startFadeTimer();
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public void show() {
         // Already showing!
         if (mIsVisible) return;
@@ -727,6 +782,7 @@ public class CustomPlaybackOverlayFragment extends Fragment implements LiveTvGui
         if (!mIsVisible) return;
 
         mIsVisible = false;
+        if (binding.jcPlayerBack.hasFocus()) returnFocusToControls();
         binding.topPanel.startAnimation(fadeOut);
         binding.skipOverlay.setSkipUiEnabled(!mIsVisible && !mGuideVisible && !mPopupPanelVisible);
     }

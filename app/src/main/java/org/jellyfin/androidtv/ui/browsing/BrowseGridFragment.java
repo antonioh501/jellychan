@@ -243,10 +243,30 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
         mGridView.setHorizontalSpacing(Utils.convertDpToPixel(requireContext(), mGridItemSpacingHorizontal));
         mGridView.setVerticalSpacing(mGridItemSpacingVertical);
         mGridView.setFocusable(true);
+        mGridView.setOnKeyInterceptListener(this::moveToShorterLastLine);
         binding.rowsFragment.removeAllViews();
         binding.rowsFragment.addView(mGridViewHolder.view);
 
         updateAdapter();
+    }
+
+    // JellyChan: the last line of a grid can be shorter, go to its last card instead of getting stuck
+    private boolean moveToShorterLastLine(KeyEvent event) {
+        if (event.getAction() != KeyEvent.ACTION_DOWN || mGridView.getAdapter() == null) return false;
+
+        boolean vertical = mGridPresenter instanceof VerticalGridPresenter;
+        if (event.getKeyCode() != (vertical ? KeyEvent.KEYCODE_DPAD_DOWN : KeyEvent.KEYCODE_DPAD_RIGHT)) return false;
+
+        int lineSize = vertical
+                ? ((VerticalGridPresenter) mGridPresenter).getNumberOfColumns()
+                : ((HorizontalGridPresenter) mGridPresenter).getNumberOfRows();
+        int position = mGridView.getSelectedPosition();
+        int lastPosition = mGridView.getAdapter().getItemCount() - 1;
+        if (lineSize < 1 || position < 0 || position + lineSize <= lastPosition) return false;
+        if (position / lineSize == lastPosition / lineSize) return false;
+
+        mGridView.setSelectedPositionSmooth(lastPosition);
+        return true;
     }
 
     private void updateAdapter() {

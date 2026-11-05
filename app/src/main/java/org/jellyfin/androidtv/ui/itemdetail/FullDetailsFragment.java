@@ -1106,18 +1106,16 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
         favButton.setIcon(favorite ? R.drawable.jc_ic_heart_filled : R.drawable.jc_ic_heart_outline, null);
     }
 
-    // JellyChan: main action as a pill, secondary actions in the row and everything else in the menu
+    // JellyChan: main actions in the row and everything else in the menu
     private void updateJcActions() {
         boolean isEpisode = mBaseItem.getType() == BaseItemKind.EPISODE;
         boolean isSeries = mBaseItem.getType() == BaseItemKind.SERIES;
 
         if (mResumeButton != null && playButton != null) {
             boolean resumeVisible = ViewKt.isVisible(mResumeButton);
-            mResumeButton.setPill(true);
             mResumeButton.setIcon(R.drawable.jc_ic_play_outline, null);
             if (!isSeries) mResumeButton.setLabel(getString(R.string.jc_resume));
 
-            playButton.setPill(!resumeVisible);
             // Next up and play all side by side look like the same action: play all moves to the menu
             playButton.setVisibility(isSeries && resumeVisible ? View.GONE : View.VISIBLE);
             if (!isSeries) {

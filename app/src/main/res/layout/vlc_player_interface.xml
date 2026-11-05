@@ -83,13 +83,25 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_max="450dp" />
 
+        <ImageView
+            android:id="@+id/jc_player_back"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/jc_round_focus"
+            android:clickable="true"
+            android:contentDescription="@string/jc_back"
+            android:focusable="true"
+            android:padding="8dp"
+            android:src="@drawable/jc_ic_arrow_back"
+            android:tint="@color/jc_tab_text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/item_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:drawableStart="@drawable/jc_ic_arrow_back"
-            android:drawablePadding="20dp"
+            android:layout_marginStart="12dp"
             android:ellipsize="end"
             android:fontFamily="@font/inter_medium"
             android:gravity="center_vertical"
@@ -98,10 +110,11 @@
             android:shadowRadius="6"
             android:textColor="@color/white"
             android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@id/jc_player_back"
             app:layout_constraintEnd_toStartOf="@id/textClock"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/item_logo"
+            app:layout_constraintStart_toEndOf="@id/jc_player_back"
+            app:layout_constraintTop_toTopOf="@id/jc_player_back"
             tools:text="Title" />
 
         <TextView

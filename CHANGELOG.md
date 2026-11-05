@@ -10,18 +10,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - Item pages for episodes, movies and series: title in the original language under the logo, single metadata
   line (date or years, runtime, rating badge, community and critic score, end time) without video quality and
   subtitle badges. The end time no longer depends on the clock setting.
-- Item page actions: main Play/Resume pill, icon-only secondary actions, restart button on started items, green
+- Item page actions: icon-only buttons with the label shown under the focused one, restart button on started items, green
   check on watched items, outlined heart. Go to series, previous episode, versions and delete moved to the menu.
 - Thinner and shorter progress bar on cards.
 - Pressing OK on a card shrinks it briefly instead of showing a ripple.
 - Home carousel info line: only parental rating, community score and critic score.
-- Main action pill on item pages matches the carousel buttons: blue at rest, white when focused.
 - Series with a next up episode: Play all moved to the menu to avoid two Play icons.
 
 ### Fixed
 - Square focus highlight around round cast & crew photos.
 - The back arrow on library pages is now a working button.
 - Focused row of popup menus no longer overflows the rounded menu shape.
+- The back arrow in the player is now a working button: press up from the top controls to reach it.
+- In library grids you can now move down to a shorter last row from any column.
 
 ## [0.1.0-alpha.1] - 2026-11-04
 

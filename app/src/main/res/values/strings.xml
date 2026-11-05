@@ -592,6 +592,9 @@
     </plurals>
     <string name="jc_details">Details</string>
     <string name="jc_counter">1-%1$d of %1$d</string>
+    <string name="jc_media_director">Director</string>
+    <string name="jc_media_writer">Writer</string>
+    <string name="jc_media_studio">Studio</string>
     <string name="jc_person_born">Born: %1$s (%2$d years old)</string>
     <string name="jc_person_birthplace">Birth place: %1$s</string>
     <string name="jc_person_born_died">Born: %1$s · Died: %2$s (%3$d years old)</string>

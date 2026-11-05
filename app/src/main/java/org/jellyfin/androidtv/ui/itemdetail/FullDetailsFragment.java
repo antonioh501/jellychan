@@ -62,9 +62,13 @@ import org.jellyfin.androidtv.ui.navigation.Destinations;
 import org.jellyfin.androidtv.ui.navigation.NavigationRepository;
 import org.jellyfin.androidtv.ui.playback.MediaManager;
 import org.jellyfin.androidtv.ui.playback.PlaybackLauncher;
+import org.jellyfin.androidtv.ui.playback.TrackSelection;
+import org.jellyfin.androidtv.ui.playback.VideoQueueManager;
 import org.jellyfin.androidtv.ui.presentation.CardPresenter;
 import org.jellyfin.androidtv.ui.presentation.CustomListRowPresenter;
 import org.jellyfin.androidtv.ui.presentation.InfoCardPresenter;
+import org.jellyfin.androidtv.ui.presentation.JcMediaInfoRow;
+import org.jellyfin.androidtv.ui.presentation.JcMediaInfoRowPresenter;
 import org.jellyfin.androidtv.ui.presentation.MutableObjectAdapter;
 import org.jellyfin.androidtv.ui.presentation.MyDetailsOverviewRowPresenter;
 import org.jellyfin.androidtv.util.CoroutineUtils;
@@ -131,6 +135,8 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
 
     private MyDetailsOverviewRowPresenter mDorPresenter;
     private MyDetailsOverviewRow mDetailsOverviewRow;
+    private JcMediaInfoRowPresenter mMediaInfoPresenter;
+    private JcMediaInfoRow mMediaInfoRow;
     private CustomListRowPresenter mListRowPresenter;
 
     private Handler mLoopHandler = new Handler();
@@ -173,6 +179,11 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
         mRowsFragment.setOnItemViewSelectedListener(new ItemViewSelectedListener());
 
         mDorPresenter = new MyDetailsOverviewRowPresenter(markdownRenderer.getValue());
+        // The rewritten and external players don't read the tracks picked on this page
+        mMediaInfoPresenter = new JcMediaInfoRowPresenter(
+                !userPreferences.getValue().get(UserPreferences.Companion.getUseExternalPlayer())
+                        && !userPreferences.getValue().get(UserPreferences.Companion.getPlaybackRewriteVideoEnabled())
+        );
 
         mItemId = Utils.uuidOrNull(getArguments().getString("ItemId"));
         mChannelId = Utils.uuidOrNull(getArguments().getString("ChannelId"));
@@ -269,6 +280,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
                                 }
                             }
                             updateWatched();
+                            if (mMediaInfoRow != null && mMediaInfoPresenter.getViewHolder() != null) mMediaInfoPresenter.getViewHolder().bind(mMediaInfoRow);
                             MyDetailsOverviewRowPresenter.ViewHolder viewHolder = mDorPresenter.getViewHolder();
                             if (viewHolder != null && MyDetailsOverviewRowKt.usesJcDetailsLayout(mBaseItem)) viewHolder.setInfoValue3(getEndTime());
                             mLastUpdated = Instant.now();
@@ -500,6 +512,17 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
             mRowsAdapter = new MutableObjectAdapter<Row>(ps);
             mRowsFragment.setAdapter(mRowsAdapter);
             mRowsAdapter.add(detailsOverviewRow);
+
+            // JellyChan: credits, external ids and media streams of movies and episodes
+            BaseItemKind itemType = detailsOverviewRow.getItem().getType();
+            VideoQueueManager videoQueueManager = KoinJavaComponent.<VideoQueueManager>get(VideoQueueManager.class);
+            JcMediaInfoRow mediaInfoRow = new JcMediaInfoRow(detailsOverviewRow, videoQueueManager::getLastPlayedAudioLanguageIsoCode);
+            mMediaInfoRow = null;
+            if ((itemType == BaseItemKind.MOVIE || itemType == BaseItemKind.EPISODE) && mediaInfoRow.getHasContent()) {
+                mMediaInfoRow = mediaInfoRow;
+                ps.addClassPresenter(JcMediaInfoRow.class, mMediaInfoPresenter);
+                mRowsAdapter.add(mediaInfoRow);
+            }
 
             updateInfo(detailsOverviewRow.getItem());
             addAdditionalRows(mRowsAdapter);
@@ -1175,6 +1198,10 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                 mDetailsOverviewRow.setSelectedMediaSourceIndex(menuItem.getItemId());
+                // JellyChan: stream indexes belong to a single version
+                mDetailsOverviewRow.setSelectedAudioIndex(null);
+                mDetailsOverviewRow.setSelectedSubtitleIndex(null);
+                if (mMediaInfoRow != null && mMediaInfoPresenter.getViewHolder() != null) mMediaInfoPresenter.getViewHolder().bind(mMediaInfoRow);
                 FullDetailsFragmentHelperKt.getItem(FullDetailsFragment.this, UUIDSerializerKt.toUUID(versions.get(mDetailsOverviewRow.getSelectedMediaSourceIndex()).getId()), item -> {
                     if (item == null) return null;
 
@@ -1295,6 +1322,15 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
         play(mBaseItem, 0, true);
     }
 
+    // JellyChan: hand over the tracks picked on this page, they only apply to the item shown here
+    private void applyTrackSelection(BaseItemDto item) {
+        VideoQueueManager videoQueueManager = KoinJavaComponent.<VideoQueueManager>get(VideoQueueManager.class);
+        Integer audio = mDetailsOverviewRow != null ? mDetailsOverviewRow.getSelectedAudioIndex() : null;
+        Integer subtitle = mDetailsOverviewRow != null ? mDetailsOverviewRow.getSelectedSubtitleIndex() : null;
+        boolean hasSelection = item.getId().equals(mBaseItem.getId()) && (audio != null || subtitle != null);
+        videoQueueManager.setTrackSelection(hasSelection ? new TrackSelection(item.getId(), audio, subtitle) : null);
+    }
+
     void play(final BaseItemDto item, final int pos, final boolean shuffle) {
         playbackHelper.getValue().getItemsToPlay(getContext(), item, pos == 0 && item.getType() == BaseItemKind.MOVIE, shuffle, new Response<List<BaseItemDto>>(getLifecycle()) {
             @Override
@@ -1305,6 +1341,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
                     return;
                 }
 
+                applyTrackSelection(item);
                 interactionTracker.getValue().notifyStartSession(item, response);
                 KoinJavaComponent.<PlaybackLauncher>get(PlaybackLauncher.class).launch(getContext(), response, pos, false, 0, shuffle);
             }

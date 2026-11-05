@@ -17,6 +17,8 @@ class MyDetailsOverviewRow @JvmOverloads constructor(
 	var selectedMediaSourceIndex: Int = 0,
 	var hasLogo: Boolean = false,
 	var episodeThumbUrl: String? = null,
+	var selectedAudioIndex: Int? = null,
+	var selectedSubtitleIndex: Int? = null,
 ) : Row() {
 	private val _actions = mutableListOf<TextUnderButton>()
 	val actions get() = _actions.toList()

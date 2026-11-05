@@ -602,6 +602,9 @@
     <string name="pref_subtitles_position">Distanza dal basso</string>
     <string name="jc_details">Dettagli</string>
     <string name="jc_counter">1-%1$d di %1$d</string>
+    <string name="jc_media_director">Regia</string>
+    <string name="jc_media_writer">Sceneggiatura</string>
+    <string name="jc_media_studio">Studio</string>
     <string name="jc_person_born">Nascita: %1$s (%2$d anni)</string>
     <string name="jc_person_birthplace">Luogo di nascita: %1$s</string>
     <string name="jc_person_born_died">Nascita: %1$s · Morte: %2$s (%3$d anni)</string>

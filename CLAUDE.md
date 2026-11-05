@@ -96,6 +96,5 @@ Stato: `v0.1.0-alpha.1` è sul branch `main`; la release GitHub va creata a mano
 
 ## Idee aperte (solo se richieste)
 
-- Screenshot nel README (ora "Coming soon").
 - Tab "Preferiti" nella toolbar della home.
 - Ramo storico `elegantfin-theme` (non pubblicato) con la cronologia passo-passo.

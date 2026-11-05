@@ -34,7 +34,25 @@ item pages and the player.
 
 ## Screenshots
 
-_Coming soon._
+<p align="center">
+<img alt="Home" src="docs/screenshots/home.jpg" width="100%"/>
+<br/><em>Home</em>
+</p>
+
+<table>
+<tr>
+<td width="50%" align="center"><img alt="Movie library" src="docs/screenshots/library.jpg"/><br/><em>Movie library</em></td>
+<td width="50%" align="center"><img alt="Movie page" src="docs/screenshots/movie.jpg"/><br/><em>Movie page</em></td>
+</tr>
+<tr>
+<td width="50%" align="center"><img alt="TV show page" src="docs/screenshots/tvshow.jpg"/><br/><em>TV show page</em></td>
+<td width="50%" align="center"><img alt="Episode page" src="docs/screenshots/episode.jpg"/><br/><em>Episode page</em></td>
+</tr>
+<tr>
+<td width="50%" align="center"><img alt="Player" src="docs/screenshots/player.jpg"/><br/><em>Player</em></td>
+<td width="50%" align="center"><img alt="Cast detail" src="docs/screenshots/cast.jpg"/><br/><em>Cast detail</em></td>
+</tr>
+</table>
 
 ## Install
 

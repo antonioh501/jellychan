@@ -1,11 +1,15 @@
 package org.jellyfin.androidtv.ui.playback
 
 import org.jellyfin.sdk.model.api.BaseItemDto
+import java.util.UUID
 
 class VideoQueueManager {
 	private var _currentVideoQueue: List<BaseItemDto> = emptyList()
 	private var _currentMediaPosition = -1
 	private var _lastPlayedAudioLanguageIsoCode: String? = null
+	var trackSelection: TrackSelection? = null
+
+	fun trackSelectionFor(itemId: UUID) = trackSelection?.takeIf { it.itemId == itemId }
 
 	fun setCurrentVideoQueue(items: List<BaseItemDto>?) {
 		if (items.isNullOrEmpty()) return clearVideoQueue()
@@ -36,5 +40,16 @@ class VideoQueueManager {
 		_currentVideoQueue = emptyList()
 		_currentMediaPosition = -1
 		_lastPlayedAudioLanguageIsoCode = null
+		trackSelection = null
 	}
 }
+
+/**
+ * JellyChan: tracks picked on the item page, applied when playback of that item starts.
+ * A null index keeps the default behavior for that track type.
+ */
+data class TrackSelection(
+	val itemId: UUID,
+	val audioStreamIndex: Int?,
+	val subtitleStreamIndex: Int?,
+)

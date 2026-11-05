@@ -525,6 +525,16 @@ public class PlaybackController implements PlaybackControllerNotifiable {
                 }
             }
         }
+        // JellyChan: tracks picked on the item page
+        TrackSelection trackSelection = videoQueueManager.getValue().trackSelectionFor(item.getId());
+        if (trackSelection != null) {
+            if (trackSelection.getAudioStreamIndex() != null) {
+                internalOptions.setAudioStreamIndex(trackSelection.getAudioStreamIndex());
+            }
+            if (trackSelection.getSubtitleStreamIndex() != null && forcedSubtitleIndex == null) {
+                internalOptions.setSubtitleStreamIndex(trackSelection.getSubtitleStreamIndex());
+            }
+        }
         if (!isLiveTv && currentMediaSource != null) {
             internalOptions.setMediaSourceId(currentMediaSource.getId());
         }
@@ -612,6 +622,7 @@ public class PlaybackController implements PlaybackControllerNotifiable {
         }
 
         mCurrentOptions.setAudioStreamIndex(null); // reset audio stream index to allow auto selection on new item
+        Integer requestedSubtitleIndex = mCurrentOptions.getSubtitleStreamIndex();
 
         mStartPosition = position;
         mCurrentStreamInfo = response;
@@ -631,6 +642,11 @@ public class PlaybackController implements PlaybackControllerNotifiable {
 
         // get subtitle info
         mCurrentOptions.setSubtitleStreamIndex(response.getMediaSource().getDefaultSubtitleStreamIndex() != null ? response.getMediaSource().getDefaultSubtitleStreamIndex() : null);
+        // JellyChan: subtitles picked on the item page win over the server default, unless playback fell back to no subtitles
+        TrackSelection trackSelection = videoQueueManager.getValue().trackSelectionFor(item.getId());
+        if (trackSelection != null && requestedSubtitleIndex != null && requestedSubtitleIndex.equals(trackSelection.getSubtitleStreamIndex())) {
+            mCurrentOptions.setSubtitleStreamIndex(requestedSubtitleIndex);
+        }
         setDefaultAudioIndex(response);
         Timber.i("default audio index set to %s remote default %s", mDefaultAudioIndex, response.getMediaSource().getDefaultAudioStreamIndex());
         Timber.i("default sub index set to %s remote default %s", mCurrentOptions.getSubtitleStreamIndex(), response.getMediaSource().getDefaultSubtitleStreamIndex());
@@ -1221,6 +1237,16 @@ public class PlaybackController implements PlaybackControllerNotifiable {
                 eligibleAudioTrack = mCurrentOptions.getAudioStreamIndex();
             } else if (getCurrentMediaSource().getDefaultAudioStreamIndex() != null) {
                 eligibleAudioTrack = getCurrentMediaSource().getDefaultAudioStreamIndex();
+            }
+
+            // JellyChan: audio picked on the item page. The selection stays until playback really started,
+            // because baking subtitles restarts it.
+            TrackSelection trackSelection = videoQueueManager.getValue().trackSelectionFor(getCurrentlyPlayingItem().getId());
+            if (trackSelection != null && trackSelection.getAudioStreamIndex() != null) {
+                eligibleAudioTrack = trackSelection.getAudioStreamIndex();
+            }
+            if (trackSelection != null && mPlaybackState == PlaybackState.PLAYING) {
+                videoQueueManager.getValue().setTrackSelection(null);
             }
             switchAudioStream(eligibleAudioTrack);
         }

@@ -57,7 +57,7 @@ L'APK esce in `app/build/outputs/apk/release/` come `jellychan-v<versione>-relea
 | `signing.key.alias` | `SIGNING_KEY_ALIAS` |
 | `signing.key.password` | `SIGNING_KEY_PASSWORD` |
 
-Keystore: `jellychan-release.jks` sul PC di Antonio, in `C:\Users\anton\Downloads\jellyfin-firetv\`; alias e
+Keystore: `jellychan-release.jks` sul PC di Antonio, fuori dal repo (percorso in `CLAUDE.local.md`); alias e
 password sono nel file `jellychan-release-key.txt` nella stessa cartella. **Leggi quel file, non copiare i valori
 nel repo.** Se la chiave cambia, l'APK non si installa sopra la versione precedente (serve disinstallare).
 

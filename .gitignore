@@ -10,3 +10,10 @@ captures/
 
 # Claude Code local notes (IP, credenziali locali)
 CLAUDE.local.md
+
+# Signing material must never be committed
+*.jks
+*.keystore
+*.p12
+*.pfx
+*release-key*

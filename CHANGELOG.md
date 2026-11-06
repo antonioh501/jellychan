@@ -6,10 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+### Changed
+- Settings, Personalization: removed options that had no effect or that broke the new design (emerald theme,
+  backdrops switch, series thumbnails, stars/tomatoes choice, season premieres, smart screen, image type and grid
+  direction, screensaver age-required switch, audio/subtitle remote shortcuts). Backdrops and series thumbnails are
+  always on.
+- Settings: "Show ratings" is a simple switch, and the home sections are plain on/off switches. The order of the
+  home sections is fixed.
+
 ### Fixed
 - Seerr: the title and poster on a title page are no longer cut off after moving between the buttons and the
   recommendations; the page now scrolls to clean positions.
 - Seerr: the rows above the focused one no longer bob up and down on every left/right move in Discover.
+- Settings: the clock setting now also applies to the toolbar of the home and library pages.
+- Italian typos in the screensaver settings; shorter title for the watched indicators setting.
 
 ## [0.1.0-alpha.3] - 2026-11-06
 

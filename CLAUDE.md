@@ -58,8 +58,10 @@ L'APK esce in `app/build/outputs/apk/release/` come `jellychan-v<versione>-relea
 | `signing.key.password` | `SIGNING_KEY_PASSWORD` |
 
 Keystore: `jellychan-release.jks` sul PC di Antonio, fuori dal repo (percorso in `CLAUDE.local.md`); alias e
-password sono nel file `jellychan-release-key.txt` nella stessa cartella. **Leggi quel file, non copiare i valori
-nel repo.** Se la chiave cambia, l'APK non si installa sopra la versione precedente (serve disinstallare).
+password sono nel file `jellychan-release-key.txt` nella stessa cartella. **Non stampare né copiare i valori
+nel repo o in chat**: carica le variabili d'ambiente da quel file con uno script senza mostrarne il contenuto. Se
+`KEYSTORE_FILE` nel file è un segnaposto, usa il percorso di `CLAUDE.local.md`. Se la chiave cambia, l'APK non si
+installa sopra la versione precedente (serve disinstallare).
 
 ## Test su Fire TV Stick (adb)
 
@@ -73,9 +75,20 @@ adb -s <IP_STICK>:5555 shell monkey -p io.github.antonioh501.jellychan -c androi
 ```
 
 Telecomando via adb: `shell input keyevent` 19 su, 20 giù, 21 sinistra, 22 destra, 23 OK, 4 indietro, 3 home,
-224 sveglia. Screenshot: `shell screencap -p /sdcard/s.png` poi `adb pull /sdcard/s.png`.
+224 sveglia. Screenshot: `adb -s <IP_STICK>:5555 exec-out screencap -p > s.png` (in Git Bash evita
+`shell screencap` + `pull`: la conversione dei path rompe `/sdcard/...`; in alternativa premetti `MSYS_NO_PATHCONV=1`).
 **Antonio non è davanti alla TV: dopo ogni modifica visiva installa, naviga e mostragli gli screenshot.**
 Il daemon adb può morire tra un comando e l'altro: riconnettiti ogni volta.
+
+## Note UI (Compose)
+
+- Seerr (Scopri) sta in `ui/seerr/`, pagine in Compose dentro Fragment. Le stringhe `jc_seerr_*` vanno in entrambe le lingue;
+  i contenuti TMDB seguono la lingua di sistema (`Locale.getDefault().language`), con fallback inglese.
+- Su una card focalizzabile non applicare `scale` al composable che prende il focus: i genitori con scroll
+  (`verticalScroll`, `LazyColumn`) vedono i bounds ingranditi e si spostano (righe che "ballano", titolo tagliato).
+  Zoom sul box interno, focus sul box esterno (vedi `SeerrCard.kt`).
+- Evita `verticalScroll` dove il focus può finire su elementi di altezza diversa: il bring-into-view automatico
+  sovrascrive gli scroll manuali. Per due sole posizioni usa un offset animato (vedi `SeerrDetailFragment.kt`).
 
 ## Limiti noti (non ritentare)
 
@@ -92,9 +105,9 @@ Il daemon adb può morire tra un comando e l'altro: riconnettiti ogni volta.
 4. GitHub → Releases → nuova release dal tag, **segna come pre-release**, note dal CHANGELOG, allega l'APK.
    Con `gh` autenticato si può fare da terminale: `gh release create vX.Y.Z-alpha.N <apk> --prerelease --notes-file ...`.
 
-Stato: `v0.1.0-alpha.1` è sul branch `main`; la release GitHub va creata a mano se il tag non esiste ancora sul remoto.
+Stato: ultima pre-release pubblicata `v0.1.0-alpha.3`. Esiste solo il branch `main` (locale e remoto): i branch
+`feature/...` si cancellano dopo il merge.
 
 ## Idee aperte (solo se richieste)
 
 - Tab "Preferiti" nella toolbar della home.
-- Ramo storico `elegantfin-theme` (non pubblicato) con la cronologia passo-passo.

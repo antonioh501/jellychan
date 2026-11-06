@@ -136,7 +136,7 @@ class LeanbackChannelWorker(
 					.setAppLinkIntent(Intent(context, StartupActivity::class.java))
 					.build()
 			)
-			val preferParentThumb = userPreferences[UserPreferences.seriesThumbnailsEnabled]
+			val preferParentThumb = true
 
 			// Add new items
 			arrayOf(
@@ -448,7 +448,7 @@ class LeanbackChannelWorker(
 	@Suppress("RestrictedApi")
 	private fun getBaseItemAsWatchNextProgram(item: BaseItemDto) =
 		WatchNextProgram.Builder().apply {
-			val preferParentThumb = userPreferences[UserPreferences.seriesThumbnailsEnabled]
+			val preferParentThumb = true
 
 			setInternalProviderId(item.id.toString())
 

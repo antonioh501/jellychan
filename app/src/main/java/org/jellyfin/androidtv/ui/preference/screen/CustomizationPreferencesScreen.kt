@@ -12,7 +12,6 @@ import org.jellyfin.androidtv.ui.preference.dsl.enum
 import org.jellyfin.androidtv.ui.preference.dsl.link
 import org.jellyfin.androidtv.ui.preference.dsl.list
 import org.jellyfin.androidtv.ui.preference.dsl.optionsScreen
-import org.jellyfin.androidtv.ui.preference.dsl.shortcut
 import org.jellyfin.androidtv.util.getQuantityString
 import org.koin.android.ext.android.inject
 import kotlin.time.Duration.Companion.minutes
@@ -42,27 +41,17 @@ class CustomizationPreferencesScreen : OptionsFragment() {
 				bind(userPreferences, UserPreferences.watchedIndicatorBehavior)
 			}
 
+			// JellyChan: the stars/tomatoes choice had no effect, only hiding the ratings does
 			checkbox {
-				setTitle(R.string.lbl_show_backdrop)
-				setContent(R.string.pref_show_backdrop_description)
-				bind(userPreferences, UserPreferences.backdropEnabled)
-			}
-
-			checkbox {
-				setTitle(R.string.lbl_use_series_thumbnails)
-				setContent(R.string.lbl_use_series_thumbnails_description)
-				bind(userPreferences, UserPreferences.seriesThumbnailsEnabled)
-			}
-
-			enum<RatingType> {
-				setTitle(R.string.pref_default_rating)
-				bind(userPreferences, UserPreferences.defaultRatingType)
-			}
-
-			checkbox {
-				setTitle(R.string.lbl_show_premieres)
-				setContent(R.string.desc_premieres)
-				bind(userPreferences, UserPreferences.premieresEnabled)
+				setTitle(R.string.jc_pref_show_ratings)
+				bind {
+					get { userPreferences[UserPreferences.defaultRatingType] != RatingType.RATING_HIDDEN }
+					set { value ->
+						userPreferences[UserPreferences.defaultRatingType] =
+							if (value) RatingType.RATING_TOMATOES else RatingType.RATING_HIDDEN
+					}
+					default { true }
+				}
 			}
 
 			checkbox {
@@ -122,16 +111,6 @@ class CustomizationPreferencesScreen : OptionsFragment() {
 				depends { userPreferences[UserPreferences.screensaverInAppEnabled] }
 			}
 
-			checkbox {
-				setTitle(R.string.pref_screensaver_ageratingrequired_title)
-				setContent(
-					R.string.pref_screensaver_ageratingrequired_enabled,
-					R.string.pref_screensaver_ageratingrequired_disabled,
-				)
-
-				bind(userPreferences, UserPreferences.screensaverAgeRatingRequired)
-			}
-
 			list {
 				setTitle(R.string.pref_screensaver_ageratingmax)
 
@@ -151,20 +130,6 @@ class CustomizationPreferencesScreen : OptionsFragment() {
 					set { value -> userPreferences[UserPreferences.screensaverAgeRatingMax] = value.toInt() }
 					default { UserPreferences.screensaverAgeRatingMax.defaultValue.toString() }
 				}
-			}
-		}
-
-		category {
-			setTitle(R.string.pref_behavior)
-
-			shortcut {
-				setTitle(R.string.pref_audio_track_button)
-				bind(userPreferences, UserPreferences.shortcutAudioTrack)
-			}
-
-			shortcut {
-				setTitle(R.string.pref_subtitle_track_button)
-				bind(userPreferences, UserPreferences.shortcutSubtitleTrack)
 			}
 		}
 	}

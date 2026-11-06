@@ -335,7 +335,7 @@
     <string name="connect_manually_by_address">Enter server address</string>
     <string name="login_help_title">Need help?</string>
     <string name="login_help_description">JellyChan requires a Jellyfin server to connect with. Visit docs.jellyfin.org or scan the QR code to get started with Jellyfin.</string>
-    <string name="pref_watched_indicator">Show watched indicators</string>
+    <string name="pref_watched_indicator">Watched indicators</string>
     <string name="lbl_hide_unwatched_count">When the item is watched</string>
     <string name="lbl_hide_watched_checkmark">When there are episodes remaining</string>
     <string name="lbl_use_series_thumbnails">Prefer series thumbnails</string>
@@ -627,6 +627,7 @@
     <string name="jc_seerr_error_method_disabled">This sign-in method is disabled on the server</string>
     <string name="jc_seerr_error_credentials">Wrong username or password</string>
     <string name="jc_seerr_discover">Discover</string>
+    <string name="jc_pref_show_ratings">Show ratings</string>
     <string name="jc_seerr_search">Search on Seerr</string>
     <string name="jc_seerr_no_results">No results</string>
     <string name="jc_seerr_open_settings">Open settings</string>

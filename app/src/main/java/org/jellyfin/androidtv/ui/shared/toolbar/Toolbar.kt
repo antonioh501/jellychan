@@ -18,6 +18,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jellyfin.androidtv.R
+import org.jellyfin.androidtv.preference.UserPreferences
+import org.jellyfin.androidtv.preference.constant.ClockBehavior
+import org.koin.compose.koinInject
 import org.jellyfin.androidtv.ui.base.JellyfinTheme
 import org.jellyfin.androidtv.ui.base.Text
 import org.jellyfin.androidtv.ui.composable.modifier.overscan
@@ -53,6 +56,10 @@ fun Toolbar(
 fun ToolbarClock(
 	modifier: Modifier = Modifier,
 ) {
+	// The toolbar is shown in menus only, so "during playback" and "never" hide the clock here
+	val clockBehavior = koinInject<UserPreferences>()[UserPreferences.clockBehavior]
+	if (clockBehavior != ClockBehavior.ALWAYS && clockBehavior != ClockBehavior.IN_MENUS) return
+
 	val currentTime by rememberCurrentTime()
 	Text(
 		text = currentTime,

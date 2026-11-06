@@ -21,12 +21,12 @@ class HomeFragmentBrowseRowDefRow(
 
 	override fun addToRowsAdapter(context: Context, cardPresenter: CardPresenter, rowsAdapter: MutableObjectAdapter<Row>) {
 		val header = HeaderItem(browseRowDef.headerText)
-		val preferParentThumb = userPreferences[UserPreferences.seriesThumbnailsEnabled]
+		val preferParentThumb = true
 
 		// Some of these members are probably never used and could be removed
 		val rowAdapter = when (browseRowDef.queryType) {
 			QueryType.NextUp -> ItemRowAdapter(context, browseRowDef.nextUpQuery, preferParentThumb, cardPresenter, rowsAdapter)
-			QueryType.LatestItems -> ItemRowAdapter(context, browseRowDef.latestItemsQuery, userPreferences[UserPreferences.seriesThumbnailsEnabled], cardPresenter, rowsAdapter)
+			QueryType.LatestItems -> ItemRowAdapter(context, browseRowDef.latestItemsQuery, true, cardPresenter, rowsAdapter)
 			QueryType.Views -> ItemRowAdapter(context, GetUserViewsRequest, cardPresenter, rowsAdapter)
 			QueryType.SimilarSeries -> ItemRowAdapter(context, browseRowDef.similarQuery, QueryType.SimilarSeries, cardPresenter, rowsAdapter)
 			QueryType.SimilarMovies -> ItemRowAdapter(context, browseRowDef.similarQuery, QueryType.SimilarMovies, cardPresenter, rowsAdapter)

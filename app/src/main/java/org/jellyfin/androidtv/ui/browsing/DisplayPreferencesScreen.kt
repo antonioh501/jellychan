@@ -33,24 +33,6 @@ class DisplayPreferencesScreen : OptionsFragment() {
 				setTitle(R.string.lbl_image_size)
 				bind(libraryPreferences, LibraryPreferences.posterSize)
 			}
-			enum<ImageType> {
-				setTitle(R.string.lbl_image_type)
-				bind(libraryPreferences, LibraryPreferences.imageType)
-			}
-			enum<GridDirection> {
-				setTitle(R.string.grid_direction)
-				bind(libraryPreferences, LibraryPreferences.gridDirection)
-			}
-
-			if (allowViewSelection) {
-				checkbox {
-					setTitle(R.string.enable_smart_view)
-					contentOn = requireContext().getString(R.string.enable_smart_view_description)
-					contentOff = contentOn
-
-					bind(libraryPreferences, LibraryPreferences.enableSmartScreen)
-				}
-			}
 		}
 	}
 

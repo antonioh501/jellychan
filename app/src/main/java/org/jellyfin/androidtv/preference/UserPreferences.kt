@@ -42,16 +42,6 @@ class UserPreferences(context: Context) : SharedPreferenceStore(
 		var appTheme = enumPreference("app_theme", AppTheme.DARK)
 
 		/**
-		 * Enable background images while browsing
-		 */
-		var backdropEnabled = booleanPreference("pref_show_backdrop", true)
-
-		/**
-		 * Show premieres on home screen
-		 */
-		var premieresEnabled = booleanPreference("pref_enable_premieres", false)
-
-		/**
 		 * Enable management of media like deleting items when the user has sufficient permissions.
 		 */
 		var mediaManagementEnabled = booleanPreference("enable_media_management", false)
@@ -166,11 +156,6 @@ class UserPreferences(context: Context) : SharedPreferenceStore(
 		 * Set when watched indicators should show on MyImageCardViews
 		 */
 		var watchedIndicatorBehavior = enumPreference("pref_watched_indicator_behavior", WatchedIndicatorBehavior.ALWAYS)
-
-		/**
-		 * Enable series thumbnails in home screen rows
-		 */
-		var seriesThumbnailsEnabled = booleanPreference("pref_enable_series_thumbnails", true)
 
 		/**
 		 * Subtitles foreground color

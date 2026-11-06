@@ -75,7 +75,7 @@ class BackgroundService(
 	 */
 	fun setBackground(baseItem: BaseItemDto?) {
 		// Check if item is set and backgrounds are enabled
-		if (baseItem == null || !userPreferences[UserPreferences.backdropEnabled])
+		if (baseItem == null)
 			return clearBackgrounds()
 
 		// Enable blur for backdrops
@@ -93,10 +93,6 @@ class BackgroundService(
 	 * Use splashscreen from [server] as background.
 	 */
 	fun setBackground(server: Server) {
-		// Check if item is set and backgrounds are enabled
-		if (!userPreferences[UserPreferences.backdropEnabled])
-			return clearBackgrounds()
-
 		// Check if splashscreen is enabled in (cached) branding options
 		if (!server.splashscreenEnabled)
 			return clearBackgrounds()

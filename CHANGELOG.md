@@ -7,8 +7,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ## [Unreleased]
 
 ### Added
+- Seerr: "Le mie richieste" page, opened from the Discover tab, with the requests of the signed in user, their status
+  and a way to cancel them.
 - Movie and episode pages: external ids, director, writer, studio and genres, plus video, audio and subtitle
   details below the header. Audio and subtitle tracks can be picked there before starting playback.
+- Settings: connect to a Seerr server with the server account or a Seerr account. Only the session is kept on the
+  device, never the password.
+- Discover tab, shown once Seerr is connected: trending, popular and upcoming movies and series with their
+  availability, plus a search. Titles already in the library open their item page.
+- Seerr page for titles that are not in the library, with the details, the status and a request button. A series can be
+  requested by season; seasons that are already requested or available are marked.
+- Seerr page: a status badge (requested, processing, partially available, available), the status of every request with
+  who made it, and a button to cancel a request. A title that is already requested or present cannot be requested again.
+- Suggestions from Seerr at the bottom of the Seerr page and of the movie and series pages of the library. Titles that
+  the library already suggests are not repeated.
+
+### Changed
+- Discover cards shrink while OK is held, like the other cards of the app.
+- Rows across the app use the compact spacing of the Discover page: smaller gap between cards, smaller row titles and
+  less space between rows.
 
 ## [0.1.0-alpha.2] - 2026-11-05
 

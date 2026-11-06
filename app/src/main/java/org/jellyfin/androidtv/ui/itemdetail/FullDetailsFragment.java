@@ -57,6 +57,8 @@ import org.jellyfin.androidtv.ui.browsing.BrowsingUtils;
 import org.jellyfin.androidtv.ui.itemhandling.BaseRowItem;
 import org.jellyfin.androidtv.ui.itemhandling.ItemLauncher;
 import org.jellyfin.androidtv.ui.itemhandling.ItemRowAdapter;
+import org.jellyfin.androidtv.data.seerr.SeerrMedia;
+import org.jellyfin.androidtv.ui.seerr.SeerrRecommendationRow;
 import org.jellyfin.androidtv.ui.livetv.TvManager;
 import org.jellyfin.androidtv.ui.navigation.Destinations;
 import org.jellyfin.androidtv.ui.navigation.NavigationRepository;
@@ -689,6 +691,9 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
             default:
                 addInfoRows(adapter);
         }
+
+        // JellyChan: suggestions from Seerr come after the ones of the library
+        SeerrRecommendationRow.add(this, adapter, mBaseItem);
     }
 
     private void addInfoRows(MutableObjectAdapter<Row> adapter) {
@@ -1293,6 +1298,11 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
         @Override
         public void onItemClicked(final Presenter.ViewHolder itemViewHolder, Object item,
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
+
+            if (item instanceof SeerrMedia) {
+                SeerrRecommendationRow.open((SeerrMedia) item);
+                return;
+            }
 
             if (!(item instanceof BaseRowItem)) return;
             itemLauncher.getValue().launch((BaseRowItem) item, (ItemRowAdapter) ((ListRow) row).getAdapter(), requireContext());

@@ -33,6 +33,13 @@ class UserPreferencesScreen : OptionsFragment() {
 			}
 
 			link {
+				setTitle(R.string.jc_seerr)
+				setContent(R.string.jc_seerr_description)
+				icon = R.drawable.jc_ic_seerr
+				withFragment<SeerrPreferencesScreen>()
+			}
+
+			link {
 				setTitle(R.string.pref_telemetry_category)
 				setContent(R.string.pref_telemetry_description)
 				icon = R.drawable.ic_error

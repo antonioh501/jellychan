@@ -24,9 +24,12 @@
     <dimen name="lb_basic_card_title_text_size">12sp</dimen>
     <dimen name="lb_basic_card_content_text_size">11sp</dimen>
 
-    <!-- JellyChan: more air between cards in rows -->
-    <dimen name="lb_browse_item_horizontal_spacing">24dp</dimen>
-    <dimen name="lb_browse_item_vertical_spacing">16dp</dimen>
+    <!-- JellyChan: compact rows, the same spacing as the Discover page -->
+    <dimen name="lb_browse_item_horizontal_spacing">12dp</dimen>
+    <dimen name="lb_browse_item_vertical_spacing">6dp</dimen>
+    <dimen name="lb_browse_expanded_row_no_hovercard_bottom_padding">8dp</dimen>
+    <dimen name="lb_browse_expanded_selected_row_top_padding">8dp</dimen>
+    <dimen name="lb_browse_header_height">22dp</dimen>
 
     <!-- JellyChan home spotlight (carousel) height -->
     <dimen name="jc_home_spotlight_height">390dp</dimen>

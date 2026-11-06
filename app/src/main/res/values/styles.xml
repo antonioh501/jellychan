@@ -9,7 +9,7 @@
         <item name="android:textColor">?attr/headerTextColor</item>
         <!-- JellyChan section titles: Inter SemiBold -->
         <item name="android:fontFamily">@font/inter_semibold</item>
-        <item name="android:textSize">17sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:letterSpacing">0</item>
     </style>
 

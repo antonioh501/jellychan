@@ -16,6 +16,10 @@ import org.jellyfin.androidtv.BuildConfig
 import org.jellyfin.androidtv.auth.repository.ServerRepository
 import org.jellyfin.androidtv.auth.repository.UserRepository
 import org.jellyfin.androidtv.auth.repository.UserRepositoryImpl
+import org.jellyfin.androidtv.data.seerr.SeerrAccountStore
+import org.jellyfin.androidtv.data.seerr.SeerrCatalog
+import org.jellyfin.androidtv.data.seerr.SeerrRepository
+import org.jellyfin.androidtv.data.seerr.SharedPreferencesSeerrAccountStore
 import org.jellyfin.androidtv.data.eventhandling.SocketHandler
 import org.jellyfin.androidtv.data.model.DataRefreshService
 import org.jellyfin.androidtv.data.repository.CustomMessageRepository
@@ -43,6 +47,10 @@ import org.jellyfin.androidtv.ui.search.SearchFragmentDelegate
 import org.jellyfin.androidtv.ui.search.SearchRepository
 import org.jellyfin.androidtv.ui.search.SearchRepositoryImpl
 import org.jellyfin.androidtv.ui.search.SearchViewModel
+import org.jellyfin.androidtv.ui.seerr.SeerrDetailViewModel
+import org.jellyfin.androidtv.ui.seerr.SeerrDiscoverViewModel
+import org.jellyfin.androidtv.ui.seerr.SeerrRequestsViewModel
+import org.jellyfin.androidtv.ui.seerr.SeerrSearchViewModel
 import org.jellyfin.androidtv.ui.startup.ServerAddViewModel
 import org.jellyfin.androidtv.ui.startup.StartupViewModel
 import org.jellyfin.androidtv.ui.startup.UserLoginViewModel
@@ -132,6 +140,9 @@ val appModule = module {
 	single { InteractionTrackerViewModel(get(), get()) }
 
 	single<UserRepository> { UserRepositoryImpl() }
+	single<SeerrAccountStore> { SharedPreferencesSeerrAccountStore(androidContext()) }
+	single { SeerrRepository(get(), get(), get<OkHttpFactory>().createClient(get<HttpClientOptions>())) }
+	single { SeerrCatalog(get()) }
 	single<UserViewsRepository> { UserViewsRepositoryImpl(get()) }
 	single<NotificationsRepository> { NotificationsRepositoryImpl(get(), get()) }
 	single<ItemMutationRepository> { ItemMutationRepositoryImpl(get(), get()) }
@@ -147,6 +158,10 @@ val appModule = module {
 	viewModel { StillWatchingViewModel(get(), get(), get(), get()) }
 	viewModel { PhotoPlayerViewModel(get()) }
 	viewModel { SearchViewModel(get()) }
+	viewModel { SeerrDiscoverViewModel(get(), get()) }
+	viewModel { SeerrSearchViewModel(get()) }
+	viewModel { SeerrDetailViewModel(get()) }
+	viewModel { SeerrRequestsViewModel(get(), get()) }
 	viewModel { DreamViewModel(get(), get(), get(), get(), get()) }
 
 	single { BackgroundService(get(), get(), get(), get(), get()) }

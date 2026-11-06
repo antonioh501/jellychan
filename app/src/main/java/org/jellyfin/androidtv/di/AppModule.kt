@@ -16,6 +16,9 @@ import org.jellyfin.androidtv.BuildConfig
 import org.jellyfin.androidtv.auth.repository.ServerRepository
 import org.jellyfin.androidtv.auth.repository.UserRepository
 import org.jellyfin.androidtv.auth.repository.UserRepositoryImpl
+import org.jellyfin.androidtv.data.seerr.SeerrAccountStore
+import org.jellyfin.androidtv.data.seerr.SeerrRepository
+import org.jellyfin.androidtv.data.seerr.SharedPreferencesSeerrAccountStore
 import org.jellyfin.androidtv.data.eventhandling.SocketHandler
 import org.jellyfin.androidtv.data.model.DataRefreshService
 import org.jellyfin.androidtv.data.repository.CustomMessageRepository
@@ -132,6 +135,8 @@ val appModule = module {
 	single { InteractionTrackerViewModel(get(), get()) }
 
 	single<UserRepository> { UserRepositoryImpl() }
+	single<SeerrAccountStore> { SharedPreferencesSeerrAccountStore(androidContext()) }
+	single { SeerrRepository(get(), get(), get<OkHttpFactory>().createClient(get<HttpClientOptions>())) }
 	single<UserViewsRepository> { UserViewsRepositoryImpl(get()) }
 	single<NotificationsRepository> { NotificationsRepositoryImpl(get(), get()) }
 	single<ItemMutationRepository> { ItemMutationRepositoryImpl(get(), get()) }

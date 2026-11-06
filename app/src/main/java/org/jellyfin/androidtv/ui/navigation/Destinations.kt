@@ -26,6 +26,7 @@ import org.jellyfin.androidtv.ui.player.video.VideoPlayerFragment
 import org.jellyfin.androidtv.ui.search.SearchFragment
 import org.jellyfin.androidtv.ui.seerr.SeerrDetailFragment
 import org.jellyfin.androidtv.ui.seerr.SeerrDiscoverFragment
+import org.jellyfin.androidtv.ui.seerr.SeerrRequestsFragment
 import org.jellyfin.androidtv.ui.seerr.SeerrSearchFragment
 import org.jellyfin.sdk.model.api.BaseItemDto
 import org.jellyfin.sdk.model.api.ItemSortBy
@@ -39,6 +40,7 @@ object Destinations {
 	val home = fragmentDestination<HomeFragment>()
 	val seerrDiscover = fragmentDestination<SeerrDiscoverFragment>()
 	val seerrSearch = fragmentDestination<SeerrSearchFragment>()
+	val seerrRequests = fragmentDestination<SeerrRequestsFragment>()
 	fun seerrDetails(type: SeerrMediaType, id: Int) = fragmentDestination<SeerrDetailFragment>(
 		SeerrDetailFragment.EXTRA_TYPE to type.name,
 		SeerrDetailFragment.EXTRA_ID to id,

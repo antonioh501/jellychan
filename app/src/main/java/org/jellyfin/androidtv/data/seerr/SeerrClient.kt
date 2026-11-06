@@ -88,6 +88,15 @@ class SeerrClient(
 		addQueryParameter("language", language)
 	}
 
+	/** One page of the requests made by [userId], the newest first. */
+	suspend fun requests(userId: Int, page: Int, pageSize: Int): SeerrRequestListResponse = get("request") {
+		addQueryParameter("take", pageSize.toString())
+		addQueryParameter("skip", ((page - 1) * pageSize).toString())
+		addQueryParameter("filter", "all")
+		addQueryParameter("sort", "added")
+		addQueryParameter("requestedBy", userId.toString())
+	}
+
 	suspend fun cancelRequest(id: Int) {
 		execute(request("request/$id").delete().build())
 	}

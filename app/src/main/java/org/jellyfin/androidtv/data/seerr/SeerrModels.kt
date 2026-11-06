@@ -124,6 +124,36 @@ data class SeerrDetailsResponse(
 	val mediaInfo: SeerrMediaInfo? = null,
 )
 
+/** The media of an entry of the request list. Only what is needed to find it again. */
+@Serializable
+data class SeerrRequestMedia(
+	val tmdbId: Int = 0,
+	val mediaType: String? = null,
+	val status: Int = 1,
+)
+
+@Serializable
+data class SeerrRequestListItem(
+	val id: Int,
+	val status: Int = 1,
+	val createdAt: String? = null,
+	val media: SeerrRequestMedia? = null,
+	val requestedBy: SeerrRequester? = null,
+	val seasons: List<SeerrRequestedSeason> = emptyList(),
+)
+
+@Serializable
+data class SeerrRequestPageInfo(
+	val page: Int = 1,
+	val pages: Int = 1,
+)
+
+@Serializable
+data class SeerrRequestListResponse(
+	val pageInfo: SeerrRequestPageInfo = SeerrRequestPageInfo(),
+	val results: List<SeerrRequestListItem> = emptyList(),
+)
+
 @Serializable
 internal data class SeerrRequestBody(
 	val mediaType: String,

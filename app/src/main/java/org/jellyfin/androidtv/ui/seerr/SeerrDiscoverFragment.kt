@@ -40,6 +40,11 @@ import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalContext
@@ -144,6 +149,7 @@ private fun SeerrDiscoverPage(
 					onFocused = { focusedMedia = it },
 					onClick = navigationRepository::openSeerrMedia,
 					onSearch = { navigationRepository.navigate(Destinations.seerrSearch) },
+					onRequests = { navigationRepository.navigate(Destinations.seerrRequests) },
 					onNearEnd = viewModel::loadMore,
 				)
 			}
@@ -187,6 +193,7 @@ private fun SeerrDiscoverContent(
 	onFocused: (SeerrMedia) -> Unit,
 	onClick: (SeerrMedia) -> Unit,
 	onSearch: () -> Unit,
+	onRequests: () -> Unit,
 	onNearEnd: (SeerrDiscoverList) -> Unit,
 ) {
 	val initialCard = remember { FocusRequester() }
@@ -194,6 +201,8 @@ private fun SeerrDiscoverContent(
 	// Survives the trip to another page, so coming back lands on the same card
 	var focusedCard by rememberSaveable { mutableStateOf<String?>(null) }
 	val restoredCard = remember { focusedCard }
+	// Going up from the first row lands on the buttons instead of skipping them for the toolbar
+	val requestsButton = remember { FocusRequester() }
 
 	Row(
 		verticalAlignment = Alignment.Top,
@@ -208,6 +217,12 @@ private fun SeerrDiscoverContent(
 		)
 
 		Spacer(Modifier.width(24.dp))
+
+		Button(onClick = onRequests, modifier = Modifier.focusRequester(requestsButton)) {
+			Text(stringResource(R.string.jc_seerr_my_requests), fontSize = 12.sp)
+		}
+
+		Spacer(Modifier.width(8.dp))
 
 		Button(onClick = onSearch) {
 			Icon(
@@ -242,7 +257,18 @@ private fun SeerrDiscoverContent(
 					horizontalArrangement = Arrangement.spacedBy(12.dp),
 					modifier = Modifier
 						.focusRestorer()
-						.focusGroup(),
+						.focusGroup()
+						.then(
+							if (isFirstRow) {
+								Modifier.onPreviewKeyEvent { event ->
+									val up = event.key == Key.DirectionUp
+									if (up && event.type == KeyEventType.KeyDown) requestsButton.requestFocus()
+									up
+								}
+							} else {
+								Modifier
+							}
+						),
 				) {
 					itemsIndexed(row.items, key = { _, media -> "${media.type}-${media.id}" }) { index, media ->
 						val cardKey = "${row.list}-${media.type}-${media.id}"

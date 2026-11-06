@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ## [Unreleased]
 
 ### Added
+- Seerr: "Le mie richieste" page, opened from the Discover tab, with the requests of the signed in user, their status
+  and a way to cancel them.
 - Movie and episode pages: external ids, director, writer, studio and genres, plus video, audio and subtitle
   details below the header. Audio and subtitle tracks can be picked there before starting playback.
 - Settings: connect to a Seerr server with the server account or a Seerr account. Only the session is kept on the

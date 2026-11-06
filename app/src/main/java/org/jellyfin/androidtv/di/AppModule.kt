@@ -49,6 +49,7 @@ import org.jellyfin.androidtv.ui.search.SearchRepositoryImpl
 import org.jellyfin.androidtv.ui.search.SearchViewModel
 import org.jellyfin.androidtv.ui.seerr.SeerrDetailViewModel
 import org.jellyfin.androidtv.ui.seerr.SeerrDiscoverViewModel
+import org.jellyfin.androidtv.ui.seerr.SeerrRequestsViewModel
 import org.jellyfin.androidtv.ui.seerr.SeerrSearchViewModel
 import org.jellyfin.androidtv.ui.startup.ServerAddViewModel
 import org.jellyfin.androidtv.ui.startup.StartupViewModel
@@ -160,6 +161,7 @@ val appModule = module {
 	viewModel { SeerrDiscoverViewModel(get(), get()) }
 	viewModel { SeerrSearchViewModel(get()) }
 	viewModel { SeerrDetailViewModel(get()) }
+	viewModel { SeerrRequestsViewModel(get(), get()) }
 	viewModel { DreamViewModel(get(), get(), get(), get(), get()) }
 
 	single { BackgroundService(get(), get(), get(), get(), get()) }

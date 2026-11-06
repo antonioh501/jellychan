@@ -101,8 +101,13 @@ private class FakeSeerr(
 			}
 
 			"/api/v1/request" -> {
-				requestBody = body
-				request.respond(requestStatus, "{}")
+				if (request.method == "GET") {
+					lastQuery = request.url.encodedQuery
+					request.respond(200, REQUEST_LIST)
+				} else {
+					requestBody = body
+					request.respond(requestStatus, "{}")
+				}
 			}
 
 			"/api/v1/auth/logout" -> {
@@ -134,6 +139,12 @@ private class FakeSeerr(
 			{"id":12,"title":"Twelve"},{"id":13,"name":"Not a movie","mediaType":"person"}]}"""
 		const val SIMILAR = """{"page":1,"totalPages":1,"results":[{"id":10,"title":"Ten again"},{"id":14,"title":"Fourteen"}]}"""
 
+		// Two requests of the user: a movie that is known and a series that can't be loaded
+		const val REQUEST_LIST = """{"pageInfo":{"page":1,"pages":3,"results":3},"results":[
+			{"id":5,"status":2,"createdAt":"2026-10-30T10:00:00.000Z","media":{"tmdbId":1,"mediaType":"movie","status":3},
+				"requestedBy":{"id":7,"displayName":"Antonio"},"seasons":[]},
+			{"id":6,"status":1,"media":{"tmdbId":99,"mediaType":"tv","status":2},"requestedBy":{"id":7},"seasons":[{"seasonNumber":2}]},
+			{"id":8,"status":1,"media":{"tmdbId":2,"mediaType":"tv","status":4},"requestedBy":{"id":7},"seasons":[{"seasonNumber":1}]}]}"""
 		const val TRENDING = """{"page":1,"totalPages":4,"results":[
 			{"id":1,"mediaType":"movie","title":"Dune","releaseDate":"2021-09-15","posterPath":"/p.jpg","backdropPath":"/b.jpg",
 				"overview":"Sand","mediaInfo":{"status":5,"jellyfinMediaId":"0123456789abcdef0123456789abcdef"}},
@@ -543,6 +554,27 @@ class SeerrRepositoryTests : FunSpec({
 			val titles = SeerrCatalog(repository).recommendations(SeerrMediaType.MOVIE, 1)
 
 			titles.map { it.id } shouldBe listOf(10, 14)
+		}
+	}
+
+	test("my requests show the title of each one and skip those that can't be loaded") {
+		val seerr = FakeSeerr()
+
+		withRepository(seerr, connectedStore(seerr)) { repository ->
+			repository.awaitConnected()
+			val page = SeerrCatalog(repository).myRequests(1)
+
+			// Only the requests of the user are asked for
+			seerr.lastQuery!!.contains("requestedBy=7") shouldBe true
+			page.page shouldBe 1
+			page.totalPages shouldBe 3
+			page.items.map { it.request.id } shouldBe listOf(5, 8)
+			page.items.map { it.media.title } shouldBe listOf("Dune", "Severance")
+			page.items.map { it.request.status } shouldBe listOf(SeerrRequestStatus.APPROVED, SeerrRequestStatus.PENDING)
+			page.items.map { it.request.seasons } shouldBe listOf(emptyList(), listOf(1))
+			page.items.map { it.media.availability } shouldBe listOf(SeerrAvailability.PROCESSING, SeerrAvailability.PARTIAL)
+			page.items.first().createdAt shouldBe "2026-10-30"
+			page.items.all { it.request.cancellable } shouldBe true
 		}
 	}
 

@@ -659,6 +659,9 @@
     <string name="jc_seerr_request_sent">Richiesta inviata</string>
     <string name="jc_seerr_request_forbidden">Non puoi richiederlo: permesso mancante o quota esaurita</string>
     <string name="jc_seerr_request_failed">Richiesta non riuscita, riprova</string>
+    <string name="jc_seerr_my_requests">Le mie richieste</string>
+    <string name="jc_seerr_requests_empty">Non hai ancora fatto richieste</string>
+    <string name="jc_seerr_requested_on">Richiesta il %1$s</string>
     <string name="jc_seerr_availability_partial_long">Parzialmente disponibile</string>
     <string name="jc_seerr_recommendations">Consigliati</string>
     <string name="jc_seerr_recommendations_from">Consigli da Seerr</string>

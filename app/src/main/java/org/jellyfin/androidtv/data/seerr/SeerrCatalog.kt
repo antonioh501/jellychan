@@ -1,5 +1,8 @@
 package org.jellyfin.androidtv.data.seerr
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.jellyfin.sdk.model.serializer.toUUIDOrNull
 import java.io.IOException
 import java.util.Locale
@@ -103,6 +106,19 @@ enum class SeerrRequestResult {
 	FAILED,
 }
 
+/** A request of the signed in user, together with the title it is about. */
+data class SeerrRequestEntry(
+	val request: SeerrRequest,
+	val media: SeerrMedia,
+	val createdAt: String?,
+)
+
+data class SeerrRequestEntryPage(
+	val items: List<SeerrRequestEntry>,
+	val page: Int,
+	val totalPages: Int,
+)
+
 data class SeerrMediaPage(
 	val items: List<SeerrMedia>,
 	val page: Int,
@@ -204,6 +220,66 @@ class SeerrCatalog(
 		} catch (_: IOException) {
 			SeerrRequestResult.FAILED
 		}
+	}
+
+	/**
+	 * The requests of the signed in user. The server only lists ids, so the titles are loaded one by one;
+	 * a title that can't be loaded is left out of the page.
+	 */
+	suspend fun myRequests(page: Int = 1): SeerrRequestEntryPage {
+		val connection = connection()
+		val canManage = connection.user.permissions and MANAGE_PERMISSIONS != 0
+		val imageBase = connection.imageBase()
+
+		val list = try {
+			connection.client.requests(connection.user.id, page, REQUEST_PAGE_SIZE)
+		} catch (err: SeerrHttpException) {
+			if (err.isUnauthorized) seerrRepository.onSessionExpired()
+			throw err
+		}
+
+		val entries = coroutineScope {
+			list.results.map { item ->
+				async {
+					val media = item.media ?: return@async null
+					val type = when (media.mediaType) {
+						"movie" -> SeerrMediaType.MOVIE
+						"tv" -> SeerrMediaType.SERIES
+						else -> return@async null
+					}
+
+					val details = try {
+						connection.client.details(type.path, media.tmdbId, language())
+					} catch (_: IOException) {
+						return@async null
+					}
+
+					SeerrRequestEntry(
+						request = SeerrRequest(
+							id = item.id,
+							status = item.status.toRequestStatus(),
+							requester = item.requestedBy?.name,
+							seasons = item.seasons.map { it.seasonNumber }.sorted(),
+							cancellable = canManage || item.requestedBy?.id == connection.user.id,
+						),
+						media = SeerrMedia(
+							id = details.id,
+							type = type,
+							title = details.title ?: details.name ?: return@async null,
+							year = (details.releaseDate ?: details.firstAirDate)?.take(YEAR_LENGTH)?.takeIf { it.length == YEAR_LENGTH },
+							overview = details.overview?.takeIf { it.isNotBlank() },
+							posterUrl = details.posterPath?.let { "$imageBase/t/p/$POSTER_SIZE$it" },
+							backdropUrl = details.backdropPath?.let { "$imageBase/t/p/$BACKDROP_SIZE$it" },
+							availability = media.status.toAvailability(),
+							libraryItemId = details.mediaInfo?.run { libraryItemId?.toUUIDOrNull() ?: libraryItem4kId?.toUUIDOrNull() },
+						),
+						createdAt = item.createdAt?.take(DATE_LENGTH),
+					)
+				}
+			}.awaitAll().filterNotNull()
+		}
+
+		return SeerrRequestEntryPage(entries, list.pageInfo.page, list.pageInfo.pages)
 	}
 
 	/**
@@ -333,6 +409,8 @@ class SeerrCatalog(
 
 	private companion object {
 		const val YEAR_LENGTH = 4
+		const val DATE_LENGTH = 10
+		const val REQUEST_PAGE_SIZE = 20
 		const val POSTER_SIZE = "w342"
 		const val BACKDROP_SIZE = "w1280"
 

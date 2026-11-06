@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
   details below the header. Audio and subtitle tracks can be picked there before starting playback.
 - Settings: connect to a Seerr server with the server account or a Seerr account. Only the session is kept on the
   device, never the password.
+- Discover tab, shown once Seerr is connected: trending, popular and upcoming movies and series with their
+  availability, plus a search. Titles already in the library open their item page.
 
 ## [0.1.0-alpha.2] - 2026-11-05
 

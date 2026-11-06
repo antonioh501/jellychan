@@ -626,4 +626,20 @@
     <string name="jc_seerr_error_not_seerr">There is no Seerr server at this address</string>
     <string name="jc_seerr_error_method_disabled">This sign-in method is disabled on the server</string>
     <string name="jc_seerr_error_credentials">Wrong username or password</string>
+    <string name="jc_seerr_discover">Discover</string>
+    <string name="jc_seerr_search">Search on Seerr</string>
+    <string name="jc_seerr_no_results">No results</string>
+    <string name="jc_seerr_open_settings">Open settings</string>
+    <string name="jc_seerr_error_load">Can\'t load the content from Seerr</string>
+    <string name="jc_seerr_list_trending">Trending</string>
+    <string name="jc_seerr_list_popular_movies">Popular movies</string>
+    <string name="jc_seerr_list_popular_series">Popular series</string>
+    <string name="jc_seerr_list_upcoming_movies">Upcoming movies</string>
+    <string name="jc_seerr_list_upcoming_series">Upcoming series</string>
+    <string name="jc_seerr_type_movie">Movie</string>
+    <string name="jc_seerr_type_series">Series</string>
+    <string name="jc_seerr_availability_pending">Requested</string>
+    <string name="jc_seerr_availability_processing">Processing</string>
+    <string name="jc_seerr_availability_partial">Partial</string>
+    <string name="jc_seerr_availability_available">Available</string>
 </resources>

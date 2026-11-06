@@ -9,6 +9,7 @@ import org.jellyfin.androidtv.ui.livetv.GuideOptionsScreen
 import org.jellyfin.androidtv.ui.playback.ExternalPlayerActivity
 import org.jellyfin.androidtv.ui.preference.PreferencesActivity
 import org.jellyfin.androidtv.ui.preference.dsl.OptionsFragment
+import org.jellyfin.androidtv.ui.preference.screen.SeerrPreferencesScreen
 import org.jellyfin.androidtv.ui.preference.screen.UserPreferencesScreen
 import org.jellyfin.androidtv.ui.startup.StartupActivity
 import kotlin.time.Duration
@@ -27,6 +28,7 @@ object ActivityDestinations {
 	}
 
 	fun userPreferences(context: Context) = preferenceIntent<UserPreferencesScreen>(context)
+	fun seerrPreferences(context: Context) = preferenceIntent<SeerrPreferencesScreen>(context)
 	fun displayPreferences(context: Context, displayPreferencesId: String, allowViewSelection: Boolean) =
 		preferenceIntent<DisplayPreferencesScreen>(
 			context,

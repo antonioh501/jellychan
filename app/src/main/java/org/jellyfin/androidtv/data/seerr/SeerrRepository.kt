@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
 import okhttp3.OkHttpClient
@@ -27,6 +28,7 @@ sealed interface SeerrState {
 		val user: SeerrUser,
 		val settings: SeerrPublicSettings,
 		val version: String?,
+		val client: SeerrClient,
 	) : SeerrState
 
 	/** The saved session is no longer valid, the user has to sign in again. */
@@ -73,6 +75,15 @@ class SeerrRepository(
 	 * Try the saved session again.
 	 */
 	suspend fun refresh() = restore(currentUserId)
+
+	/**
+	 * The server refused the session while it was in use.
+	 */
+	fun onSessionExpired() {
+		_state.update { state ->
+			if (state is SeerrState.Connected) SeerrState.SessionExpired(state.account) else state
+		}
+	}
 
 	suspend fun login(
 		address: String,
@@ -160,7 +171,7 @@ class SeerrRepository(
 			val current = account.copy(sessionCookie = client.sessionCookie ?: account.sessionCookie)
 			if (current != account) store.put(userId, current)
 
-			SeerrState.Connected(current, user, settings, version)
+			SeerrState.Connected(current, user, settings, version, client)
 		} catch (err: SeerrHttpException) {
 			if (err.isUnauthorized) SeerrState.SessionExpired(account)
 			else SeerrState.Unavailable(account)

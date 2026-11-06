@@ -634,4 +634,20 @@
     <string name="jc_seerr_error_not_seerr">A questo indirizzo non c\'è un server Seerr</string>
     <string name="jc_seerr_error_method_disabled">Questo metodo di accesso è disattivato sul server</string>
     <string name="jc_seerr_error_credentials">Nome utente o password errati</string>
+    <string name="jc_seerr_discover">Scopri</string>
+    <string name="jc_seerr_search">Cerca su Seerr</string>
+    <string name="jc_seerr_no_results">Nessun risultato</string>
+    <string name="jc_seerr_open_settings">Apri impostazioni</string>
+    <string name="jc_seerr_error_load">Impossibile caricare i contenuti da Seerr</string>
+    <string name="jc_seerr_list_trending">Di tendenza</string>
+    <string name="jc_seerr_list_popular_movies">Film popolari</string>
+    <string name="jc_seerr_list_popular_series">Serie popolari</string>
+    <string name="jc_seerr_list_upcoming_movies">Film in arrivo</string>
+    <string name="jc_seerr_list_upcoming_series">Serie in arrivo</string>
+    <string name="jc_seerr_type_movie">Film</string>
+    <string name="jc_seerr_type_series">Serie</string>
+    <string name="jc_seerr_availability_pending">Richiesto</string>
+    <string name="jc_seerr_availability_processing">In lavorazione</string>
+    <string name="jc_seerr_availability_partial">Parziale</string>
+    <string name="jc_seerr_availability_available">Disponibile</string>
 </resources>

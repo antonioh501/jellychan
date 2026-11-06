@@ -1,5 +1,6 @@
 package org.jellyfin.androidtv.data.seerr
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -49,6 +50,35 @@ data class SeerrUser(
 ) {
 	val name: String? get() = displayName ?: username ?: email
 }
+
+@Serializable
+data class SeerrMediaInfo(
+	val status: Int = 1,
+	// Field names fixed by the Seerr API
+	@SerialName("jellyfinMediaId") val libraryItemId: String? = null,
+	@SerialName("jellyfinMediaId4k") val libraryItem4kId: String? = null,
+)
+
+@Serializable
+data class SeerrResult(
+	val id: Int,
+	val mediaType: String? = null,
+	val title: String? = null,
+	val name: String? = null,
+	val overview: String? = null,
+	val posterPath: String? = null,
+	val backdropPath: String? = null,
+	val releaseDate: String? = null,
+	val firstAirDate: String? = null,
+	val mediaInfo: SeerrMediaInfo? = null,
+)
+
+@Serializable
+data class SeerrResultPage(
+	val page: Int = 1,
+	val totalPages: Int = 1,
+	val results: List<SeerrResult> = emptyList(),
+)
 
 @Serializable
 internal data class SeerrServerAccountLogin(

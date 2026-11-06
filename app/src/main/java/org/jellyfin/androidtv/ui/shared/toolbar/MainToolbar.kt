@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.filterNotNull
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.auth.repository.SessionRepository
 import org.jellyfin.androidtv.auth.repository.UserRepository
+import org.jellyfin.androidtv.data.seerr.SeerrRepository
+import org.jellyfin.androidtv.data.seerr.SeerrState
 import org.jellyfin.androidtv.ui.NowPlayingComposable
 import org.jellyfin.androidtv.ui.base.Icon
 import org.jellyfin.androidtv.ui.base.JellyfinTheme
@@ -55,6 +57,7 @@ import androidx.compose.ui.unit.sp
 enum class MainToolbarActiveButton {
 	User,
 	Home,
+	Discover,
 	Search,
 
 	None,
@@ -86,6 +89,8 @@ private fun MainToolbar(
 	val navigationRepository = koinInject<NavigationRepository>()
 	val mediaManager = koinInject<MediaManager>()
 	val sessionRepository = koinInject<SessionRepository>()
+	val seerrRepository = koinInject<SeerrRepository>()
+	val seerrState by seerrRepository.state.collectAsState()
 	val activity = LocalActivity.current
 	// JellyChan: active tab is a light grey pill, like the library tabs
 	val activeButtonColors = ButtonDefaults.colors(
@@ -149,6 +154,26 @@ private fun MainToolbar(
 							Text(stringResource(R.string.lbl_home), fontSize = 12.sp)
 						}
 					)
+					if (seerrState != SeerrState.NotConfigured) {
+						Button(
+							onClick = {
+								if (activeButton != MainToolbarActiveButton.Discover) {
+									navigationRepository.navigate(Destinations.seerrDiscover)
+								}
+							},
+							colors = if (activeButton == MainToolbarActiveButton.Discover) activeButtonColors else ButtonDefaults.colors(),
+							contentPadding = PaddingValues(horizontal = 15.dp, vertical = 6.dp),
+							content = {
+								Icon(
+									imageVector = ImageVector.vectorResource(R.drawable.jc_ic_seerr),
+									contentDescription = null,
+									modifier = Modifier.size(15.dp),
+								)
+								Spacer(Modifier.width(8.dp))
+								Text(stringResource(R.string.jc_seerr_discover), fontSize = 12.sp)
+							}
+						)
+					}
 					Button(
 						onClick = {
 							if (activeButton != MainToolbarActiveButton.Search) {

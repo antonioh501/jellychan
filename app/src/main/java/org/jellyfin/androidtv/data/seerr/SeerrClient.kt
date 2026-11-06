@@ -14,6 +14,7 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.IOException
+import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
 
 /**
@@ -65,6 +66,18 @@ class SeerrClient(
 
 	suspend fun currentUser(): SeerrUser = get("auth/me")
 
+	suspend fun discover(path: String, page: Int, language: String): SeerrResultPage = get(path) {
+		addQueryParameter("page", page.toString())
+		addQueryParameter("language", language)
+	}
+
+	suspend fun search(query: String, page: Int, language: String): SeerrResultPage = get("search") {
+		// Seerr rejects reserved characters unless they are percent-encoded
+		addEncodedQueryParameter("query", URLEncoder.encode(query, "UTF-8").replace("+", "%20"))
+		addQueryParameter("page", page.toString())
+		addQueryParameter("language", language)
+	}
+
 	suspend fun login(
 		method: SeerrLoginMethod,
 		username: String,
@@ -78,15 +91,21 @@ class SeerrClient(
 		execute(request("auth/logout").post(EMPTY_BODY).build())
 	}
 
-	private suspend inline fun <reified T> get(path: String): T =
-		json.decodeFromString(execute(request(path).get().build()))
+	private suspend inline fun <reified T> get(
+		path: String,
+		noinline query: HttpUrl.Builder.() -> Unit = {},
+	): T = json.decodeFromString(execute(request(path, query).get().build()))
 
 	private suspend inline fun <reified T> post(path: String, body: String): T =
 		json.decodeFromString(execute(request(path).post(body.toRequestBody(JSON_MEDIA_TYPE)).build()))
 
-	private fun request(path: String): Request.Builder {
+	private fun request(
+		path: String,
+		query: HttpUrl.Builder.() -> Unit = {},
+	): Request.Builder {
 		val url = baseUrl.newBuilder()
 			.addPathSegments("api/v1/$path")
+			.apply(query)
 			.build()
 
 		return Request.Builder().url(url).apply {

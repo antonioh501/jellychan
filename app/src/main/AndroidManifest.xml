@@ -142,6 +142,8 @@
             android:name=".ui.preference.PreferencesActivity"
             android:theme="@style/Theme.Jellyfin.Preferences" />
 
+        <activity android:name=".ui.seerr.SeerrConnectActivity" />
+
         <activity android:name=".ui.playback.ExternalPlayerActivity" />
     </application>
 </manifest>

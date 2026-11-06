@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/jc_darker"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="520dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:paddingVertical="32dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/jc_seerr_connect"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/jc_seerr_connect_description"
+            android:textColor="@color/jc_text_dim"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:labelFor="@id/jc_seerr_address"
+            android:text="@string/jc_seerr_address"
+            android:textColor="@color/jc_text" />
+
+        <EditText
+            android:id="@+id/jc_seerr_address"
+            style="@style/Input.Default"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/jc_seerr_address_hint"
+            android:textColorHint="@color/jc_text_dim"
+            android:imeOptions="actionNext"
+            android:importantForAutofill="no"
+            android:inputType="textUri"
+            android:privateImeOptions="horizontalAlignment=right" />
+
+        <RadioGroup
+            android:id="@+id/jc_seerr_method"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/jc_seerr_method_server"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="24dp"
+                android:checked="true"
+                android:buttonTint="@color/jc_accent"
+                android:text="@string/jc_seerr_method_server"
+                android:textColor="@color/jc_text" />
+
+            <RadioButton
+                android:id="@+id/jc_seerr_method_local"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/jc_accent"
+                android:text="@string/jc_seerr_method_local"
+                android:textColor="@color/jc_text" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/jc_seerr_username_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:labelFor="@id/jc_seerr_username"
+            android:text="@string/input_username"
+            android:textColor="@color/jc_text" />
+
+        <EditText
+            android:id="@+id/jc_seerr_username"
+            style="@style/Input.Default"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:autofillHints="username"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:privateImeOptions="horizontalAlignment=right" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:labelFor="@id/jc_seerr_password"
+            android:text="@string/input_password"
+            android:textColor="@color/jc_text" />
+
+        <EditText
+            android:id="@+id/jc_seerr_password"
+            style="@style/Input.Default"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:autofillHints="password"
+            android:imeOptions="actionDone"
+            android:inputType="textPassword"
+            android:privateImeOptions="horizontalAlignment=right" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/jc_seerr_confirm"
+                style="@style/Button.Default"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/action_login" />
+
+            <TextView
+                android:id="@+id/jc_seerr_message"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
+                android:textColor="@color/jc_text" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

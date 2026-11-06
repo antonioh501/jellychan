@@ -601,4 +601,29 @@
     <string name="jc_resume">Resume</string>
     <string name="jc_back">Back</string>
     <string name="jc_present">Present</string>
+    <string name="jc_seerr" translatable="false">Seerr</string>
+    <string name="jc_seerr_description">Discover and request movies and series</string>
+    <string name="jc_seerr_status">Status</string>
+    <string name="jc_seerr_status_not_configured">Not connected</string>
+    <string name="jc_seerr_status_connecting">Connecting…</string>
+    <string name="jc_seerr_status_connected">Connected to %1$s as %2$s (version %3$s)</string>
+    <string name="jc_seerr_status_expired">The session has expired, sign in again</string>
+    <string name="jc_seerr_status_unavailable">Can\'t reach %1$s</string>
+    <string name="jc_seerr_connect">Connect to Seerr</string>
+    <string name="jc_seerr_connect_description">Your password is only used to sign in and is not saved on this device.</string>
+    <string name="jc_seerr_change">Change server or account</string>
+    <string name="jc_seerr_sign_in_again">Sign in again</string>
+    <string name="jc_seerr_retry">Try again</string>
+    <string name="jc_seerr_disconnect">Disconnect</string>
+    <string name="jc_seerr_address">Seerr address</string>
+    <string name="jc_seerr_address_hint" translatable="false">http://192.168.1.10:5055</string>
+    <string name="jc_seerr_method_server">Server account</string>
+    <string name="jc_seerr_method_local">Seerr account</string>
+    <string name="jc_seerr_email">Email</string>
+    <string name="jc_seerr_error_fields_empty">Fill in all the fields</string>
+    <string name="jc_seerr_error_address">This address is not valid</string>
+    <string name="jc_seerr_error_unreachable">Can\'t reach the server, check the address and the port</string>
+    <string name="jc_seerr_error_not_seerr">There is no Seerr server at this address</string>
+    <string name="jc_seerr_error_method_disabled">This sign-in method is disabled on the server</string>
+    <string name="jc_seerr_error_credentials">Wrong username or password</string>
 </resources>

@@ -611,4 +611,27 @@
     <string name="jc_resume">Riprendi</string>
     <string name="jc_back">Indietro</string>
     <string name="jc_present">In corso</string>
+    <string name="jc_seerr_description">Scopri e richiedi film e serie</string>
+    <string name="jc_seerr_status">Stato</string>
+    <string name="jc_seerr_status_not_configured">Non collegato</string>
+    <string name="jc_seerr_status_connecting">Connessione…</string>
+    <string name="jc_seerr_status_connected">Collegato a %1$s come %2$s (versione %3$s)</string>
+    <string name="jc_seerr_status_expired">La sessione è scaduta, accedi di nuovo</string>
+    <string name="jc_seerr_status_unavailable">Impossibile raggiungere %1$s</string>
+    <string name="jc_seerr_connect">Collega Seerr</string>
+    <string name="jc_seerr_connect_description">La password serve solo per l\'accesso e non viene salvata su questo dispositivo.</string>
+    <string name="jc_seerr_change">Cambia server o account</string>
+    <string name="jc_seerr_sign_in_again">Accedi di nuovo</string>
+    <string name="jc_seerr_retry">Riprova</string>
+    <string name="jc_seerr_disconnect">Scollega</string>
+    <string name="jc_seerr_address">Indirizzo di Seerr</string>
+    <string name="jc_seerr_method_server">Account del server</string>
+    <string name="jc_seerr_method_local">Account Seerr</string>
+    <string name="jc_seerr_email">Email</string>
+    <string name="jc_seerr_error_fields_empty">Compila tutti i campi</string>
+    <string name="jc_seerr_error_address">Indirizzo non valido</string>
+    <string name="jc_seerr_error_unreachable">Server non raggiungibile, controlla indirizzo e porta</string>
+    <string name="jc_seerr_error_not_seerr">A questo indirizzo non c\'è un server Seerr</string>
+    <string name="jc_seerr_error_method_disabled">Questo metodo di accesso è disattivato sul server</string>
+    <string name="jc_seerr_error_credentials">Nome utente o password errati</string>
 </resources>

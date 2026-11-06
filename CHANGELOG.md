@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Added
 - Movie and episode pages: external ids, director, writer, studio and genres, plus video, audio and subtitle
   details below the header. Audio and subtitle tracks can be picked there before starting playback.
+- Settings: connect to a Seerr server with the server account or a Seerr account. Only the session is kept on the
+  device, never the password.
 
 ## [0.1.0-alpha.2] - 2026-11-05
 

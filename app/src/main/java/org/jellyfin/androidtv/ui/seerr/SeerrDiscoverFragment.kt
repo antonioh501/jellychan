@@ -91,7 +91,9 @@ class SeerrDiscoverFragment : Fragment() {
  * Open a result. Titles in the library use the regular item page.
  */
 fun NavigationRepository.openSeerrMedia(media: SeerrMedia) {
-	media.libraryItemId?.let { navigate(Destinations.itemDetails(it)) }
+	val libraryItemId = media.libraryItemId
+	if (libraryItemId != null) navigate(Destinations.itemDetails(libraryItemId))
+	else navigate(Destinations.seerrDetails(media.type, media.id))
 }
 
 @Composable
@@ -150,7 +152,7 @@ private fun SeerrDiscoverPage(
 }
 
 @Composable
-private fun SeerrBackdrop(url: String) {
+fun SeerrBackdrop(url: String) {
 	Box(
 		modifier = Modifier
 			.fillMaxWidth()

@@ -44,6 +44,14 @@ private class FakeSeerr(
 	var validSession = "connect.sid=abc"
 	var loggedOut = false
 	var lastQuery: String? = null
+	var requestStatus = 201
+	var requestBody: String? = null
+	var cancelStatus = 204
+	var cancelled: String? = null
+	var failRelated = false
+	var userPermissions = 32
+
+	private fun user() = """{"id":7,"displayName":"Antonio","permissions":$userPermissions,"somethingNew":true}"""
 
 	override fun intercept(chain: Interceptor.Chain): Response {
 		val request = chain.request()
@@ -55,14 +63,14 @@ private class FakeSeerr(
 			"/api/v1/settings/public" -> request.respond(200, settings)
 			"/api/v1/auth/local", "/api/v1/auth/jellyfin" -> {
 				if ("\"password\":\"secret\"" in body) {
-					request.respond(200, USER, "Set-Cookie" to "$validSession; Path=/; HttpOnly")
+					request.respond(200, user(), "Set-Cookie" to "$validSession; Path=/; HttpOnly")
 				} else {
 					request.respond(401, """{"message":"Unauthorized"}""")
 				}
 			}
 
 			"/api/v1/auth/me" -> {
-				if (authenticated) request.respond(200, USER)
+				if (authenticated) request.respond(200, user())
 				else request.respond(401, """{"message":"Unauthorized"}""")
 			}
 
@@ -79,6 +87,24 @@ private class FakeSeerr(
 				request.respond(200, TRENDING)
 			}
 
+			"/api/v1/movie/1" -> request.respond(200, MOVIE)
+			"/api/v1/tv/2" -> request.respond(200, SERIES)
+
+			"/api/v1/tv/3" -> request.respond(200, REQUESTED_SERIES)
+			"/api/v1/movie/1/recommendations" ->
+				if (failRelated) request.respond(500, "") else request.respond(200, RECOMMENDATIONS)
+			"/api/v1/movie/1/similar" -> request.respond(200, SIMILAR)
+
+			"/api/v1/request/5" -> {
+				cancelled = request.method
+				request.respond(cancelStatus, "")
+			}
+
+			"/api/v1/request" -> {
+				requestBody = body
+				request.respond(requestStatus, "{}")
+			}
+
 			"/api/v1/auth/logout" -> {
 				loggedOut = authenticated
 				request.respond(200, "{}")
@@ -89,7 +115,25 @@ private class FakeSeerr(
 	}
 
 	private companion object {
-		const val USER = """{"id":7,"displayName":"Antonio","permissions":32,"somethingNew":true}"""
+		const val MOVIE = """{"id":1,"title":"Dune","tagline":" ","overview":"Sand","releaseDate":"2021-09-15","runtime":155,
+			"voteAverage":7.8,"genres":[{"id":1,"name":"Science Fiction"},{"id":2,"name":"Adventure"}],"posterPath":"/p.jpg"}"""
+		const val SERIES = """{"id":2,"name":"Severance","firstAirDate":"2022-02-17","episodeRunTime":[50],"voteAverage":0,
+			"seasons":[{"seasonNumber":0,"name":"Specials","episodeCount":3},
+				{"seasonNumber":2,"name":"Season 2","episodeCount":10},
+				{"seasonNumber":1,"name":"Season 1","episodeCount":9}],
+			"mediaInfo":{"status":4,"seasons":[{"seasonNumber":1,"status":5}]}}"""
+		// Requested by the signed in user (7) and by somebody else, for seasons 1 and 2
+		const val REQUESTED_SERIES = """{"id":3,"name":"Show","seasons":[{"seasonNumber":1,"episodeCount":8},
+				{"seasonNumber":2,"episodeCount":8},{"seasonNumber":3,"episodeCount":8}],
+			"mediaInfo":{"status":3,"requests":[
+				{"id":5,"status":2,"requestedBy":{"id":7,"displayName":"Antonio"},"seasons":[{"seasonNumber":1}]},
+				{"id":6,"status":1,"requestedBy":{"id":9,"username":"Other"},"seasons":[{"seasonNumber":2}]},
+				{"id":8,"status":3,"requestedBy":{"id":9,"username":"Other"},"seasons":[{"seasonNumber":3}]}]}}"""
+		const val RECOMMENDATIONS = """{"page":1,"totalPages":1,"results":[
+			{"id":1,"title":"Itself"},{"id":10,"title":"Ten"},{"id":11,"title":"Eleven","mediaInfo":{"status":5}},
+			{"id":12,"title":"Twelve"},{"id":13,"name":"Not a movie","mediaType":"person"}]}"""
+		const val SIMILAR = """{"page":1,"totalPages":1,"results":[{"id":10,"title":"Ten again"},{"id":14,"title":"Fourteen"}]}"""
+
 		const val TRENDING = """{"page":1,"totalPages":4,"results":[
 			{"id":1,"mediaType":"movie","title":"Dune","releaseDate":"2021-09-15","posterPath":"/p.jpg","backdropPath":"/b.jpg",
 				"overview":"Sand","mediaInfo":{"status":5,"jellyfinMediaId":"0123456789abcdef0123456789abcdef"}},
@@ -297,6 +341,208 @@ class SeerrRepositoryTests : FunSpec({
 
 			refused shouldBe true
 			(repository.state.value is SeerrState.SessionExpired) shouldBe true
+		}
+	}
+
+	test("details of a movie are mapped") {
+		val seerr = FakeSeerr()
+
+		withRepository(seerr, connectedStore(seerr)) { repository ->
+			repository.awaitConnected()
+			val details = SeerrCatalog(repository) { "it" }.details(SeerrMediaType.MOVIE, 1)
+
+			details.title shouldBe "Dune"
+			details.year shouldBe "2021"
+			details.tagline shouldBe null
+			details.runtimeMinutes shouldBe 155
+			details.rating shouldBe 7.8
+			details.genres shouldBe listOf("Science Fiction", "Adventure")
+			details.availability shouldBe SeerrAvailability.UNKNOWN
+			details.seasons shouldBe emptyList()
+		}
+	}
+
+	test("seasons are sorted, specials are left out and known ones can't be requested") {
+		val seerr = FakeSeerr()
+
+		withRepository(seerr, connectedStore(seerr)) { repository ->
+			repository.awaitConnected()
+			val details = SeerrCatalog(repository) { "it" }.details(SeerrMediaType.SERIES, 2)
+
+			details.runtimeMinutes shouldBe 50
+			details.rating shouldBe null
+			details.availability shouldBe SeerrAvailability.PARTIAL
+			details.seasons.map { it.number } shouldBe listOf(1, 2)
+			details.seasons.map { it.requestable } shouldBe listOf(false, true)
+			details.seasons.map { it.availability } shouldBe listOf(SeerrAvailability.AVAILABLE, SeerrAvailability.UNKNOWN)
+		}
+	}
+
+	test("a movie is requested by its id") {
+		val seerr = FakeSeerr()
+
+		withRepository(seerr, connectedStore(seerr)) { repository ->
+			repository.awaitConnected()
+
+			SeerrCatalog(repository).request(SeerrMediaType.MOVIE, 1) shouldBe SeerrRequestResult.SUCCESS
+			seerr.requestBody shouldBe """{"mediaType":"movie","mediaId":1}"""
+		}
+	}
+
+	test("the chosen seasons of a series are requested") {
+		val seerr = FakeSeerr()
+
+		withRepository(seerr, connectedStore(seerr)) { repository ->
+			repository.awaitConnected()
+
+			SeerrCatalog(repository).request(SeerrMediaType.SERIES, 2, listOf(1, 3)) shouldBe SeerrRequestResult.SUCCESS
+			seerr.requestBody shouldBe """{"mediaType":"tv","mediaId":2,"seasons":[1,3]}"""
+		}
+	}
+
+	test("request failures are told apart") {
+		val seerr = FakeSeerr()
+
+		withRepository(seerr, connectedStore(seerr)) { repository ->
+			repository.awaitConnected()
+			val catalog = SeerrCatalog(repository)
+
+			seerr.requestStatus = 403
+			catalog.request(SeerrMediaType.MOVIE, 1) shouldBe SeerrRequestResult.FORBIDDEN
+
+			// Somebody already asked for it
+			seerr.requestStatus = 409
+			catalog.request(SeerrMediaType.MOVIE, 1) shouldBe SeerrRequestResult.SUCCESS
+
+			seerr.requestStatus = 500
+			catalog.request(SeerrMediaType.MOVIE, 1) shouldBe SeerrRequestResult.FAILED
+			(repository.state.value is SeerrState.Connected) shouldBe true
+
+			seerr.requestStatus = 401
+			catalog.request(SeerrMediaType.MOVIE, 1) shouldBe SeerrRequestResult.FAILED
+			(repository.state.value is SeerrState.SessionExpired) shouldBe true
+		}
+	}
+
+	test("a request of the user can be cancelled, one of another user only by a manager") {
+		val seerr = FakeSeerr()
+
+		withRepository(seerr, connectedStore(seerr)) { repository ->
+			repository.awaitConnected()
+			val details = SeerrCatalog(repository).details(SeerrMediaType.SERIES, 3)
+
+			details.requests.map { it.id } shouldBe listOf(5, 6, 8)
+			details.requests.map { it.status } shouldBe listOf(
+				SeerrRequestStatus.APPROVED,
+				SeerrRequestStatus.PENDING,
+				SeerrRequestStatus.DECLINED,
+			)
+			details.requests.map { it.requester } shouldBe listOf("Antonio", "Other", "Other")
+			details.requests.map { it.seasons } shouldBe listOf(listOf(1), listOf(2), listOf(3))
+			// The test user has permission 32: not an admin and not allowed to manage requests
+			details.requests.map { it.cancellable } shouldBe listOf(true, false, false)
+		}
+	}
+
+	test("a manager can cancel the requests of everybody") {
+		val seerr = FakeSeerr()
+		val store = MemoryAccountStore().apply {
+			put(userId, SeerrAccount("http://${seerr.address}/", SeerrLoginMethod.LOCAL, "connect.sid=abc"))
+		}
+		seerr.userPermissions = 2
+
+		withRepository(seerr, store) { repository ->
+			repository.awaitConnected()
+			val details = SeerrCatalog(repository).details(SeerrMediaType.SERIES, 3)
+
+			details.requests.map { it.cancellable } shouldBe listOf(true, true, true)
+		}
+	}
+
+	test("seasons of an active request cannot be requested again") {
+		val seerr = FakeSeerr()
+
+		withRepository(seerr, connectedStore(seerr)) { repository ->
+			repository.awaitConnected()
+			val details = SeerrCatalog(repository).details(SeerrMediaType.SERIES, 3)
+
+			// Season 3 only has a declined request, so it can be asked for again
+			details.seasons.map { it.requestable } shouldBe listOf(false, false, true)
+			details.seasons.map { it.availability } shouldBe listOf(
+				SeerrAvailability.PENDING,
+				SeerrAvailability.PENDING,
+				SeerrAvailability.UNKNOWN,
+			)
+		}
+	}
+
+	test("a movie with an active request is not requestable") {
+		val seerr = FakeSeerr()
+
+		withRepository(seerr, connectedStore(seerr)) { repository ->
+			repository.awaitConnected()
+			val catalog = SeerrCatalog(repository)
+
+			catalog.details(SeerrMediaType.MOVIE, 1).movieRequestable shouldBe true
+			catalog.details(SeerrMediaType.SERIES, 3).movieRequestable shouldBe false
+		}
+	}
+
+	test("cancelling a request tells the outcomes apart") {
+		val seerr = FakeSeerr()
+
+		withRepository(seerr, connectedStore(seerr)) { repository ->
+			repository.awaitConnected()
+			val catalog = SeerrCatalog(repository)
+
+			catalog.cancelRequest(5) shouldBe SeerrRequestResult.SUCCESS
+			seerr.cancelled shouldBe "DELETE"
+
+			seerr.cancelStatus = 403
+			catalog.cancelRequest(5) shouldBe SeerrRequestResult.FORBIDDEN
+
+			// Somebody else already removed it
+			seerr.cancelStatus = 404
+			catalog.cancelRequest(5) shouldBe SeerrRequestResult.SUCCESS
+
+			seerr.cancelStatus = 500
+			catalog.cancelRequest(5) shouldBe SeerrRequestResult.FAILED
+		}
+	}
+
+	test("recommendations merge the two lists without repeating a title") {
+		val seerr = FakeSeerr()
+
+		withRepository(seerr, connectedStore(seerr)) { repository ->
+			repository.awaitConnected()
+			val titles = SeerrCatalog(repository).recommendations(SeerrMediaType.MOVIE, 1)
+
+			// The title itself and the people are left out, repeated titles are kept once
+			titles.map { it.id } shouldBe listOf(10, 11, 12, 14)
+			titles.first { it.id == 11 }.availability shouldBe SeerrAvailability.AVAILABLE
+		}
+	}
+
+	test("recommendations can leave out what the caller already shows") {
+		val seerr = FakeSeerr()
+
+		withRepository(seerr, connectedStore(seerr)) { repository ->
+			repository.awaitConnected()
+			val titles = SeerrCatalog(repository).recommendations(SeerrMediaType.MOVIE, 1) { it.id in setOf(10, 12) }
+
+			titles.map { it.id } shouldBe listOf(11, 14)
+		}
+	}
+
+	test("a recommendation list that fails is skipped") {
+		val seerr = FakeSeerr()
+		seerr.failRelated = true
+
+		withRepository(seerr, connectedStore(seerr)) { repository ->
+			repository.awaitConnected()
+			val titles = SeerrCatalog(repository).recommendations(SeerrMediaType.MOVIE, 1)
+
+			titles.map { it.id } shouldBe listOf(10, 14)
 		}
 	}
 

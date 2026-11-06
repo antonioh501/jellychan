@@ -1,13 +1,16 @@
 package org.jellyfin.androidtv.ui.seerr
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -32,6 +35,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
@@ -44,7 +49,12 @@ val SeerrCardWidth = 96.dp
 
 private val CardShape = RoundedCornerShape(8.dp)
 private const val POSTER_ASPECT_RATIO = 2f / 3f
+
+// The same feedback as the cards of the library: a zoom on focus, a small shrink while OK is held
 private const val FOCUSED_SCALE = 1.06f
+private const val PRESSED_SCALE = 0.95f
+private const val SHRINK_DURATION_MS = 80
+private const val RELEASE_DURATION_MS = 120
 
 @StringRes
 fun SeerrAvailability.label(): Int? = when (this) {
@@ -55,38 +65,55 @@ fun SeerrAvailability.label(): Int? = when (this) {
 	SeerrAvailability.AVAILABLE -> R.string.jc_seerr_availability_available
 }
 
+/** The label for places with room to spell it out. */
+@StringRes
+fun SeerrAvailability.longLabel(): Int? = when (this) {
+	SeerrAvailability.PARTIAL -> R.string.jc_seerr_availability_partial_long
+	else -> label()
+}
+
 private val SeerrAvailability.color
 	get() = when (this) {
 		SeerrAvailability.AVAILABLE -> Color(0xFF16A34A)
 		SeerrAvailability.PARTIAL -> Color(0xFF0D9488)
+		SeerrAvailability.PENDING -> Color(0xFFB45309)
 		else -> Color(0xFF5D55E7)
 	}
 
 @Composable
-fun SeerrCard(
-	media: SeerrMedia,
-	onClick: () -> Unit,
+fun SeerrStatusBadge(
+	availability: SeerrAvailability,
 	modifier: Modifier = Modifier,
-	onFocused: () -> Unit = {},
+	long: Boolean = false,
+	fontSize: Int = 8,
 ) {
-	val interactionSource = remember { MutableInteractionSource() }
-	val focused by interactionSource.collectIsFocusedAsState()
-	val scale by animateFloatAsState(if (focused) FOCUSED_SCALE else 1f, label = "SeerrCardScale")
+	val label = (if (long) availability.longLabel() else availability.label()) ?: return
 
-	LaunchedEffect(focused) {
-		if (focused) onFocused()
-	}
-
-	Column(
+	Text(
+		text = stringResource(label),
+		color = Color.White,
+		fontSize = fontSize.sp,
+		fontWeight = FontWeight.SemiBold,
+		maxLines = 1,
 		modifier = modifier
-			.width(SeerrCardWidth)
-			.scale(scale)
-			.clickable(
-				interactionSource = interactionSource,
-				indication = null,
-				onClick = onClick,
-			),
-	) {
+			.background(availability.color, RoundedCornerShape(percent = 50))
+			.padding(horizontal = (fontSize * 3 / 4).dp, vertical = (fontSize / 4).dp),
+	)
+}
+
+/**
+ * The look of a card without any interaction, so it can be used inside a leanback row too.
+ */
+@Composable
+fun SeerrCardContent(
+	media: SeerrMedia,
+	focused: Boolean,
+	modifier: Modifier = Modifier,
+	width: Dp = SeerrCardWidth,
+	titleSize: TextUnit = 10.sp,
+	centered: Boolean = false,
+) {
+	Column(modifier = modifier.width(width)) {
 		Box(
 			modifier = Modifier
 				.fillMaxWidth()
@@ -113,30 +140,63 @@ fun SeerrCard(
 				)
 			}
 
-			media.availability.label()?.let { label ->
-				Text(
-					text = stringResource(label),
-					color = Color.White,
-					fontSize = 8.sp,
-					fontWeight = FontWeight.SemiBold,
-					maxLines = 1,
-					modifier = Modifier
-						.align(Alignment.TopEnd)
-						.padding(4.dp)
-						.background(media.availability.color, RoundedCornerShape(percent = 50))
-						.padding(horizontal = 6.dp, vertical = 2.dp),
-				)
-			}
+			SeerrStatusBadge(
+				availability = media.availability,
+				modifier = Modifier
+					.align(Alignment.TopEnd)
+					.padding(4.dp),
+			)
 		}
 
 		Spacer(Modifier.height(4.dp))
 
 		Text(
 			text = media.title,
-			fontSize = 10.sp,
+			fontSize = titleSize,
 			color = if (focused) Color.White else Color(0xFF9CA3AF),
+			textAlign = if (centered) TextAlign.Center else TextAlign.Start,
 			maxLines = 1,
 			overflow = TextOverflow.Ellipsis,
+			modifier = Modifier.fillMaxWidth(),
+		)
+	}
+}
+
+@Composable
+fun SeerrCard(
+	media: SeerrMedia,
+	onClick: () -> Unit,
+	modifier: Modifier = Modifier,
+	onFocused: () -> Unit = {},
+) {
+	val interactionSource = remember { MutableInteractionSource() }
+	val focused by interactionSource.collectIsFocusedAsState()
+	val pressed by interactionSource.collectIsPressedAsState()
+	val focusScale by animateFloatAsState(if (focused) FOCUSED_SCALE else 1f, label = "SeerrCardFocus")
+	val pressScale by animateFloatAsState(
+		targetValue = if (pressed) PRESSED_SCALE else 1f,
+		animationSpec = tween(if (pressed) SHRINK_DURATION_MS else RELEASE_DURATION_MS, easing = LinearOutSlowInEasing),
+		label = "SeerrCardPress",
+	)
+
+	LaunchedEffect(focused) {
+		if (focused) onFocused()
+	}
+
+	// The focus zoom is on the card and the shrink on its content, so the two never fight
+	Box(
+		modifier = modifier
+			.scale(focusScale)
+			.clickable(
+				interactionSource = interactionSource,
+				indication = null,
+				onClick = onClick,
+			),
+	) {
+		SeerrCardContent(
+			media = media,
+			focused = focused,
+			modifier = Modifier.scale(pressScale),
 		)
 	}
 }

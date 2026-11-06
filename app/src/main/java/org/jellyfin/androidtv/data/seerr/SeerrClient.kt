@@ -78,6 +78,29 @@ class SeerrClient(
 		addQueryParameter("language", language)
 	}
 
+	suspend fun details(type: String, id: Int, language: String): SeerrDetailsResponse = get("$type/$id") {
+		addQueryParameter("language", language)
+	}
+
+	/** Recommendations or similar titles, [kind] is the last part of the path. */
+	suspend fun related(type: String, id: Int, kind: String, language: String): SeerrResultPage = get("$type/$id/$kind") {
+		addQueryParameter("page", "1")
+		addQueryParameter("language", language)
+	}
+
+	suspend fun cancelRequest(id: Int) {
+		execute(request("request/$id").delete().build())
+	}
+
+	/** Ask for a movie, or for the given seasons of a series. */
+	suspend fun request(type: String, id: Int, seasons: List<Int>?) {
+		execute(
+			request("request")
+				.post(json.encodeToString(SeerrRequestBody(type, id, seasons)).toRequestBody(JSON_MEDIA_TYPE))
+				.build()
+		)
+	}
+
 	suspend fun login(
 		method: SeerrLoginMethod,
 		username: String,

@@ -642,4 +642,25 @@
     <string name="jc_seerr_availability_processing">Processing</string>
     <string name="jc_seerr_availability_partial">Partial</string>
     <string name="jc_seerr_availability_available">Available</string>
+    <string name="jc_seerr_request">Request</string>
+    <string name="jc_seerr_request_selected">Request selected (%1$d)</string>
+    <string name="jc_seerr_select_all">Select all</string>
+    <string name="jc_seerr_season">Season %1$d</string>
+    <string name="jc_seerr_episodes">%1$d episodes</string>
+    <string name="jc_seerr_runtime">%1$d min</string>
+    <string name="jc_seerr_request_sent">Request sent</string>
+    <string name="jc_seerr_request_forbidden">You can\'t request this: missing permission or quota used up</string>
+    <string name="jc_seerr_request_failed">The request failed, try again</string>
+    <string name="jc_seerr_availability_partial_long">Partially available</string>
+    <string name="jc_seerr_recommendations">Recommended</string>
+    <string name="jc_seerr_recommendations_from">Recommended on Seerr</string>
+    <string name="jc_seerr_cancel_request">Cancel request</string>
+    <string name="jc_seerr_request_cancelled">Request cancelled</string>
+    <string name="jc_seerr_requested_by">Requested by %1$s</string>
+    <string name="jc_seerr_request_seasons">Seasons %1$s</string>
+    <string name="jc_seerr_request_status_pending">Awaiting approval</string>
+    <string name="jc_seerr_request_status_approved">Approved</string>
+    <string name="jc_seerr_request_status_declined">Declined</string>
+    <string name="jc_seerr_request_status_failed">Failed</string>
+    <string name="jc_seerr_request_status_completed">Completed</string>
 </resources>

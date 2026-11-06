@@ -57,6 +57,78 @@ data class SeerrMediaInfo(
 	// Field names fixed by the Seerr API
 	@SerialName("jellyfinMediaId") val libraryItemId: String? = null,
 	@SerialName("jellyfinMediaId4k") val libraryItem4kId: String? = null,
+	val seasons: List<SeerrSeasonInfo> = emptyList(),
+	val requests: List<SeerrRequestInfo> = emptyList(),
+)
+
+@Serializable
+data class SeerrRequester(
+	val id: Int = 0,
+	val displayName: String? = null,
+	val username: String? = null,
+	val email: String? = null,
+) {
+	val name: String? get() = displayName ?: username ?: email
+}
+
+@Serializable
+data class SeerrRequestedSeason(
+	val seasonNumber: Int,
+)
+
+@Serializable
+data class SeerrRequestInfo(
+	val id: Int,
+	val status: Int = 1,
+	val requestedBy: SeerrRequester? = null,
+	val seasons: List<SeerrRequestedSeason> = emptyList(),
+)
+
+@Serializable
+data class SeerrSeasonInfo(
+	val seasonNumber: Int,
+	val status: Int = 1,
+)
+
+@Serializable
+data class SeerrGenre(
+	val name: String = "",
+)
+
+@Serializable
+data class SeerrSeason(
+	val seasonNumber: Int,
+	val name: String? = null,
+	val episodeCount: Int = 0,
+)
+
+/**
+ * The details of a movie or a series. The two kinds share most fields, the others stay empty.
+ */
+@Serializable
+data class SeerrDetailsResponse(
+	val id: Int,
+	val title: String? = null,
+	val name: String? = null,
+	val tagline: String? = null,
+	val overview: String? = null,
+	val posterPath: String? = null,
+	val backdropPath: String? = null,
+	val releaseDate: String? = null,
+	val firstAirDate: String? = null,
+	val runtime: Int? = null,
+	val episodeRunTime: List<Int> = emptyList(),
+	val voteAverage: Double = 0.0,
+	val genres: List<SeerrGenre> = emptyList(),
+	val seasons: List<SeerrSeason> = emptyList(),
+	val mediaInfo: SeerrMediaInfo? = null,
+)
+
+@Serializable
+internal data class SeerrRequestBody(
+	val mediaType: String,
+	val mediaId: Int,
+	val seasons: List<Int>? = null,
 )
 
 @Serializable

@@ -183,20 +183,21 @@ fun SeerrCard(
 		if (focused) onFocused()
 	}
 
-	// The focus zoom is on the card and the shrink on its content, so the two never fight
+	// The focusable box keeps its real size and only its content is zoomed: scrolling parents bring the
+	// focused bounds into view, and a zoom on the focusable itself made them nudge up and down on every move
 	Box(
-		modifier = modifier
-			.scale(focusScale)
-			.clickable(
-				interactionSource = interactionSource,
-				indication = null,
-				onClick = onClick,
-			),
+		modifier = modifier.clickable(
+			interactionSource = interactionSource,
+			indication = null,
+			onClick = onClick,
+		),
 	) {
-		SeerrCardContent(
-			media = media,
-			focused = focused,
-			modifier = Modifier.scale(pressScale),
-		)
+		Box(modifier = Modifier.scale(focusScale)) {
+			SeerrCardContent(
+				media = media,
+				focused = focused,
+				modifier = Modifier.scale(pressScale),
+			)
+		}
 	}
 }

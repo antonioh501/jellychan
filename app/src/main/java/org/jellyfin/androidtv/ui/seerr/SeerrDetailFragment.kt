@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,8 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,9 +26,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -120,9 +129,7 @@ private fun SeerrDetailPage(
 					details = details,
 					state = state,
 					viewModel = viewModel,
-					modifier = Modifier
-						.weight(1f)
-						.verticalScroll(rememberScrollState()),
+					modifier = Modifier.weight(1f),
 				)
 			}
 		}
@@ -137,12 +144,24 @@ private fun SeerrDetailContent(
 	modifier: Modifier = Modifier,
 ) {
 	val navigationRepository = koinInject<NavigationRepository>()
+	var headerHeight by remember { mutableIntStateOf(0) }
+	var recommendationsFocused by remember { mutableStateOf(false) }
+	// Only two positions, header or recommendations on top: no scroller, so the focus can never leave the page
+	// stuck halfway with the title cut off
+	val offset by animateIntAsState(if (recommendationsFocused) headerHeight else 0, label = "SeerrDetailOffset")
 
-	Column(modifier = modifier) {
+	Column(
+		modifier = modifier
+			.clipToBounds()
+			.wrapContentHeight(Alignment.Top, unbounded = true)
+			.offset { IntOffset(0, -offset) },
+	) {
 	Row(
 		horizontalArrangement = Arrangement.spacedBy(32.dp),
 		modifier = Modifier
 			.fillMaxWidth()
+			.onSizeChanged { headerHeight = it.height }
+			.onFocusChanged { if (it.hasFocus) recommendationsFocused = false }
 			.padding(horizontal = 48.dp, vertical = 16.dp),
 	) {
 		details.posterUrl?.let { poster ->
@@ -211,23 +230,27 @@ private fun SeerrDetailContent(
 	}
 
 	if (state.recommendations.isNotEmpty()) {
-		Text(
-			text = stringResource(R.string.jc_seerr_recommendations),
-			fontSize = 14.sp,
-			fontWeight = FontWeight.SemiBold,
-			color = Color.White,
-			modifier = Modifier.padding(start = 48.dp, top = 8.dp, bottom = 6.dp),
-		)
-
-		LazyRow(
-			contentPadding = PaddingValues(horizontal = 48.dp, vertical = 6.dp),
-			horizontalArrangement = Arrangement.spacedBy(12.dp),
+		Column(
+			modifier = Modifier.onFocusChanged { if (it.hasFocus) recommendationsFocused = true },
 		) {
-			itemsIndexed(state.recommendations, key = { _, media -> "${media.type}-${media.id}" }) { _, media ->
-				SeerrCard(
-					media = media,
-					onClick = { navigationRepository.openSeerrMedia(media) },
-				)
+			Text(
+				text = stringResource(R.string.jc_seerr_recommendations),
+				fontSize = 14.sp,
+				fontWeight = FontWeight.SemiBold,
+				color = Color.White,
+				modifier = Modifier.padding(start = 48.dp, top = 8.dp, bottom = 6.dp),
+			)
+
+			LazyRow(
+				contentPadding = PaddingValues(horizontal = 48.dp, vertical = 6.dp),
+				horizontalArrangement = Arrangement.spacedBy(12.dp),
+			) {
+				itemsIndexed(state.recommendations, key = { _, media -> "${media.type}-${media.id}" }) { _, media ->
+					SeerrCard(
+						media = media,
+						onClick = { navigationRepository.openSeerrMedia(media) },
+					)
+				}
 			}
 		}
 	}

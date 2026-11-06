@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+### Fixed
+- Seerr: the title and poster on a title page are no longer cut off after moving between the buttons and the
+  recommendations; the page now scrolls to clean positions.
+- Seerr: the rows above the focused one no longer bob up and down on every left/right move in Discover.
+
 ## [0.1.0-alpha.3] - 2026-11-06
 
 ### Added

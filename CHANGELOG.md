@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [0.1.0-alpha.3] - 2026-11-06
+
 ### Added
 - Seerr: "Le mie richieste" page, opened from the Discover tab, with the requests of the signed in user, their status
   and a way to cancel them.
@@ -79,6 +81,7 @@ First public pre-release. Based on Jellyfin for Android TV 0.19.10.
 - Rating badges on cards.
 - Profile picture in the player overlay.
 
-[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.2...HEAD
+[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.3...HEAD
+[0.1.0-alpha.3]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.2...v0.1.0-alpha.3
 [0.1.0-alpha.2]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.1...v0.1.0-alpha.2
 [0.1.0-alpha.1]: https://github.com/antonioh501/jellychan/releases/tag/v0.1.0-alpha.1

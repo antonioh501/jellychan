@@ -425,7 +425,7 @@
     <string name="live_tv_preferences">Opzioni TV Diretta</string>
     <string name="lbl_additional_parts">Parti addizionali</string>
     <string name="server_unsupported_notification">Questo server utilizza Jellyfin %1$s non è più supportato. Aggiorna Jellyfin %2$s o superiore per continuare ad utilizzare l\'app.</string>
-    <string name="image_type_poster">poster</string>
+    <string name="image_type_poster">Poster</string>
     <string name="crash_report_toast">Oops! Qualcosa è andato storto, la segnalazione di crash è stata inviata al tuo server Jellyfin.</string>
     <string name="pref_crash_report_logs_disabled">I log non saranno inclusi nelle segnalazioni di crash</string>
     <string name="pref_crash_report_logs_enabled">I log saranno inclusi nelle segnalazioni di crash</string>
@@ -636,6 +636,8 @@
     <string name="jc_seerr_error_credentials">Nome utente o password errati</string>
     <string name="jc_seerr_discover">Scopri</string>
     <string name="jc_pref_show_ratings">Mostra valutazioni</string>
+    <string name="jc_pref_app_language">Lingua</string>
+    <string name="jc_pref_app_language_system">Lingua del dispositivo</string>
     <string name="jc_seerr_search">Cerca su Seerr</string>
     <string name="jc_seerr_no_results">Nessun risultato</string>
     <string name="jc_seerr_open_settings">Apri impostazioni</string>
@@ -666,6 +668,7 @@
     <string name="jc_seerr_availability_partial_long">Parzialmente disponibile</string>
     <string name="jc_seerr_recommendations">Consigliati</string>
     <string name="jc_seerr_recommendations_from">Consigli da Seerr</string>
+    <string name="jc_seerr_person_titles">Altri titoli su Seerr</string>
     <string name="jc_seerr_cancel_request">Annulla richiesta</string>
     <string name="jc_seerr_request_cancelled">Richiesta annullata</string>
     <string name="jc_seerr_requested_by">Richiesto da %1$s</string>
@@ -675,4 +678,8 @@
     <string name="jc_seerr_request_status_declined">Rifiutata</string>
     <string name="jc_seerr_request_status_failed">Non riuscita</string>
     <string name="jc_seerr_request_status_completed">Completata</string>
+    <string name="jc_pref_clock_format">Formato orologio</string>
+    <string name="jc_pref_clock_format_auto">Automatico</string>
+    <string name="jc_pref_clock_format_12">12 ore</string>
+    <string name="jc_pref_clock_format_24">24 ore</string>
 </resources>

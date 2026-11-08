@@ -1,5 +1,6 @@
 package org.jellyfin.androidtv.ui.seerr
 
+import android.content.Context
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
@@ -13,6 +14,7 @@ import org.jellyfin.androidtv.data.seerr.SeerrLoginResult
 import org.jellyfin.androidtv.data.seerr.SeerrRepository
 import org.jellyfin.androidtv.data.seerr.SeerrState
 import org.jellyfin.androidtv.databinding.JcActivitySeerrConnectBinding
+import org.jellyfin.androidtv.util.AppLanguage
 import org.jellyfin.androidtv.util.applyTheme
 import org.koin.android.ext.android.inject
 
@@ -29,6 +31,11 @@ class SeerrConnectActivity : FragmentActivity() {
 			R.id.jc_seerr_method_local -> SeerrLoginMethod.LOCAL
 			else -> SeerrLoginMethod.SERVER_ACCOUNT
 		}
+
+	// JellyChan: interface language chosen in the app
+	override fun attachBaseContext(newBase: Context) {
+		super.attachBaseContext(AppLanguage.wrap(newBase))
+	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		applyTheme()

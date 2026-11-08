@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
+import org.jellyfin.androidtv.util.ClockFormatUtils
 import org.jellyfin.androidtv.util.locale
 import java.util.Date
 import kotlin.time.Duration
@@ -21,8 +22,9 @@ fun rememberCurrentTime(
 ): State<String> {
 	val context = LocalContext.current
 	val locale = context.locale
+	// JellyChan: 12/24 hours comes from the app setting, not from the interface language
 	val format = remember(context, locale) {
-		when (DateFormat.is24HourFormat(context)) {
+		when (ClockFormatUtils.is24Hour(context)) {
 			true -> format24
 			false -> format12
 		}

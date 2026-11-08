@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [0.1.0-alpha.5] - 2026-11-09
+
+### Added
+- Settings, Personalization: "Language" chooses the interface language independently of the TV: device language,
+  English, Italiano, Français, Español or Deutsch. The app restarts to apply it; Seerr content follows the chosen
+  language too. The new JellyChan texts are translated into French, Spanish and German.
+- Settings, Personalization: "Clock format" (automatic, 12-hour or 24-hour) for the clock and the "ends at" times.
+  Automatic follows the TV setting, or 24 hours when the TV has none, whatever the interface language.
+- Settings, Libraries: each library has its own view type again (poster, thumbnail or banner).
+- Person pages: a "More on Seerr" row with the movies and series of Seerr the person appears in and that are
+  not in the library yet.
+
 ## [0.1.0-alpha.4] - 2026-11-07
 
 ### Changed
@@ -98,7 +110,8 @@ First public pre-release. Based on Jellyfin for Android TV 0.19.10.
 - Rating badges on cards.
 - Profile picture in the player overlay.
 
-[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.4...HEAD
+[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.5...HEAD
+[0.1.0-alpha.5]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.4...v0.1.0-alpha.5
 [0.1.0-alpha.4]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.3...v0.1.0-alpha.4
 [0.1.0-alpha.3]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.2...v0.1.0-alpha.3
 [0.1.0-alpha.2]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.1...v0.1.0-alpha.2

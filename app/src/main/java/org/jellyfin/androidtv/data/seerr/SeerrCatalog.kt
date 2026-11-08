@@ -332,6 +332,38 @@ class SeerrCatalog(
 			.distinctBy { it.id }
 	}
 
+	/**
+	 * The titles a person appears in, the most voted first. The person is found by [tmdbId], or by [name]
+	 * when the library does not know the id. Talk shows and news are left out, they are not roles.
+	 * Anything that can't be loaded gives an empty list.
+	 */
+	suspend fun personTitles(tmdbId: Int?, name: String, exclude: (SeerrMedia) -> Boolean = { false }): List<SeerrMedia> {
+		val connection = connection()
+		val imageBase = connection.imageBase()
+
+		try {
+			val personId = tmdbId ?: connection.client.search(name, 1, language()).results
+				.firstOrNull { it.mediaType == "person" && it.name.equals(name, ignoreCase = true) }
+				?.id
+				?: return emptyList()
+
+			val credits = connection.client.personCredits(personId, language())
+
+			return (credits.cast + credits.crew)
+				.filter { it.genreIds.none { genre -> genre in NON_ROLE_GENRES } }
+				.sortedByDescending { it.voteCount }
+				.mapNotNull { it.toMedia(null, imageBase) }
+				.filter { it.posterUrl != null && !exclude(it) }
+				.distinctBy { it.type to it.id }
+				.take(PERSON_TITLES_LIMIT)
+		} catch (err: SeerrHttpException) {
+			if (err.isUnauthorized) seerrRepository.onSessionExpired()
+			return emptyList()
+		} catch (_: IOException) {
+			return emptyList()
+		}
+	}
+
 	private fun connection() = seerrRepository.state.value as? SeerrState.Connected
 		?: throw IOException("Not connected to Seerr")
 
@@ -411,6 +443,10 @@ class SeerrCatalog(
 		const val YEAR_LENGTH = 4
 		const val DATE_LENGTH = 10
 		const val REQUEST_PAGE_SIZE = 20
+		const val PERSON_TITLES_LIMIT = 40
+
+		// TMDB genres: News, Reality, Talk
+		val NON_ROLE_GENRES = setOf(10763, 10764, 10767)
 		const val POSTER_SIZE = "w342"
 		const val BACKDROP_SIZE = "w1280"
 

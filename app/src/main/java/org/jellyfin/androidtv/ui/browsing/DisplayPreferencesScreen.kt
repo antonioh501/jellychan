@@ -1,7 +1,6 @@
 package org.jellyfin.androidtv.ui.browsing
 
 import org.jellyfin.androidtv.R
-import org.jellyfin.androidtv.constant.GridDirection
 import org.jellyfin.androidtv.constant.ImageType
 import org.jellyfin.androidtv.constant.PosterSize
 import org.jellyfin.androidtv.preference.LibraryPreferences
@@ -32,6 +31,12 @@ class DisplayPreferencesScreen : OptionsFragment() {
 			enum<PosterSize> {
 				setTitle(R.string.lbl_image_size)
 				bind(libraryPreferences, LibraryPreferences.posterSize)
+			}
+
+			// JellyChan: each library keeps its own view type (poster, thumbnail or banner)
+			enum<ImageType> {
+				setTitle(R.string.lbl_image_type)
+				bind(libraryPreferences, LibraryPreferences.imageType)
 			}
 		}
 	}

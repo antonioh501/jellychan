@@ -1,12 +1,19 @@
 package org.jellyfin.androidtv.ui.preference
 
+import android.content.Context
 import android.os.Bundle
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentActivity
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.ui.preference.screen.UserPreferencesScreen
+import org.jellyfin.androidtv.util.AppLanguage
 
 class PreferencesActivity : FragmentActivity(R.layout.fragment_content_view) {
+	// JellyChan: interface language chosen in the app
+	override fun attachBaseContext(newBase: Context) {
+		super.attachBaseContext(AppLanguage.wrap(newBase))
+	}
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 

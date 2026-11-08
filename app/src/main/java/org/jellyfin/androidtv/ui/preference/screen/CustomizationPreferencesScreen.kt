@@ -4,6 +4,7 @@ import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.preference.UserPreferences
 import org.jellyfin.androidtv.preference.constant.AppTheme
 import org.jellyfin.androidtv.preference.constant.ClockBehavior
+import org.jellyfin.androidtv.preference.constant.ClockFormat
 import org.jellyfin.androidtv.preference.constant.RatingType
 import org.jellyfin.androidtv.preference.constant.WatchedIndicatorBehavior
 import org.jellyfin.androidtv.ui.preference.dsl.OptionsFragment
@@ -12,6 +13,7 @@ import org.jellyfin.androidtv.ui.preference.dsl.enum
 import org.jellyfin.androidtv.ui.preference.dsl.link
 import org.jellyfin.androidtv.ui.preference.dsl.list
 import org.jellyfin.androidtv.ui.preference.dsl.optionsScreen
+import org.jellyfin.androidtv.util.AppLanguage
 import org.jellyfin.androidtv.util.getQuantityString
 import org.koin.android.ext.android.inject
 import kotlin.time.Duration.Companion.minutes
@@ -26,6 +28,27 @@ class CustomizationPreferencesScreen : OptionsFragment() {
 		category {
 			setTitle(R.string.pref_theme)
 
+			// JellyChan: interface language independent of the device, applied by restarting the app
+			list {
+				setTitle(R.string.jc_pref_app_language)
+
+				entries = buildMap {
+					put("", getString(R.string.jc_pref_app_language_system))
+					AppLanguage.supported.forEach { tag -> put(tag, AppLanguage.displayName(tag)) }
+				}
+
+				bind {
+					get { AppLanguage.get(requireContext()) }
+					set { value ->
+						if (value != AppLanguage.get(requireContext())) {
+							AppLanguage.set(requireContext(), value)
+							AppLanguage.restart(requireActivity())
+						}
+					}
+					default { "" }
+				}
+			}
+
 			enum<AppTheme> {
 				setTitle(R.string.pref_app_theme)
 				bind(userPreferences, UserPreferences.appTheme)
@@ -34,6 +57,11 @@ class CustomizationPreferencesScreen : OptionsFragment() {
 			enum<ClockBehavior> {
 				setTitle(R.string.pref_clock_display)
 				bind(userPreferences, UserPreferences.clockBehavior)
+			}
+
+			enum<ClockFormat> {
+				setTitle(R.string.jc_pref_clock_format)
+				bind(userPreferences, UserPreferences.clockFormat)
 			}
 
 			enum<WatchedIndicatorBehavior> {

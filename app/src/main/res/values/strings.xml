@@ -628,6 +628,8 @@
     <string name="jc_seerr_error_credentials">Wrong username or password</string>
     <string name="jc_seerr_discover">Discover</string>
     <string name="jc_pref_show_ratings">Show ratings</string>
+    <string name="jc_pref_app_language">Language</string>
+    <string name="jc_pref_app_language_system">Device language</string>
     <string name="jc_seerr_search">Search on Seerr</string>
     <string name="jc_seerr_no_results">No results</string>
     <string name="jc_seerr_open_settings">Open settings</string>
@@ -658,6 +660,7 @@
     <string name="jc_seerr_availability_partial_long">Partially available</string>
     <string name="jc_seerr_recommendations">Recommended</string>
     <string name="jc_seerr_recommendations_from">Recommended on Seerr</string>
+    <string name="jc_seerr_person_titles">More on Seerr</string>
     <string name="jc_seerr_cancel_request">Cancel request</string>
     <string name="jc_seerr_request_cancelled">Request cancelled</string>
     <string name="jc_seerr_requested_by">Requested by %1$s</string>
@@ -667,4 +670,8 @@
     <string name="jc_seerr_request_status_declined">Declined</string>
     <string name="jc_seerr_request_status_failed">Failed</string>
     <string name="jc_seerr_request_status_completed">Completed</string>
+    <string name="jc_pref_clock_format">Clock format</string>
+    <string name="jc_pref_clock_format_auto">Automatic</string>
+    <string name="jc_pref_clock_format_12">12-hour</string>
+    <string name="jc_pref_clock_format_24">24-hour</string>
 </resources>

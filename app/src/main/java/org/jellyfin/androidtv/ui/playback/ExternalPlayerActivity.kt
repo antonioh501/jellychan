@@ -1,6 +1,7 @@
 package org.jellyfin.androidtv.ui.playback
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.data.model.DataRefreshService
+import org.jellyfin.androidtv.util.AppLanguage
 import org.jellyfin.androidtv.util.sdk.getDisplayName
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.client.extensions.playStateApi
@@ -92,6 +94,11 @@ class ExternalPlayerActivity : FragmentActivity() {
 	}
 
 	private var currentItem: Pair<BaseItemDto, MediaSourceInfo>? = null
+
+	// JellyChan: interface language chosen in the app
+	override fun attachBaseContext(newBase: Context) {
+		super.attachBaseContext(AppLanguage.wrap(newBase))
+	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)

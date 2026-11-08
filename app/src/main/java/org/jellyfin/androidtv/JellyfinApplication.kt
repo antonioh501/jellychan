@@ -2,6 +2,7 @@ package org.jellyfin.androidtv
 
 import android.app.Application
 import android.content.Context
+import android.content.res.Configuration
 import androidx.work.BackoffPolicy
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -15,6 +16,7 @@ import org.jellyfin.androidtv.data.eventhandling.SocketHandler
 import org.jellyfin.androidtv.data.repository.NotificationsRepository
 import org.jellyfin.androidtv.integration.LeanbackChannelWorker
 import org.jellyfin.androidtv.telemetry.TelemetryService
+import org.jellyfin.androidtv.util.AppLanguage
 import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
 
@@ -57,8 +59,15 @@ class JellyfinApplication : Application() {
 	}
 
 	override fun attachBaseContext(base: Context?) {
-		super.attachBaseContext(base)
+		super.attachBaseContext(base?.let(AppLanguage::wrap))
 
 		TelemetryService.init(this)
+	}
+
+	override fun onConfigurationChanged(newConfig: Configuration) {
+		super.onConfigurationChanged(newConfig)
+
+		// The system resets the default locale to the device one
+		AppLanguage.applyDefault(this)
 	}
 }

@@ -2,6 +2,7 @@ package org.jellyfin.androidtv.ui.startup
 
 import android.Manifest
 import android.app.SearchManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -40,6 +41,7 @@ import org.jellyfin.androidtv.ui.startup.fragment.SelectServerFragment
 import org.jellyfin.androidtv.ui.startup.fragment.ServerFragment
 import org.jellyfin.androidtv.ui.startup.fragment.SplashFragment
 import org.jellyfin.androidtv.ui.startup.fragment.StartupToolbarFragment
+import org.jellyfin.androidtv.util.AppLanguage
 import org.jellyfin.androidtv.util.applyTheme
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.client.extensions.userLibraryApi
@@ -78,6 +80,11 @@ class StartupActivity : FragmentActivity() {
 		} else {
 			onPermissionsGranted()
 		}
+	}
+
+	// JellyChan: interface language chosen in the app
+	override fun attachBaseContext(newBase: Context) {
+		super.attachBaseContext(AppLanguage.wrap(newBase))
 	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {

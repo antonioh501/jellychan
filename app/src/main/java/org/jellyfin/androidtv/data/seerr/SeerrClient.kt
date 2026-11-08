@@ -88,6 +88,11 @@ class SeerrClient(
 		addQueryParameter("language", language)
 	}
 
+	/** Movies and series a TMDB person appears in. */
+	suspend fun personCredits(personId: Int, language: String): SeerrPersonCredits = get("person/$personId/combined_credits") {
+		addQueryParameter("language", language)
+	}
+
 	/** One page of the requests made by [userId], the newest first. */
 	suspend fun requests(userId: Int, page: Int, pageSize: Int): SeerrRequestListResponse = get("request") {
 		addQueryParameter("take", pageSize.toString())

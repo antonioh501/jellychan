@@ -23,6 +23,11 @@ fun Context.getDateFormatter(
 @JvmOverloads
 fun Context.getTimeFormatter(
 	style: FormatStyle = FormatStyle.SHORT
-): DateTimeFormatter = DateTimeFormatter
-	.ofLocalizedTime(style)
-	.withLocale(locale)
+): DateTimeFormatter = when {
+	// JellyChan: 12/24 hours comes from the app setting, not from the interface language
+	style == FormatStyle.SHORT -> DateTimeFormatter.ofPattern(
+		if (ClockFormatUtils.is24Hour(this)) "HH:mm" else "h:mm a",
+		locale,
+	)
+	else -> DateTimeFormatter.ofLocalizedTime(style).withLocale(locale)
+}

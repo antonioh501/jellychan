@@ -21,6 +21,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.data.repository.ItemRepository
+import org.jellyfin.androidtv.data.seerr.SeerrAvailability
 import org.jellyfin.androidtv.data.seerr.SeerrCatalog
 import org.jellyfin.androidtv.data.seerr.SeerrMedia
 import org.jellyfin.androidtv.data.seerr.SeerrMediaType
@@ -34,6 +35,7 @@ import org.jellyfin.androidtv.ui.presentation.MutableObjectAdapter
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.client.exception.ApiClientException
 import org.jellyfin.sdk.api.client.extensions.libraryApi
+import org.jellyfin.sdk.api.client.extensions.userLibraryApi
 import org.jellyfin.sdk.model.api.BaseItemDto
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.ItemFields
@@ -50,6 +52,11 @@ object SeerrRecommendationRow {
 
 	@JvmStatic
 	fun add(fragment: Fragment, adapter: MutableObjectAdapter<Row>, item: BaseItemDto) {
+		if (item.type == BaseItemKind.PERSON) {
+			addPersonTitles(fragment, adapter, item)
+			return
+		}
+
 		val type = when (item.type) {
 			BaseItemKind.MOVIE -> SeerrMediaType.MOVIE
 			BaseItemKind.SERIES -> SeerrMediaType.SERIES
@@ -89,6 +96,54 @@ object SeerrRecommendationRow {
 			media.forEach(rowAdapter::add)
 			adapter.add(ListRow(HeaderItem(fragment.getString(R.string.jc_seerr_recommendations_from)), rowAdapter))
 		}
+	}
+
+	/**
+	 * The titles of Seerr a person appears in, for the page of a person of the library. Titles that are
+	 * already in the library are left out: the rows above list them.
+	 */
+	private fun addPersonTitles(fragment: Fragment, adapter: MutableObjectAdapter<Row>, person: BaseItemDto) {
+		val name = person.name?.takeIf { it.isNotBlank() } ?: return
+
+		val koin = GlobalContext.get()
+		val repository = koin.get<SeerrRepository>()
+		if (repository.state.value !is SeerrState.Connected) return
+
+		val catalog = koin.get<SeerrCatalog>()
+		val api = koin.get<ApiClient>()
+
+		fragment.lifecycleScope.launch {
+			val media = try {
+				withContext(Dispatchers.IO) {
+					// Not every person item carries its provider ids, so they are asked for when missing
+					val tmdbId = person.providerIds?.get(TMDB_PROVIDER)?.toIntOrNull()
+						?: loadTmdbId(api, person)
+
+					catalog.personTitles(tmdbId, name) { candidate ->
+						candidate.libraryItemId != null || candidate.availability == SeerrAvailability.AVAILABLE
+					}
+				}
+			} catch (err: IOException) {
+				Timber.w(err, "Unable to load the Seerr titles of the person")
+				return@launch
+			} catch (err: SerializationException) {
+				Timber.w(err, "Unable to read the Seerr titles of the person")
+				return@launch
+			}
+
+			if (media.isEmpty() || !fragment.isAdded) return@launch
+
+			val rowAdapter = ArrayObjectAdapter(SeerrCardPresenter())
+			media.forEach(rowAdapter::add)
+			adapter.add(ListRow(HeaderItem(fragment.getString(R.string.jc_seerr_person_titles)), rowAdapter))
+		}
+	}
+
+	private suspend fun loadTmdbId(api: ApiClient, person: BaseItemDto): Int? = try {
+		api.userLibraryApi.getItem(person.id).content.providerIds?.get(TMDB_PROVIDER)?.toIntOrNull()
+	} catch (err: ApiClientException) {
+		Timber.w(err, "Unable to load the provider ids of the person")
+		null
 	}
 
 	@JvmStatic

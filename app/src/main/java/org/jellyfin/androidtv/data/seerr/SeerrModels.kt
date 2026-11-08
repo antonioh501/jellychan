@@ -172,7 +172,16 @@ data class SeerrResult(
 	val backdropPath: String? = null,
 	val releaseDate: String? = null,
 	val firstAirDate: String? = null,
+	val voteCount: Int = 0,
+	val genreIds: List<Int> = emptyList(),
 	val mediaInfo: SeerrMediaInfo? = null,
+)
+
+/** The titles a person played in (cast) or worked on (crew). */
+@Serializable
+data class SeerrPersonCredits(
+	val cast: List<SeerrResult> = emptyList(),
+	val crew: List<SeerrResult> = emptyList(),
 )
 
 @Serializable

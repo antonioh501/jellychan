@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [0.1.0-alpha.5] - 2026-11-09
+
 ### Added
 - Settings, Personalization: "Language" chooses the interface language independently of the TV: device language,
   English, Italiano, Français, Español or Deutsch. The app restarts to apply it; Seerr content follows the chosen
@@ -108,7 +110,8 @@ First public pre-release. Based on Jellyfin for Android TV 0.19.10.
 - Rating badges on cards.
 - Profile picture in the player overlay.
 
-[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.4...HEAD
+[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.5...HEAD
+[0.1.0-alpha.5]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.4...v0.1.0-alpha.5
 [0.1.0-alpha.4]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.3...v0.1.0-alpha.4
 [0.1.0-alpha.3]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.2...v0.1.0-alpha.3
 [0.1.0-alpha.2]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.1...v0.1.0-alpha.2

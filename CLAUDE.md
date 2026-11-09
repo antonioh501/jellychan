@@ -96,14 +96,62 @@ Il daemon adb può morire tra un comando e l'altro: riconnettiti ogni volta.
 - Quick Connect: l'approvazione dal server può arrivare con ritardo; se "non funziona" controlla prima se la sessione
   è già autenticata.
 
+## Firma di commit e tag
+
+Ambito: firma **Git** di commit e tag annotati. Non è la firma Android dell'APK (sezione "Firma", chiave invariata) né
+un'attestazione di build/release: sono quattro cose distinte e nessuna implica le altre. Una release GitHub non è un
+oggetto Git firmabile.
+
+Stato (ricognizione 2026-11-09): nessun commit del repo è firmato; i 5 tag `v0.1.0-alpha.1…5` sono tutti
+lightweight; i workflow in `.github/workflows/` (build, lint, test, validate) non creano commit, tag né release,
+quindi oggi commit e tag nascono solo da chi opera in locale/remoto. Nell'ambiente cloud effimero di Claude la
+configurazione globale punta all'identità `Claude <noreply@anthropic.com>` e a un signer dell'ambiente: **non è
+l'identità di Antonio e non va usata per firmare al suo posto**. In locale e in ambiente remoto la configurazione
+di firma non è condivisa: verificala ogni volta.
+
+Configurazione (solo con identità e chiave approvate da Antonio, scope `--local`, mai globale salvo richiesta):
+`gpg.format=ssh`, `user.signingkey=<percorso reale della .pub, non versionato>`, `commit.gpgsign=true`,
+`tag.gpgsign=true`. La chiave privata deve essere nell'agent del firmatario; la pubblica va registrata su GitHub
+come *Signing key* (non basta come Authentication key) e l'email del committer deve essere associata all'account.
+Se GPG/SSH è già configurato e funzionante, non cambiarlo. Per la verifica locale SSH serve un
+`gpg.ssh.allowedSignersFile` con principal e chiave pubblica approvati, fuori dal repo: è fiducia locale, distinta
+dalla verifica indipendente di GitHub. Non salvare nel repo percorsi personali, chiavi private, token o passphrase.
+
+Regole permanenti:
+
+1. Ogni nuovo commit di Claude è firmato: `git commit -S`, con `commit.gpgsign=true`. Non disabilitare la firma per
+   aggirare errori: se fallisce, fermarsi e diagnosticare.
+2. Prima di ogni commit controlla diff, identità e disponibilità del firmatario. Niente commit vuoti di prova sul
+   branch di lavoro senza autorizzazione.
+3. Ogni tag di versione è annotato e firmato, creato sullo SHA completo approvato:
+   `git tag -s <VERSIONE> <SHA_COMPLETO> -m "Release <VERSIONE>"` (placeholder illustrativi). Mai tag lightweight.
+4. Crea, verifica e pusha prima il tag; poi pubblica la release su quel tag esistente (`gh release create ... --verify-tag`).
+   Né `gh`, né la UI né un workflow devono creare implicitamente un tag non firmato.
+5. Verifica in locale: `git verify-commit <SHA>`, `git verify-tag <TAG>`, e che il tag risolva allo SHA atteso
+   (`git rev-parse <TAG>^{commit}`).
+6. Push e pubblicazione solo secondo le autorizzazioni di Antonio. Dopo il push verifica su GitHub **separatamente**
+   commit e oggetto tag (per un tag annotato interroga l'oggetto tag, non solo il commit dereferenziato) e riporta i
+   motivi di un'eventuale mancata verifica. Non dichiarare "Verified" sulla base del solo esito locale.
+7. Se in futuro commit o tag nascessero in GitHub Actions, la stessa politica va implementata nel workflow con un
+   firmatario autorizzato e credenziali gestite in modo sicuro e approvate da Antonio: la config locale non passa al
+   runner, nessuna chiave privata in YAML/CLAUDE.md/log/repo né esposta a PR non fidate. Senza infrastruttura sicura:
+   fermarsi con un piano.
+8. Vietato, salvo approvazione separata e dettagliata: riscrivere commit pubblicati, spostare o sostituire tag
+   esistenti, force push, cancellare release. I tag storici restano com'è (lightweight, non firmati).
+9. Non cambiare prerelease/latest come effetto collaterale della firma. Non toccare chiave APK, artefatti o note di
+   release per ottenere il badge.
+10. Non creare né pubblicare una versione solo per provare la firma senza autorizzazione.
+
 ## Rilascio (pre-release su GitHub)
 
 1. Aggiorna `jellychan.version` in `gradle.properties` e sposta le voci da `[Unreleased]` alla nuova sezione del
    `CHANGELOG.md` (con data e link di confronto in fondo).
 2. `./gradlew assembleRelease -x lint`, installa sulla stick e verifica.
-3. Commit su `main`, tag `vX.Y.Z-alpha.N` (o `-beta.N`) e push dei tag.
-4. GitHub → Releases → nuova release dal tag, **segna come pre-release**, note dal CHANGELOG, allega l'APK.
-   Con `gh` autenticato si può fare da terminale: `gh release create vX.Y.Z-alpha.N <apk> --prerelease --notes-file ...`.
+3. Commit firmato su `main`, poi tag **annotato e firmato** `vX.Y.Z-alpha.N` (o `-beta.N`) sullo SHA completo
+   approvato (vedi "Firma di commit e tag"), verifica locale e push del solo tag.
+4. GitHub → Releases → nuova release **da un tag già esistente** (mai lasciare che la UI o `gh` lo creino),
+   **segna come pre-release**, note dal CHANGELOG, allega l'APK.
+   Con `gh` autenticato: `gh release create vX.Y.Z-alpha.N <apk> --verify-tag --prerelease --notes-file ...`.
 
 Stato: ultima pre-release pubblicata `v0.1.0-alpha.3`. Esiste solo il branch `main` (locale e remoto): i branch
 `feature/...` si cancellano dopo il merge.

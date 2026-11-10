@@ -80,6 +80,35 @@ Telecomando via adb: `shell input keyevent` 19 su, 20 giù, 21 sinistra, 22 dest
 **Antonio non è davanti alla TV: dopo ogni modifica visiva installa, naviga e mostragli gli screenshot.**
 Il daemon adb può morire tra un comando e l'altro: riconnettiti ogni volta.
 
+## Test, lint e comandi utili
+
+```sh
+./gradlew test                                   # unit test (Kotest su JUnit5 + MockK), come la CI
+./gradlew :app:testDebugUnitTest --tests "*SeerrRepositoryTests"   # un singolo test/classe
+./gradlew detekt lint                            # analisi statica, come la CI (config: detekt.yaml, android-lint.xml)
+```
+
+I test stanno in `app/src/test/kotlin/` (es. `data/seerr`, `ui/playback`, `util`). Non c'è un emulatore nel
+container cloud: build e prove su Fire TV si fanno sul PC di Antonio.
+
+## Architettura (big picture)
+
+- Moduli Gradle: `:app` (UI, DI, repository), `:playback:core|jellyfin|media3:exoplayer|media3:session`
+  (stack di riproduzione, Media3), `:preference` (libreria di preference store). `rootProject.name` è ancora
+  `jellyfin-androidtv` (upstream): non cambiarlo.
+- Codice in `app/src/main/java/org/jellyfin/androidtv/`: `di/` (moduli Koin, avviati da `KoinInitializer`),
+  `auth/` (sessioni e login), `data/` (repository, query, servizi verso il server), `preference/`
+  (`UserPreferences` ecc. su `:preference`), `ui/` (Fragment/Leanback + Compose per le parti nuove), `integration/`
+  (canali Leanback, `MediaContentProvider`, dream/screensaver).
+- Navigazione: `ui/navigation/` (`Destinations`, `NavigationRepository`) — le schermate si aggiungono come
+  `Destination` e si aprono via repository, non con transazioni di Fragment dirette.
+- Home: `ui/home/` compone righe (`HomeFragmentRow` e sottoclassi) in `HomeRowsFragment`; l'hero a carosello è
+  `HomeSpotlight.kt`.
+- Seerr (tab "Scopri", funzione propria di JellyChan, assente upstream): client HTTP e modelli in `data/seerr/`
+  (`SeerrClient`, `SeerrRepository`, `SeerrAccountStore`), UI Compose in `ui/seerr/` con un ViewModel per schermata.
+- Essendo un fork di upstream v0.19.10, la maggior parte del codice non-Seerr/non-UI è invariata: per fix o
+  merge dall'upstream preferisci modifiche minime nei file upstream.
+
 ## Note UI (Compose)
 
 - Seerr (Scopri) sta in `ui/seerr/`, pagine in Compose dentro Fragment. Le stringhe `jc_seerr_*` vanno in entrambe le lingue;
@@ -153,7 +182,7 @@ Regole permanenti:
    **segna come pre-release**, note dal CHANGELOG, allega l'APK.
    Con `gh` autenticato: `gh release create vX.Y.Z-alpha.N <apk> --verify-tag --prerelease --notes-file ...`.
 
-Stato: ultima pre-release pubblicata `v0.1.0-alpha.3`. Esiste solo il branch `main` (locale e remoto): i branch
+Stato: ultima pre-release pubblicata `v0.1.0-alpha.5`. Esiste solo il branch `main` (locale e remoto): i branch
 `feature/...` si cancellano dopo il merge.
 
 ## Idee aperte (solo se richieste)

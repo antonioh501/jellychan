@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.jellyfin.androidtv.auth.model.Server
 import org.jellyfin.androidtv.preference.UserPreferences
+import org.jellyfin.androidtv.preference.constant.BackdropBehavior
 import org.jellyfin.androidtv.util.apiclient.getUrl
 import org.jellyfin.androidtv.util.apiclient.itemBackdropImages
 import org.jellyfin.androidtv.util.apiclient.parentBackdropImages
@@ -55,31 +56,18 @@ class BackgroundService(
 	val blurBackground get() = _blurBackground.asStateFlow()
 	val enabled get() = _enabled.asStateFlow()
 
-	// JellyChan: "spotlight" mode keeps the backdrop sharp and clear at the top (item details header)
-	private var _spotlight = MutableStateFlow(false)
-	val spotlight get() = _spotlight.asStateFlow()
-	fun setSpotlight(enabled: Boolean) {
-		_spotlight.value = enabled
-	}
-
-	// JellyChan: muted trailer played full screen behind the home spotlight (carousel)
-	private var _trailerUrl = MutableStateFlow<String?>(null)
-	val trailerUrl get() = _trailerUrl.asStateFlow()
-	val trailerEnded = kotlinx.coroutines.flow.MutableSharedFlow<String>(extraBufferCapacity = 1)
-	fun setTrailer(url: String?) {
-		_trailerUrl.value = url
-	}
-
 	/**
 	 * Use all available backdrops from [baseItem] as background.
 	 */
 	fun setBackground(baseItem: BaseItemDto?) {
+		val backdropBehavior = userPreferences[UserPreferences.backdropBehavior]
+
 		// Check if item is set and backgrounds are enabled
-		if (baseItem == null)
+		if (baseItem == null || backdropBehavior == BackdropBehavior.DISABLED)
 			return clearBackgrounds()
 
 		// Enable blur for backdrops
-		_blurBackground.value = true
+		_blurBackground.value = backdropBehavior == BackdropBehavior.BACKDROP_WITH_BLUR
 
 		// Get all backdrop urls
 		val backdropUrls = (baseItem.itemBackdropImages + baseItem.parentBackdropImages)
@@ -93,6 +81,10 @@ class BackgroundService(
 	 * Use splashscreen from [server] as background.
 	 */
 	fun setBackground(server: Server) {
+		// Check if item is set and backgrounds are enabled
+		if (userPreferences[UserPreferences.backdropBehavior] == BackdropBehavior.DISABLED)
+			return clearBackgrounds()
+
 		// Check if splashscreen is enabled in (cached) branding options
 		if (!server.splashscreenEnabled)
 			return clearBackgrounds()

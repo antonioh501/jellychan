@@ -69,7 +69,7 @@ object TelemetryService {
 			val connection = URL(url).openConnection() as HttpURLConnection
 			// Add authorization
 			val clientName = buildString {
-				append("JellyChan")
+				append("Jellyfin for Android TV")
 				if (BuildConfig.DEBUG) append(" (debug)")
 			}
 			val authorization = AuthorizationHeaderBuilder.buildHeader(
@@ -97,9 +97,9 @@ object TelemetryService {
 		private fun CrashReportData.toReport(): String = buildMarkdown {
 			// Header
 			appendLine("---")
-			appendLine("client: JellyChan (based on Jellyfin for Android TV)")
+			appendLine("client: Jellyfin for Android TV")
 			appendLine("client_version: ${BuildConfig.VERSION_NAME}")
-			appendLine("client_repository: https://github.com/antonioh501/jellychan")
+			appendLine("client_repository: https://github.com/jellyfin/jellyfin-androidtv")
 			appendLine("type: crash_report")
 			appendLine("format: markdown")
 			appendLine("---")

@@ -5,22 +5,17 @@
         <!-- Colors -->
         <item name="android:colorPrimary">@color/grey</item>
         <item name="android:colorPrimaryDark">@color/grey</item>
-        <item name="android:colorAccent">@color/jc_accent</item>
+        <item name="android:colorAccent">@color/jellyfin_blue</item>
         <!-- Background resource or color -->
         <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="defaultBackground">@drawable/jc_background</item>
-        <!-- JellyChan typography -->
-        <item name="android:fontFamily">@font/inter</item>
-        <item name="fontFamily">@font/inter</item>
-        <item name="android:textColorPrimary">@color/jc_text</item>
-        <item name="android:textColorSecondary">@color/jc_text_dim</item>
+        <item name="defaultBackground">@color/not_quite_black</item>
         <!-- Background color for CardViews -->
-        <item name="cardImageBackground">@color/jc_selector</item>
+        <item name="cardImageBackground">@color/grey</item>
         <item name="cardViewBackground">@android:color/transparent</item>
         <!-- Search FAB color -->
-        <item name="defaultSearchColor">@color/jc_accent</item>
+        <item name="defaultSearchColor">@color/jellyfin_blue</item>
         <!-- Default (non-active) button color -->
-        <item name="android:colorButtonNormal">@color/jc_selector</item>
+        <item name="android:colorButtonNormal">@color/grey</item>
         <item name="buttonDefaultNormalBackground">@color/button_default_normal_background</item>
         <item name="buttonDefaultHighlightBackground">@color/button_default_highlight_background</item>
         <!-- Default (non-active) input -->
@@ -30,39 +25,33 @@
         <!-- Default popup menu -->
         <item name="popupMenuBackground">@color/popup_menu_background</item>
         <!-- Header text color -->
-        <item name="headerTextColor">@color/jc_text</item>
+        <item name="headerTextColor">@color/white</item>
 
         <!-- Progress Bar -->
         <item name="progressBackground">@color/grey_transparent</item>
-        <item name="progressPrimary">@color/jc_text</item>
-        <item name="progressSecondary">@color/jc_track</item>
+        <item name="progressPrimary">@color/jellyfin_blue</item>
+        <item name="progressSecondary">@color/jellyfin_purple</item>
 
         <!-- Custom Styles for Elements -->
         <item name="android:datePickerStyle">@style/DatePickerCustom</item>
         <item name="rowHeaderStyle">@style/Widget.Jellyfin.Row.Header</item>
         <item name="browseTitleViewLayout">@layout/view_lb_browse_title</item>
 
-        <item name="preferenceTheme">@style/PreferenceThemeOverlayLeanback</item>
         <item name="android:popupMenuStyle">@style/PopupMenu</item>
-        <item name="android:dropDownListViewStyle">@style/JcPopupMenuList</item>
         <item name="android:popupWindowStyle">@style/PopupWindow</item>
 
         <!-- Rounding Values -->
-        <item name="cardRounding">12dp</item>
-        <item name="buttonRounding">24dp</item>
-        <item name="inputRounding">8dp</item>
-        <item name="popupMenuRounding">12dp</item>
+        <item name="cardRounding">4dp</item>
+        <item name="buttonRounding">3dp</item>
+        <item name="inputRounding">3dp</item>
+        <item name="popupMenuRounding">3dp</item>
 
         <!-- Dim level of non-focus grid items -->
-        <item name="overlayDimDimmedLevel">0%</item>
-
-        <!-- JellyChan player controls -->
-        <item name="playbackProgressPrimaryColor">@color/jc_text</item>
-        <item name="playbackControlsIconHighlightColor">#40FFFFFF</item>
+        <item name="overlayDimDimmedLevel">30%</item>
 
         <!-- Control icons -->
         <item name="controlIconBackground">@color/button_default_normal_background</item>
-        <item name="controlIconForegroundActive">@color/white</item>
+        <item name="controlIconForegroundActive">@color/jellyfin_blue</item>
         <item name="controlIconForegroundInactive">@color/button_default_highlight_background</item>
 
         <!-- QR drawables -->
@@ -70,34 +59,35 @@
         <item name="qrForeground">@color/black</item>
 
         <!-- Tile colors -->
-        <item name="tile_port_person_bg">@color/jc_selector</item>
-        <item name="tile_port_video_bg">@color/jc_selector</item>
-        <item name="tile_land_folder_bg">@color/jc_selector</item>
-        <item name="tile_chapter_bg">@color/jc_selector</item>
-        <item name="tile_land_tv_bg">@color/jc_selector</item>
-        <item name="tile_port_tv_bg">@color/jc_selector</item>
-        <item name="tile_actors_bg">@color/jc_selector</item>
-        <item name="tile_land_photo_bg">@color/jc_selector</item>
-        <item name="tile_port_folder_bg">@color/jc_selector</item>
-        <item name="tile_land_series_timer_bg">@color/jc_selector</item>
+        <item name="tile_port_person_bg">@color/indigo_dye</item>
+        <item name="tile_port_video_bg">@color/indigo_dye</item>
+        <item name="tile_land_folder_bg">@color/indigo_dye</item>
+        <item name="tile_chapter_bg">@color/indigo_dye</item>
+        <item name="tile_land_tv_bg">@color/indigo_dye</item>
+        <item name="tile_port_tv_bg">@color/indigo_dye</item>
+        <item name="tile_actors_bg">@color/indigo_dye</item>
+        <item name="tile_land_photo_bg">@color/indigo_dye</item>
+        <item name="tile_port_folder_bg">@color/indigo_dye</item>
+        <item name="tile_land_series_timer_bg">@color/indigo_dye</item>
 
-        <item name="tile_audio_bg">@color/jc_lighter</item>
-        <item name="tile_artists_bg">@color/jc_selector</item>
-        <item name="tile_genres_bg">@color/jc_lighter</item>
-        <item name="tile_search_bg">@color/jc_selector</item>
+        <item name="tile_audio_bg">@color/midnight_blue</item>
+        <item name="tile_artists_bg">@color/spanish_blue</item>
+        <item name="tile_genres_bg">@color/midnight_blue</item>
+        <item name="tile_search_bg">@color/spanish_blue</item>
 
-        <item name="tile_suggestions_bg">@color/jc_selector</item>
-        <item name="tile_port_grid_bg">@color/jc_lighter</item>
-        <item name="tile_letters_bg">@color/jc_selector</item>
+        <item name="tile_suggestions_bg">@color/spanish_blue</item>
+        <item name="tile_port_grid_bg">@color/midnight_blue</item>
+        <item name="tile_letters_bg">@color/spanish_blue</item>
 
-        <item name="tile_port_guide_bg">@color/jc_selector</item>
-        <item name="tile_port_series_timer_bg">@color/jc_lighter</item>
-        <item name="tile_port_time_bg">@color/jc_selector</item>
+        <item name="tile_port_guide_bg">@color/spanish_blue</item>
+        <item name="tile_port_series_timer_bg">@color/midnight_blue</item>
+        <item name="tile_port_time_bg">@color/spanish_blue</item>
+
+        <item name="android:dialogTheme">@style/Theme.Jellyfin.Dialog</item>
     </style>
 
-    <style name="Theme.Jellyfin.Preferences" parent="Theme.Jellyfin">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:windowAnimationStyle">@style/WindowAnimation.SlideRight</item>
+    <style name="Theme.Jellyfin.Dialog" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@null</item>
     </style>
 </resources>

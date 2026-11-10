@@ -51,11 +51,18 @@ public class ItemLauncher {
         if (collectionType == null) collectionType = CollectionType.UNKNOWN;
 
         switch (collectionType) {
+            case MOVIES:
+            case TVSHOWS:
+                LibraryPreferences displayPreferences = preferencesRepository.getValue().getLibraryPreferences(baseItem.getDisplayPreferencesId());
+                boolean enableSmartScreen = displayPreferences.get(LibraryPreferences.Companion.getEnableSmartScreen());
+
+                if (!enableSmartScreen) return Destinations.INSTANCE.libraryBrowser(baseItem, null);
+                else return Destinations.INSTANCE.librarySmartScreen(baseItem);
             case MUSIC:
             case LIVETV:
                 return Destinations.INSTANCE.librarySmartScreen(baseItem);
             default:
-                return Destinations.INSTANCE.libraryBrowser(baseItem);
+                return Destinations.INSTANCE.libraryBrowser(baseItem, null);
         }
     }
 
@@ -140,7 +147,7 @@ public class ItemLauncher {
                         baseItem = JavaCompat.copyWithDisplayPreferencesId(baseItem, baseItem.getId().toString());
                     }
 
-                    navigationRepository.getValue().navigate(Destinations.INSTANCE.libraryBrowser(baseItem));
+                    navigationRepository.getValue().navigate(Destinations.INSTANCE.libraryBrowser(baseItem, null));
                 } else {
                     switch (rowItem.getSelectAction()) {
 

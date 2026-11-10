@@ -12,7 +12,6 @@ import org.jellyfin.androidtv.constant.Extras;
 import org.jellyfin.androidtv.constant.LiveTvOption;
 import org.jellyfin.androidtv.constant.QueryType;
 import org.jellyfin.androidtv.data.querying.GetSeriesTimersRequest;
-import org.jellyfin.androidtv.preference.UserPreferences;
 import org.jellyfin.androidtv.ui.GridButton;
 import org.jellyfin.androidtv.ui.itemhandling.ItemRowAdapter;
 import org.jellyfin.androidtv.ui.presentation.GridButtonPresenter;

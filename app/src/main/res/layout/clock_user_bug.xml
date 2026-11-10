@@ -17,34 +17,18 @@
         android:contentDescription="@string/lbl_home"
         android:src="@drawable/ic_house" />
 
-    <Space
-        android:layout_width="8dp"
-        android:layout_height="0dp" />
-
-    <org.jellyfin.androidtv.ui.AsyncImageView
-        android:id="@+id/clock_user_image"
-        android:layout_width="41dp"
-        android:layout_height="41dp"
-        android:padding="4dp"
-        android:background="@drawable/button_icon_back"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="@string/lbl_switch_user"
-        app:circleCrop="true"
-        tools:src="@drawable/ic_user" />
-
     <TextClock
         android:id="@+id/clock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/inter"
+        android:fontFamily="sans-serif-light"
         android:format12Hour="h:mm"
         android:format24Hour="k:mm"
         android:paddingStart="24dp"
         android:shadowColor="@color/black"
         android:shadowRadius="4"
         android:textColor="@color/white"
-        android:textSize="15sp"
+        android:textSize="20sp"
         tools:ignore="RtlSymmetry"
         tools:text="13:37" />
 </LinearLayout>

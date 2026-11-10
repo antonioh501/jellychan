@@ -6,6 +6,7 @@ import android.widget.ImageView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -353,6 +354,7 @@ private fun CardViewHolderContent(
 	}
 
 	val usePreview = displayConfig.overrideShowInfo ?: showInfo
+	val cardShape = if (isPerson) androidx.compose.foundation.shape.CircleShape else JellyfinTheme.shapes.medium
 
 	val card = @Composable {
 		ItemCard(
@@ -421,9 +423,14 @@ private fun CardViewHolderContent(
 					)
 				}
 			},
-			shape = if (isPerson) androidx.compose.foundation.shape.CircleShape else JellyfinTheme.shapes.medium,
+			shape = cardShape,
 			modifier = Modifier
 				.size(size)
+				// JellyChan: white selection border, like the Seerr pages (drawn on top of the card)
+				.then(
+					if (focused) Modifier.border(3.dp, androidx.compose.ui.graphics.Color.White, cardShape)
+					else Modifier
+				)
 		)
 	}
 

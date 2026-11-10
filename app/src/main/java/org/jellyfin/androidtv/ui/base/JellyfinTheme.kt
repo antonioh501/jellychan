@@ -4,10 +4,23 @@ import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
+import org.jellyfin.androidtv.preference.UserPreferences
+import org.koin.compose.koinInject
+
+/**
+ * JellyChan: the color scheme follows the app theme chosen in the settings (the activity is recreated when it changes).
+ */
+@Composable
+private fun rememberAppColorScheme(): ColorScheme {
+	val userPreferences = koinInject<UserPreferences>()
+	val theme = remember { userPreferences[UserPreferences.appTheme] }
+	return remember(theme) { colorScheme(theme) }
+}
 
 @Composable
 fun JellyfinTheme(
-	colorScheme: ColorScheme = JellyfinTheme.colorScheme,
+	colorScheme: ColorScheme = rememberAppColorScheme(),
 	shapes: Shapes = JellyfinTheme.shapes,
 	typography: Typography = JellyfinTheme.typography,
 	content: @Composable () -> Unit

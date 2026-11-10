@@ -3,9 +3,29 @@ package org.jellyfin.androidtv.ui.base
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import org.jellyfin.androidtv.preference.constant.AppTheme
 import org.jellyfin.design.Tokens
 
-fun colorScheme(): ColorScheme = ColorScheme(
+fun colorScheme(theme: AppTheme = AppTheme.DARK): ColorScheme = when (theme) {
+	AppTheme.DARK -> darkColorScheme()
+	AppTheme.MUTED_PURPLE -> mutedPurpleColorScheme()
+}
+
+/** JellyChan: the dark scheme with a muted purple tint on backgrounds, panels, selections and accents. */
+private fun mutedPurpleColorScheme(): ColorScheme = darkColorScheme().copy(
+	background = Color(0xFF1A1626),
+	button = Color(0xCC261F38),
+	buttonDisabled = Color(0x664A3F6B),
+	buttonActive = Color(0xFF4A3F6B),
+	input = Color(0xFF4A3F6B),
+	rangeControlFill = Color(0xFF9D8CE0),
+	badge = Color(0xFF8E7CC3),
+	onBadge = Color(0xFFFFFFFF),
+	listButtonFocused = Color(0xFF4A3F6B),
+	surface = Color(0xF2261F38),
+)
+
+private fun darkColorScheme(): ColorScheme = ColorScheme(
 	// JellyChan palette (see lscambo13/JellyChan :root variables)
 	background = Color(0xFF111827), // --darkerGradientPoint
 	onBackground = Color(0xFFD1D5DB), // --textColor

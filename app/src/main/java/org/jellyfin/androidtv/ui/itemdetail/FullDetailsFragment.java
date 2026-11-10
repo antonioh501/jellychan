@@ -245,6 +245,9 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
 
         startClock();
 
+        // JellyChan: the player disables the app background, bring the item backdrop back when returning
+        if (mBaseItem != null) backgroundService.getValue().setBackground(mBaseItem);
+
         //Update information that may have changed - delay slightly to allow changes to take on the server
         new Handler().postDelayed(new Runnable() {
             @Override

@@ -26,6 +26,10 @@
         <item name="inputRounding">7dp</item>
         <item name="popupMenuRounding">7dp</item>
 
+        <!-- JellyChan: purple tinted background and selections -->
+        <item name="defaultBackground">@drawable/jc_background_purple</item>
+        <item name="cardImageBackground">#4A3F6B</item>
+
         <!-- Tile colors -->
         <item name="tile_port_person_bg">#212121</item>
     </style>

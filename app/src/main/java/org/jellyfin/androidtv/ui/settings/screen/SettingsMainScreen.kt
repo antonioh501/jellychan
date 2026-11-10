@@ -36,6 +36,16 @@ fun SettingsMainScreen() {
 			)
 		}
 
+		// JellyChan: connection to Seerr
+		item {
+			ListButton(
+				leadingContent = { Icon(painterResource(R.drawable.jc_ic_seerr), contentDescription = null) },
+				headingContent = { Text(stringResource(R.string.jc_seerr)) },
+				onClick = { router.push(Routes.SEERR) },
+				modifier = Modifier.focusKey(Routes.SEERR),
+			)
+		}
+
 		item {
 			ListButton(
 				leadingContent = { Icon(painterResource(R.drawable.ic_adjust), contentDescription = null) },

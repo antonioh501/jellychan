@@ -54,7 +54,9 @@ import org.jellyfin.androidtv.ui.base.JellyfinTheme
 import org.jellyfin.androidtv.ui.base.Text
 import org.jellyfin.androidtv.ui.base.button.Button
 import org.jellyfin.androidtv.ui.base.modifier.autoFocus
-import org.jellyfin.androidtv.ui.navigation.ActivityDestinations
+import org.jellyfin.androidtv.ui.settings.Routes
+import org.jellyfin.androidtv.ui.settings.compat.SettingsViewModel
+import org.koin.compose.viewmodel.koinActivityViewModel
 import org.jellyfin.androidtv.ui.navigation.NavigationRepository
 import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbar
 import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbarActiveButton
@@ -87,7 +89,7 @@ private fun SeerrRequestsPage(
 	val navigationRepository = koinInject<NavigationRepository>()
 	val connection by viewModel.connection.collectAsState()
 	val state by viewModel.state.collectAsState()
-	val context = LocalContext.current
+	val settingsViewModel = koinActivityViewModel<SettingsViewModel>()
 
 	Column(
 		modifier = Modifier
@@ -108,7 +110,7 @@ private fun SeerrRequestsPage(
 			connection is SeerrState.SessionExpired || connection is SeerrState.Unavailable -> SeerrPageMessage(
 				message = if (connection is SeerrState.SessionExpired) R.string.jc_seerr_status_expired else R.string.jc_seerr_error_unreachable,
 				action = R.string.jc_seerr_open_settings,
-				onAction = { context.startActivity(ActivityDestinations.seerrPreferences(context)) },
+				onAction = { settingsViewModel.show(Routes.SEERR) },
 			)
 
 			connection !is SeerrState.Connected || state.loading -> SeerrPageMessage(R.string.jc_seerr_status_connecting)

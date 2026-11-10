@@ -2,6 +2,11 @@ package org.jellyfin.androidtv.ui.navigation
 
 import kotlinx.serialization.json.Json
 import org.jellyfin.androidtv.constant.Extras
+import org.jellyfin.androidtv.data.seerr.SeerrMediaType
+import org.jellyfin.androidtv.ui.seerr.SeerrDetailFragment
+import org.jellyfin.androidtv.ui.seerr.SeerrDiscoverFragment
+import org.jellyfin.androidtv.ui.seerr.SeerrRequestsFragment
+import org.jellyfin.androidtv.ui.seerr.SeerrSearchFragment
 import org.jellyfin.androidtv.ui.browsing.BrowseGridFragment
 import org.jellyfin.androidtv.ui.browsing.BrowseRecordingsFragment
 import org.jellyfin.androidtv.ui.browsing.BrowseScheduleFragment
@@ -35,6 +40,15 @@ object Destinations {
 	val home = fragmentDestination<HomeFragment>()
 	fun search(query: String? = null) = fragmentDestination<SearchFragment> {
 		putString(SearchFragment.EXTRA_QUERY, query)
+	}
+
+	// JellyChan: Seerr (Discover tab, search, requests, title page)
+	val seerrDiscover = fragmentDestination<SeerrDiscoverFragment>()
+	val seerrSearch = fragmentDestination<SeerrSearchFragment>()
+	val seerrRequests = fragmentDestination<SeerrRequestsFragment>()
+	fun seerrDetails(type: SeerrMediaType, id: Int) = fragmentDestination<SeerrDetailFragment> {
+		putString(SeerrDetailFragment.EXTRA_TYPE, type.name)
+		putInt(SeerrDetailFragment.EXTRA_ID, id)
 	}
 
 	// Browsing

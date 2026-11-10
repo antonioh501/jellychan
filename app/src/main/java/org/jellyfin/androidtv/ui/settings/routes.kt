@@ -56,6 +56,7 @@ import org.jellyfin.androidtv.ui.settings.screen.playback.mediasegment.SettingsP
 import org.jellyfin.androidtv.ui.settings.screen.playback.mediasegment.SettingsPlaybackMediaSegmentsScreen
 import org.jellyfin.androidtv.ui.settings.screen.playback.nextup.SettingsPlaybackNextUpBehaviorScreen
 import org.jellyfin.androidtv.ui.settings.screen.playback.nextup.SettingsPlaybackNextUpScreen
+import org.jellyfin.androidtv.ui.settings.screen.seerr.SettingsSeerrScreen
 import org.jellyfin.androidtv.ui.settings.screen.screensaver.SettingsScreensaverAgeRatingScreen
 import org.jellyfin.androidtv.ui.settings.screen.screensaver.SettingsScreensaverScreen
 import org.jellyfin.androidtv.ui.settings.screen.screensaver.SettingsScreensaverTimeoutScreen
@@ -115,6 +116,7 @@ object Routes {
 	const val PLAYBACK_BITSTREAM_AUDIO = "/playback/codec/bitstream-audio/{format}"
 	const val PLAYBACK_AVC_LEVEL = "/playback/codec/avc-level"
 	const val PLAYBACK_HEVC_LEVEL = "/playback/codec/hevc-level"
+	const val SEERR = "/seerr"
 	const val TELEMETRY = "/telemetry"
 	const val DEVELOPER = "/developer"
 	const val ABOUT = "/about"
@@ -301,6 +303,9 @@ val routes = mapOf<String, RouteComposable>(
 	},
 	Routes.DEVELOPER to {
 		SettingsDeveloperScreen()
+	},
+	Routes.SEERR to {
+		SettingsSeerrScreen()
 	},
 	Routes.ABOUT to { context ->
 		SettingsAboutScreen(context.parameters["fromLogin"] == "true")

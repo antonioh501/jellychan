@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [0.2.0-beta.1] - 2026-11-10
+
+### Changed
+- First beta. The app is the same as 0.1.0-alpha.5, built from the same code, and installs over any alpha.
+- The repository is now a real GitHub fork of jellyfin-androidtv, based on upstream 0.19.x.
+
 ## [0.1.0-alpha.5] - 2026-11-09
 
 ### Added
@@ -110,7 +116,8 @@ First public pre-release. Based on Jellyfin for Android TV 0.19.10.
 - Rating badges on cards.
 - Profile picture in the player overlay.
 
-[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.5...HEAD
+[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.2.0-beta.1...HEAD
+[0.2.0-beta.1]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.5...v0.2.0-beta.1
 [0.1.0-alpha.5]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.4...v0.1.0-alpha.5
 [0.1.0-alpha.4]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.3...v0.1.0-alpha.4
 [0.1.0-alpha.3]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.2...v0.1.0-alpha.3

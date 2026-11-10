@@ -1,6 +1,7 @@
 package org.jellyfin.androidtv.ui.playback
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -18,6 +19,7 @@ import org.jellyfin.androidtv.data.repository.ExternalAppRepository
 import org.jellyfin.androidtv.ui.playback.external.ExternalPlayData
 import org.jellyfin.androidtv.ui.playback.external.ExternalPlayResult
 import org.jellyfin.androidtv.ui.playback.external.ExternalPlayerApi
+import org.jellyfin.androidtv.util.AppLanguage
 import org.jellyfin.androidtv.util.componentName
 import org.jellyfin.androidtv.util.sdk.getDisplayName
 import org.jellyfin.sdk.api.client.ApiClient
@@ -46,6 +48,11 @@ import kotlin.time.Duration.Companion.milliseconds
  * Once returned it will notify the server of item completion.
  */
 class ExternalPlayerActivity : FragmentActivity() {
+	// JellyChan: interface language chosen in the app
+	override fun attachBaseContext(newBase: Context) {
+		super.attachBaseContext(AppLanguage.wrap(newBase))
+	}
+
 	companion object {
 		const val EXTRA_POSITION = "position"
 	}

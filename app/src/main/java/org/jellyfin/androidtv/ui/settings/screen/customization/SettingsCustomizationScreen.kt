@@ -13,6 +13,7 @@ import androidx.work.WorkManager
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.integration.LeanbackChannelWorker
 import org.jellyfin.androidtv.preference.UserPreferences
+import org.jellyfin.androidtv.preference.constant.RatingType
 import org.jellyfin.androidtv.ui.base.Icon
 import org.jellyfin.androidtv.ui.base.Text
 import org.jellyfin.androidtv.ui.base.form.Checkbox
@@ -23,6 +24,7 @@ import org.jellyfin.androidtv.ui.navigation.focus.focusKey
 import org.jellyfin.androidtv.ui.settings.Routes
 import org.jellyfin.androidtv.ui.settings.compat.rememberPreference
 import org.jellyfin.androidtv.ui.settings.composable.SettingsColumn
+import org.jellyfin.androidtv.util.AppLanguage
 import org.koin.compose.koinInject
 
 @Composable
@@ -38,6 +40,22 @@ fun SettingsCustomizationScreen() {
 			ListSection(
 				overlineContent = { Text(stringResource(R.string.settings).uppercase()) },
 				headingContent = { Text(stringResource(R.string.pref_customization)) },
+			)
+		}
+
+		// JellyChan: interface language independent of the device, applied by restarting the app
+		item {
+			ListButton(
+				headingContent = { Text(stringResource(R.string.jc_pref_app_language)) },
+				captionContent = {
+					Text(
+						AppLanguage.get(context).let { tag ->
+							if (tag.isEmpty()) stringResource(R.string.jc_pref_app_language_system) else AppLanguage.displayName(tag)
+						}
+					)
+				},
+				onClick = { router.push(Routes.CUSTOMIZATION_LANGUAGE) },
+				modifier = Modifier.focusKey(Routes.CUSTOMIZATION_LANGUAGE)
 			)
 		}
 
@@ -71,6 +89,19 @@ fun SettingsCustomizationScreen() {
 				captionContent = { Text(stringResource(watchedIndicatorBehavior.nameRes)) },
 				onClick = { router.push(Routes.CUSTOMIZATION_WATCHED_INDICATOR) },
 				modifier = Modifier.focusKey(Routes.CUSTOMIZATION_WATCHED_INDICATOR)
+			)
+		}
+
+		// JellyChan: the stars/tomatoes choice had no effect, only hiding the ratings does
+		item {
+			var ratingType by rememberPreference(userPreferences, UserPreferences.defaultRatingType)
+			val showRatings = ratingType != RatingType.RATING_HIDDEN
+
+			ListButton(
+				headingContent = { Text(stringResource(R.string.jc_pref_show_ratings)) },
+				trailingContent = { Checkbox(checked = showRatings) },
+				onClick = { ratingType = if (showRatings) RatingType.RATING_HIDDEN else RatingType.RATING_TOMATOES },
+				modifier = Modifier.focusKey("show_ratings")
 			)
 		}
 

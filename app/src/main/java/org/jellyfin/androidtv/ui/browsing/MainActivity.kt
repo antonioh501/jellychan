@@ -1,5 +1,6 @@
 package org.jellyfin.androidtv.ui.browsing
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
@@ -29,12 +30,18 @@ import org.jellyfin.androidtv.ui.navigation.NavigationRepository
 import org.jellyfin.androidtv.ui.screensaver.InAppScreensaver
 import org.jellyfin.androidtv.ui.settings.compat.MainActivitySettings
 import org.jellyfin.androidtv.ui.startup.StartupActivity
+import org.jellyfin.androidtv.util.AppLanguage
 import org.jellyfin.androidtv.util.applyTheme
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 
 class MainActivity : FragmentActivity() {
+	// JellyChan: interface language chosen in the app
+	override fun attachBaseContext(newBase: Context) {
+		super.attachBaseContext(AppLanguage.wrap(newBase))
+	}
+
 	private val navigationRepository by inject<NavigationRepository>()
 	private val sessionRepository by inject<SessionRepository>()
 	private val userRepository by inject<UserRepository>()

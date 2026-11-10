@@ -26,6 +26,10 @@ import org.jellyfin.androidtv.data.repository.NotificationsRepository
 import org.jellyfin.androidtv.data.repository.NotificationsRepositoryImpl
 import org.jellyfin.androidtv.data.repository.UserViewsRepository
 import org.jellyfin.androidtv.data.repository.UserViewsRepositoryImpl
+import org.jellyfin.androidtv.data.seerr.SeerrAccountStore
+import org.jellyfin.androidtv.data.seerr.SeerrCatalog
+import org.jellyfin.androidtv.data.seerr.SeerrRepository
+import org.jellyfin.androidtv.data.seerr.SharedPreferencesSeerrAccountStore
 import org.jellyfin.androidtv.data.service.BackgroundService
 import org.jellyfin.androidtv.integration.dream.DreamViewModel
 import org.jellyfin.androidtv.ui.InteractionTrackerViewModel
@@ -46,6 +50,10 @@ import org.jellyfin.androidtv.ui.playback.segment.MediaSegmentRepositoryImpl
 import org.jellyfin.androidtv.ui.playback.stillwatching.StillWatchingViewModel
 import org.jellyfin.androidtv.ui.player.photo.PhotoPlayerViewModel
 import org.jellyfin.androidtv.ui.search.SearchFragmentDelegate
+import org.jellyfin.androidtv.ui.seerr.SeerrDetailViewModel
+import org.jellyfin.androidtv.ui.seerr.SeerrDiscoverViewModel
+import org.jellyfin.androidtv.ui.seerr.SeerrRequestsViewModel
+import org.jellyfin.androidtv.ui.seerr.SeerrSearchViewModel
 import org.jellyfin.androidtv.ui.search.SearchRepository
 import org.jellyfin.androidtv.ui.search.SearchRepositoryImpl
 import org.jellyfin.androidtv.ui.search.SearchViewModel
@@ -87,7 +95,7 @@ val appModule = module {
 
 			// Add client info
 			val clientName = buildString {
-				append("Jellyfin for Android TV")
+				append("JellyChan")
 				if (BuildConfig.DEBUG) append(" (debug)")
 			}
 			clientInfo = ClientInfo(clientName, BuildConfig.VERSION_NAME)
@@ -151,6 +159,11 @@ val appModule = module {
 	single<MediaSegmentRepository> { MediaSegmentRepositoryImpl(get(), get()) }
 	single<ExternalAppRepository> { ExternalAppRepository(get(), getAll(), get<DefaultExternalPlayerApi>()) }
 
+	// JellyChan: Seerr
+	single<SeerrAccountStore> { SharedPreferencesSeerrAccountStore(androidContext()) }
+	single { SeerrRepository(get(), get(), get<OkHttpFactory>().createClient(get<HttpClientOptions>())) }
+	single { SeerrCatalog(get()) }
+
 	// External player APIs
 	single { VlcExternalPlayerApi() } bind ExternalPlayerApi::class
 	single { MxExternalPlayerApi() } bind ExternalPlayerApi::class
@@ -167,6 +180,10 @@ val appModule = module {
 	viewModel { SearchViewModel(get()) }
 	viewModel { DreamViewModel(get(), get(), get(), get(), get()) }
 	viewModel { SettingsViewModel() }
+	viewModel { SeerrDiscoverViewModel(get(), get()) }
+	viewModel { SeerrSearchViewModel(get()) }
+	viewModel { SeerrDetailViewModel(get()) }
+	viewModel { SeerrRequestsViewModel(get(), get()) }
 	viewModel { SettingsLibrariesScreenViewModel(get()) }
 
 	single { BackgroundService(get(), get(), get(), get(), get()) }

@@ -6,26 +6,27 @@ import androidx.compose.ui.graphics.Color
 import org.jellyfin.design.Tokens
 
 fun colorScheme(): ColorScheme = ColorScheme(
-	background = Tokens.Color.colorGrey975,
-	onBackground = Tokens.Color.colorBluegrey25,
-	button = Color(0xB3747474),
-	onButton = Color(0xFFDDDDDD),
-	buttonFocused = Color(0xE6CCCCCC),
-	onButtonFocused = Color(0xFF444444),
-	buttonDisabled = Color(0x33747474),
-	onButtonDisabled = Color(0xFF686868),
-	buttonActive = Color(0x4DCCCCCC),
-	onButtonActive = Color(0xFFDDDDDD),
-	input = Color(0xB3747474),
-	onInput = Color(0xE6CCCCCC),
-	inputFocused = Color(0xE6CCCCCC),
-	onInputFocused = Color(0xFFDDDDDD),
+	// JellyChan palette (see lscambo13/JellyChan :root variables)
+	background = Color(0xFF111827), // --darkerGradientPoint
+	onBackground = Color(0xFFD1D5DB), // --textColor
+	button = Color(0xCC1E2836), // --headerColor
+	onButton = Color(0xFFD1D5DB),
+	buttonFocused = Color(0xFFE5E7EB), // light pill, like the "Play" button
+	onButtonFocused = Color(0xFF111827),
+	buttonDisabled = Color(0x66384252),
+	onButtonDisabled = Color(0xFF6B7280),
+	buttonActive = Color(0xFF384252), // --selectorBackgroundColor
+	onButtonActive = Color(0xFFFFFFFF),
+	input = Color(0xFF384252),
+	onInput = Color(0xFFD1D5DB),
+	inputFocused = Color(0xFFE5E7EB),
+	onInputFocused = Color(0xFF111827),
 	rangeControlBackground = Tokens.Color.colorBluegrey700,
 	rangeControlFill = Tokens.Color.colorCyan500,
 	rangeControlKnob = Tokens.Color.colorBluegrey100,
 	seekbarBuffer = Tokens.Color.colorBluegrey300,
-	recording = Tokens.Color.colorRed300,
-	onRecording = Tokens.Color.colorRed25,
+	recording = Color(0xB3D95454),
+	onRecording = Color(0xFFFFFFFF),
 	badge = Tokens.Color.colorCyan500,
 	onBadge = Tokens.Color.colorBluegrey100,
 	listHeader = Tokens.Color.colorGrey50,
@@ -33,8 +34,8 @@ fun colorScheme(): ColorScheme = ColorScheme(
 	listHeadline = Tokens.Color.colorGrey25,
 	listCaption = Tokens.Color.colorGrey200,
 	listButton = Color.Transparent,
-	listButtonFocused = Tokens.Color.colorBluegrey800,
-	surface = Tokens.Color.colorBluegrey900,
+	listButtonFocused = Color(0xFF384252), // --selectorBackgroundColor
+	surface = Color(0xF21E2836), // --drawerColor
 	scrim = Tokens.Color.colorBlack.copy(alpha = 0.67f),
 )
 

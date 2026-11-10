@@ -21,14 +21,14 @@
         android:id="@+id/clock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-light"
+        android:fontFamily="@font/inter"
         android:format12Hour="h:mm"
         android:format24Hour="k:mm"
         android:paddingStart="24dp"
         android:shadowColor="@color/black"
         android:shadowRadius="4"
         android:textColor="@color/white"
-        android:textSize="20sp"
+        android:textSize="15sp"
         tools:ignore="RtlSymmetry"
         tools:text="13:37" />
 </LinearLayout>

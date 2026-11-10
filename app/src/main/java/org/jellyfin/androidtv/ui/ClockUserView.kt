@@ -10,6 +10,7 @@ import org.jellyfin.androidtv.preference.UserPreferences
 import org.jellyfin.androidtv.preference.constant.ClockBehavior
 import org.jellyfin.androidtv.ui.navigation.Destinations
 import org.jellyfin.androidtv.ui.navigation.NavigationRepository
+import org.jellyfin.androidtv.util.ClockFormatUtils
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -33,6 +34,12 @@ class ClockUserView @JvmOverloads constructor(
 
 	init {
 		updateClockVisibility()
+
+		// JellyChan: 12/24 hours comes from the app setting, not from the interface language
+		ClockFormatUtils.pattern(context).let {
+			binding.clock.format12Hour = it
+			binding.clock.format24Hour = it
+		}
 
 		binding.home.setOnClickListener {
 			navigationRepository.reset(Destinations.home, clearHistory = true)

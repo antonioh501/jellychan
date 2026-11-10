@@ -97,8 +97,15 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 				userRepository.currentUser.filterNotNull().first()
 			}
 
-			// Start out with default sections
-			val homesections = userSettingPreferences.activeHomesections
+			// JellyChan: Next up and Continue watching first, My media below them (like the web theme)
+			val homesections = userSettingPreferences.activeHomesections.sortedBy {
+				when (it) {
+					HomeSectionType.NEXT_UP -> 0
+					HomeSectionType.RESUME -> 1
+					HomeSectionType.LIBRARY_TILES_SMALL, HomeSectionType.LIBRARY_BUTTONS -> 2
+					else -> 3
+				}
+			}
 
 			// Make sure the rows are empty
 			val rows = mutableListOf<HomeFragmentRow>()

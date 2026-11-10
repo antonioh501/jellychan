@@ -1,102 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    JellyChan library page:
+    "<- Library" header, centered tab pills, centered counter + tools, poster grid, A-Z index on the right.
+-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_height="match_parent">
+
+    <!-- Header: back button + library name -->
+    <ImageView
+        android:id="@+id/jc_library_back"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/jc_round_focus"
+        android:clickable="true"
+        android:contentDescription="@string/jc_back"
+        android:focusable="true"
+        android:padding="6dp"
+        android:src="@drawable/jc_ic_arrow_back"
+        android:tint="@color/jc_tab_text" />
+
+    <TextView
+        android:id="@+id/jc_library_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/jc_library_back"
+        android:layout_alignBottom="@+id/jc_library_back"
+        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@+id/jc_library_back"
+        android:fontFamily="@font/inter_medium"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:textColor="#FFFFFFFF"
+        android:textSize="15sp"
+        tools:text="Movies" />
+
+    <org.jellyfin.androidtv.ui.ClockUserView
+        android:id="@+id/clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="24dp" />
+
+    <org.jellyfin.androidtv.ui.NowPlayingView
+        android:id="@+id/npBug"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/clock"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="15dp"
+        android:layout_toStartOf="@+id/clock" />
+
+    <!-- Tabs -->
+    <LinearLayout
+        android:id="@+id/jc_tabs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/jc_library_back"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:clipChildren="false"
+        android:gravity="center"
+        android:orientation="horizontal" />
+
+    <!-- Counter + tools -->
+    <LinearLayout
+        android:id="@+id/jc_tools_row"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/jc_tabs"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="24dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/counter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:fontFamily="@font/inter_medium"
+            android:textColor="#FFD1D5DB"
+            android:textSize="12sp"
+            tools:text="1-178 di 178" />
+
+        <LinearLayout
+            android:id="@+id/toolBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" />
+    </LinearLayout>
+
+    <!-- A-Z quick index -->
+    <LinearLayout
+        android:id="@+id/jc_alpha_index"
+        android:layout_width="18dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="6dp"
+        android:layout_marginTop="60dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical" />
 
     <FrameLayout
         android:id="@+id/rowsFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/statusText"
-        android:layout_below="@+id/infoRow"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="0dp" />
-
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="50sp"
-        android:layout_marginTop="20sp"
-        android:layout_marginEnd="10sp"
-        android:layout_toStartOf="@+id/npBug"
-        android:ellipsize="end"
-        android:fontFamily="sans-serif-light"
-        android:maxLines="1"
-        android:textSize="32sp" />
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="20sp"
-        android:layout_below="@+id/title"
-        android:layout_alignStart="@+id/title"
-        android:layout_marginTop="5sp"
-        android:id="@+id/infoRow"
-        android:layout_toStartOf="@+id/clock"/>
-
-    <LinearLayout
-        android:id="@+id/toolBar"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/title"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="40dp"
-        android:alpha=".75"
-        android:dividerPadding="4dp"
-        android:gravity="bottom|end"
-        android:orientation="horizontal"
-        android:showDividers="middle" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="0 | 0"
-        android:id="@+id/counter"
-        android:textAlignment="viewEnd"
-        android:textSize="18sp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="13sp"
-        android:layout_marginEnd="60sp"
-        android:fontFamily="sans-serif-light" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/statusText"
-        android:textSize="12sp"
-        android:alpha=".6"
-        android:layout_alignStart="@+id/title"
-        android:layout_alignTop="@+id/counter"
-        android:layout_marginTop="6sp"
-        android:fontFamily="sans-serif-light" />
-
-    <org.jellyfin.androidtv.ui.ClockUserView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/clock"
-        android:layout_alignTop="@+id/title"
-        android:layout_marginEnd="40sp"
-        android:layout_marginStart="8sp"
-        android:layout_alignParentEnd="true" />
-
-    <org.jellyfin.androidtv.ui.NowPlayingView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/npBug"
-        android:layout_toStartOf="@+id/clock"
-        android:layout_alignTop="@+id/clock"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="15dp" />
+        android:layout_below="@+id/jc_tools_row"
+        android:layout_marginTop="6dp"
+        android:layout_toStartOf="@+id/jc_alpha_index" />
 
     <androidx.compose.ui.platform.ComposeView
         android:id="@+id/settings"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <!-- Kept for code compatibility, not shown in this layout -->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/infoRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 </RelativeLayout>

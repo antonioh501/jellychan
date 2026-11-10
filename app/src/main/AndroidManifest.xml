@@ -46,7 +46,7 @@
         android:name=".JellyfinApplication"
         android:allowBackup="true"
         android:appCategory="video"
-        android:banner="@mipmap/app_banner"
+        android:banner="@drawable/jc_banner"
         android:dataExtractionRules="@xml/backup_rules"
         android:fullBackupContent="@xml/backup_content"
         android:icon="@mipmap/app_icon"
@@ -101,6 +101,8 @@
         <!-- Authentication -->
         <activity
             android:name=".ui.startup.StartupActivity"
+            android:banner="@drawable/jc_banner"
+            android:icon="@mipmap/app_icon"
             android:exported="true"
             android:launchMode="singleTask"
             android:noHistory="true"
@@ -128,6 +130,8 @@
             android:configChanges="density|screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden|navigation|uiMode"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustNothing" />
+
+        <activity android:name=".ui.seerr.SeerrConnectActivity" />
 
         <activity android:name=".ui.playback.ExternalPlayerActivity" />
     </application>

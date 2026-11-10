@@ -339,16 +339,11 @@
     <string name="msg_no_items">Няма элементаў для прайгравання</string>
     <string name="subtitle_error">Немагчыма выбраць субцітры</string>
     <string name="lbl_playback_control_ends">Заканчваецца ў %1$s</string>
-    <string name="lbl_sign_in">Калі ласка, увайдзіце</string>
-    <string name="pref_developer_link">Налады распрацоўніка</string>
-    <string name="image_size_xlarge">Вельмі вялікі</string>
-    <string name="discovered_servers_empty">Серверы ў лакальнай сетцы не знойдзены.</string>
     <string name="no_network_permissions">JellyChan патрабуе сеткавых дазволаў для працы</string>
     <string name="lbl_sign_in">Увайдзіце</string>
     <string name="pref_developer_link">Налады распрацоўшчыка</string>
     <string name="image_size_xlarge">Надвялікі</string>
     <string name="discovered_servers_empty">У лакальнай сетцы не знойдзена ніводнага сервера.</string>
-    <string name="no_network_permissions">Jellyfin патрабуе сеткавых дазволаў для працы</string>
     <string name="searchable_settings_description">Мультымедыя</string>
     <string name="server_unsupported_notification">Гэты сервер выкарыстоўвае версію Jellyfin %1$s, якая не падтрымліваецца. Калі ласка, абнавіце Jellyfin да %2$s або больш позняй версіі, каб працягваць выкарыстоўваць праграму.</string>
     <string name="pref_crash_reports">Адпраўляць справаздачы аб збоях на сервер</string>
@@ -373,7 +368,6 @@
     <string name="image_size_smallest">Найменшы</string>
     <string name="pref_developer_link_description">Пашыраныя і эксперыментальныя функцыі</string>
     <string name="login_help_description">Для падлучэння да JellyChan патрабуецца сервер. Наведайце нашу дакументацыю на docs.jellyfin.org або адскануйце QR-код, каб пачаць працу з Jellyfin.</string>
-    <string name="login_help_description">Для падключэння да Jellyfin патрабуецца сервер. Наведайце нашу дакументацыю на docs.jellyfin.org або адскануйце QR-код, каб пачаць працу з Jellyfin.</string>
     <string name="pref_watched_indicator">Паказаць індыкатар прагляду</string>
     <string name="lbl_use_series_thumbnails_description">Выкарыстоўваць мініяцюры серыялаў пры адлюстраванні серый</string>
     <string name="lbl_switch_user">Пераключыць уліковы запіс</string>

@@ -48,22 +48,30 @@ import org.jellyfin.androidtv.ui.itemhandling.GridButtonBaseRowItem
 import org.jellyfin.androidtv.util.ImageHelper
 import org.jellyfin.androidtv.util.apiclient.JellyfinImage
 import org.jellyfin.androidtv.util.apiclient.getUrl
+import org.jellyfin.androidtv.util.apiclient.itemBackdropImages
+import org.jellyfin.androidtv.util.apiclient.itemImages
 import org.jellyfin.androidtv.util.getActivity
 import org.jellyfin.design.Tokens
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.koin.compose.koinInject
 
-class CardPresenter(
+class CardPresenter private constructor(
 	val showInfo: Boolean,
 	val imageType: ImageType,
 	val staticHeight: Int,
 	val uniformAspect: Boolean,
+	/** JellyChan: rows use home-sized (web-like) tiles, library grids keep their computed size. */
+	private val compactRow: Boolean,
 ) : Presenter() {
-	constructor(showInfo: Boolean, imageType: ImageType, staticHeight: Int) : this(showInfo, imageType, staticHeight, false)
-	constructor(showInfo: Boolean, staticHeight: Int) : this(showInfo, ImageType.POSTER, staticHeight)
+	constructor(showInfo: Boolean, imageType: ImageType, staticHeight: Int, uniformAspect: Boolean) : this(showInfo, imageType, staticHeight, uniformAspect, false)
+	constructor(showInfo: Boolean, imageType: ImageType, staticHeight: Int) : this(showInfo, imageType, staticHeight, false, false)
+	constructor(showInfo: Boolean, staticHeight: Int) : this(showInfo, ImageType.POSTER, staticHeight, false, true)
 	constructor(showInfo: Boolean) : this(showInfo, 150)
 	constructor() : this(true)
+
+	/** JellyChan: use landscape art (thumb/backdrop) for movies and videos in this row. */
+	var landscapeVideos = false
 
 	override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
 		val view = ComposeView(parent.context).apply {
@@ -110,6 +118,8 @@ class CardPresenter(
 					imageType = imageType,
 					staticHeight = staticHeight,
 					uniformAspect = uniformAspect,
+					compactRow = compactRow,
+					landscapeVideos = landscapeVideos,
 				)
 			}
 
@@ -137,7 +147,34 @@ private data class BaseRowItemDisplayConfig(
 	val scaleType: ImageView.ScaleType? = null,
 )
 
-private fun BaseRowItem.getDisplayConfig(imageType: ImageType, uniformAspect: Boolean): BaseRowItemDisplayConfig = when (baseRowType) {
+private fun BaseRowItem.getDisplayConfig(imageType: ImageType, uniformAspect: Boolean, landscapeVideos: Boolean): BaseRowItemDisplayConfig =
+	getBaseDisplayConfig(imageType, uniformAspect).let { config ->
+		val item = baseItem
+		val thumb = item?.itemImages?.get(org.jellyfin.sdk.model.api.ImageType.THUMB)
+		val backdrop = item?.itemBackdropImages?.firstOrNull()
+		val landscapeKind = item?.type == BaseItemKind.MOVIE || item?.type == BaseItemKind.VIDEO || item?.type == BaseItemKind.MUSIC_VIDEO
+
+		when {
+			// JellyChan: movies/videos with landscape art are shown as 16:9 tiles (thumb, else backdrop)
+			landscapeVideos && baseRowType == BaseRowType.BaseItem && landscapeKind && (thumb != null || backdrop != null) -> config.copy(
+				aspectRatio = ImageHelper.ASPECT_RATIO_16_9.toFloat(),
+				image = thumb ?: backdrop,
+			)
+
+			// JellyChan: a landscape card without a thumb uses the backdrop instead of the portrait poster
+			config.aspectRatio > 1f && baseRowType == BaseRowType.BaseItem && item != null &&
+				item.type != BaseItemKind.EPISODE && item.type != BaseItemKind.USER_VIEW &&
+				(config.image == null || config.image.type == org.jellyfin.sdk.model.api.ImageType.PRIMARY) &&
+				(thumb != null || backdrop != null) -> config.copy(image = thumb ?: backdrop)
+
+			// JellyChan: round, square photos for cast & crew
+			baseRowType == BaseRowType.Person || item?.type == BaseItemKind.PERSON -> config.copy(aspectRatio = 1f)
+
+			else -> config
+		}
+	}
+
+private fun BaseRowItem.getBaseDisplayConfig(imageType: ImageType, uniformAspect: Boolean): BaseRowItemDisplayConfig = when (baseRowType) {
 	BaseRowType.BaseItem -> {
 		val preferSeriesPoster = this is BaseItemDtoBaseRowItem && preferSeriesPoster
 		val primaryAspectRatio = baseItem?.primaryImageAspectRatio?.toFloat()
@@ -285,22 +322,33 @@ private fun CardViewHolderContent(
 	imageType: ImageType,
 	staticHeight: Int,
 	uniformAspect: Boolean,
+	compactRow: Boolean,
+	landscapeVideos: Boolean,
 ) {
 	val context = LocalContext.current
 	val localDensity = LocalDensity.current
 
 	val title = remember(item, context) { item?.getCardName(context) }
 	val subtitle = remember(item, context) { item?.getSubText(context) }
-	val displayConfig = remember(item, imageType, uniformAspect) { item?.getDisplayConfig(imageType, uniformAspect) }
+	val displayConfig = remember(item, imageType, uniformAspect, landscapeVideos) { item?.getDisplayConfig(imageType, uniformAspect, landscapeVideos) }
 	if (item == null || displayConfig == null) return
 
 	val image = displayConfig.image
 	val aspectRatio = displayConfig.aspectRatio.takeIf { it >= 0.1f }
 		?: image?.aspectRatio?.takeIf { it >= 0.1f } ?: 1f
 
-	val size = when (item.staticHeight) {
-		true -> DpSize(staticHeight.dp * aspectRatio, staticHeight.dp)
-		false if (aspectRatio > 1f) -> DpSize(130.dp * aspectRatio, 130.dp)
+	// JellyChan: home rows use web-sized 16:9 tiles (about 157x89dp); in rows a static height only applies to
+	// landscape tiles, posters keep their size. Cast & crew photos are 110dp circles.
+	val isPerson = item.baseRowType == BaseRowType.Person || item.baseItem?.type == BaseItemKind.PERSON
+	val landscapeHeight = if (compactRow) 105 else 130
+	val rowStaticHeight = if (compactRow && staticHeight == 150) 105 else staticHeight
+	val size = when {
+		isPerson -> DpSize(110.dp, 110.dp)
+		item.staticHeight -> {
+			val height = if (compactRow && aspectRatio <= 1f) 150 else rowStaticHeight
+			DpSize(height.dp * aspectRatio, height.dp)
+		}
+		aspectRatio > 1f -> DpSize(landscapeHeight.dp * aspectRatio, landscapeHeight.dp)
 		else -> DpSize(150.dp * aspectRatio, 150.dp)
 	}
 
@@ -373,6 +421,7 @@ private fun CardViewHolderContent(
 					)
 				}
 			},
+			shape = if (isPerson) androidx.compose.foundation.shape.CircleShape else JellyfinTheme.shapes.medium,
 			modifier = Modifier
 				.size(size)
 		)

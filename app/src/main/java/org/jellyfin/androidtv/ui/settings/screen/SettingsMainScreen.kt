@@ -1,4 +1,4 @@
-package org.jellyfin.androidtv.ui.settings.screen
+﻿package org.jellyfin.androidtv.ui.settings.screen
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -76,7 +76,7 @@ fun SettingsMainScreen() {
 
 		item {
 			ListButton(
-				leadingContent = { Icon(painterResource(R.drawable.ic_jellyfin), contentDescription = null) },
+				leadingContent = { Icon(painterResource(R.drawable.ic_jellychan), contentDescription = null) },
 				headingContent = { Text(stringResource(R.string.pref_about_title)) },
 				onClick = { router.push(Routes.ABOUT) },
 				modifier = Modifier.focusKey(Routes.ABOUT),

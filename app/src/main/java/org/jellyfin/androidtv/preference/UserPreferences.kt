@@ -10,9 +10,11 @@ import org.jellyfin.androidtv.preference.constant.BackdropBehavior
 import org.jellyfin.androidtv.preference.constant.BitstreamAudioMode
 import org.jellyfin.androidtv.preference.constant.BufferLength
 import org.jellyfin.androidtv.preference.constant.ClockBehavior
+import org.jellyfin.androidtv.preference.constant.ClockFormat
 import org.jellyfin.androidtv.preference.constant.HEVCLevel
 import org.jellyfin.androidtv.preference.constant.HdrOverrideMode
 import org.jellyfin.androidtv.preference.constant.NextUpBehavior
+import org.jellyfin.androidtv.preference.constant.RatingType
 import org.jellyfin.androidtv.preference.constant.RefreshRateSwitchingBehavior
 import org.jellyfin.androidtv.preference.constant.StillWatchingBehavior
 import org.jellyfin.androidtv.preference.constant.WatchedIndicatorBehavior
@@ -44,6 +46,11 @@ class UserPreferences(context: Context) : SharedPreferenceStore(
 		 * Select the app theme
 		 */
 		var appTheme = enumPreference("app_theme", AppTheme.DARK)
+
+		/**
+		 * JellyChan: interface language tag, empty to follow the device (see AppLanguage)
+		 */
+		var appLanguage = stringPreference("jc_app_language", "")
 
 		/**
 		 * Behavior of app background while browsing
@@ -200,6 +207,16 @@ class UserPreferences(context: Context) : SharedPreferenceStore(
 		 * When to show the clock.
 		 */
 		var clockBehavior = enumPreference("pref_clock_behavior", ClockBehavior.ALWAYS)
+
+		/**
+		 * JellyChan: 12/24 hour clock, independent of the interface language.
+		 */
+		var clockFormat = enumPreference("jc_clock_format", ClockFormat.AUTO)
+
+		/**
+		 * Set which ratings provider should show on MyImageCardViews
+		 */
+		var defaultRatingType = enumPreference("pref_rating_type", RatingType.RATING_TOMATOES)
 
 		/**
 		 * Set when watched indicators should show on MyImageCardViews

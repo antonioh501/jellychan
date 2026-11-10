@@ -483,10 +483,8 @@
     <string name="item_deleted">%1$s on kustutatud</string>
     <string name="episode_name_special">eriosa</string>
     <string name="item_deletion_failed">%1$s ei saa kustutada</string>
-    <string name="pref_enable_media_management_description">Kuva sirvimise ajal meedia haldamise suvand</string>
     <string name="pref_screensaver_inapp_enabled_description">Kuvage JellyChani ekraanisäästja, kui rakendus on avatud</string>
     <string name="pref_enable_media_management_description">Kuva sirvimise ajal meedia haldamise valik</string>
-    <string name="pref_screensaver_inapp_enabled_description">Kuva Jellyfini ekraanisäästja, kui rakendus on avatud</string>
     <plurals name="minutes">
         <item quantity="one">%1$s minut</item>
         <item quantity="other">%1$s minutit</item>

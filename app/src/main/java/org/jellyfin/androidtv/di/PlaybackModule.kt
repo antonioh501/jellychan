@@ -32,7 +32,6 @@ import org.koin.android.ext.koin.androidContext
 import kotlin.time.Duration
 import org.koin.core.scope.Scope
 import org.koin.dsl.module
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import org.jellyfin.androidtv.ui.playback.PlaybackManager as LegacyPlaybackManager
 

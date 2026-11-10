@@ -302,7 +302,6 @@
     <string name="pref_watched_indicator">Munculkan indikator yang telah ditonton</string>
     <string name="pref_show_backdrop_description">Ganti gambar latar belakang untuk entri terpilih</string>
     <string name="welcome_title">Selamat datang di JellyChan!</string>
-    <string name="welcome_title">Selamat datang di Jellyfin!</string>
     <string name="help">Bantuan</string>
     <string name="lbl_special">Spesial</string>
     <string name="image_type_poster">Plakat</string>

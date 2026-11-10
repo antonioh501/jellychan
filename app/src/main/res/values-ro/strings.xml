@@ -281,10 +281,8 @@
     <string name="lbl_use_series_thumbnails_description">Folosește miniaturile seriei pentru afișarea episoadelor</string>
     <string name="lbl_use_series_thumbnails">Preferă miniaturile de serial</string>
     <string name="lbl_hide_unwatched_count">Când articolul este vizionat</string>
-    <string name="pref_watched_indicator">Afișați indicatorii urmărit</string>
     <string name="login_help_description">JellyChan necesită un server pentru a vă conecta. Vizitați documentația noastră la docs.jellyfin.org sau scanați codul QR pentru a începe să utilizați Jellyfin.</string>
     <string name="pref_watched_indicator">Afișează indicatorii de vizionare</string>
-    <string name="login_help_description">Jellyfin necesită un server pentru a vă conecta. Vizitează documentația noastră la docs.jellyfin.org sau scanează codul QR pentru a începe să utilizezi Jellyfin.</string>
     <string name="login_help_title">Aveți nevoie de ajutor\?</string>
     <string name="connect_manually_by_address">Introduceți adresa serverului</string>
     <string name="discovered_servers_empty">Nu s-au găsit servere în network-ul locală.</string>
@@ -318,19 +316,12 @@
     <string name="help">Ajutor</string>
     <string name="add_user">Adaugă cont</string>
     <string name="who_is_watching">Cine se uită\?</string>
-    <string name="no_user_warning">Nu se-a găsit niciun cont!
-\nAdăugați un cont nou apăsând butonul „Adăugați cont”.</string>
-    <string name="welcome_content">Conectați-vă la server pentru a începe.</string>
     <string name="welcome_title">Bun venit la JellyChan!</string>
     <string name="saved_servers">Servere favorite</string>
-    <string name="press_to_close">Apăsați să închizi</string>
     <string name="no_network_permissions">JellyChan necesită permisiuni de network pentru a funcționa</string>
     <string name="no_user_warning">Nu se-a găsit niciun cont! \nAdaugă un cont nou apăsând butonul „Adăugă cont”.</string>
     <string name="welcome_content">Conectează-te la serverul tău pentru a începe.</string>
-    <string name="welcome_title">Bun venit la Jellyfin!</string>
-    <string name="saved_servers">Servere favorite</string>
     <string name="press_to_close">Apasă să închizi</string>
-    <string name="no_network_permissions">Jellyfin necesită permisiuni de network pentru a funcționa</string>
     <string name="pref_theme_muted_purple">Violet stins</string>
     <string name="lbl_switch_user">Schimba contul</string>
     <string name="pref_next_up_behavior_title">Afișează informațiile despre următorul video</string>
@@ -386,10 +377,8 @@
     <string name="license_website">Site Web</string>
     <string name="license_artifact">Artefact</string>
     <string name="license_version">Versiunea</string>
-    <string name="license_description">Descrieri</string>
     <string name="licenses_link_description">Vizualizați licențele bibliotecilor utilizate de aplicația JellyChan</string>
     <string name="license_description">Descriere</string>
-    <string name="licenses_link_description">Vizualizează licențele bibliotecilor utilizate de aplicația Jellyfin</string>
     <string name="licenses_link">Liciențe</string>
     <string name="select_version">Versiunea</string>
     <string name="advanced_settings">Avansat</string>
@@ -460,7 +449,6 @@
     <string name="item_delete_confirm_message">Sunteți sigur că doriți să ștergeți acest element de pe server\? Această acțiune nu poate fi anulată.</string>
     <string name="pref_screensaver">Screensaver</string>
     <string name="pref_screensaver_inapp_enabled_description">Arată screensaver-ul JellyChan când se deschide aplicația</string>
-    <string name="pref_screensaver_inapp_enabled_description">Afișează screensaver-ul Jellyfin în timpul utilizării aplicației</string>
     <plurals name="seconds">
         <item quantity="one">O secundă</item>
         <item quantity="few">%1$s secunde</item>

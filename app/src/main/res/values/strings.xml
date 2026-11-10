@@ -358,6 +358,8 @@
     <string name="pref_developer_link">Developer options</string>
     <string name="pref_developer_link_description">Advanced and experimental features</string>
     <string name="lbl_hidden">Hidden</string>
+    <string name="lbl_stars">Stars</string>
+    <string name="lbl_tomatoes">Tomatoes</string>
     <string name="discovered_servers_title">Discovered servers</string>
     <string name="discovered_servers_empty">No servers found on local network.</string>
     <string name="connect_manually_by_address">Enter server address</string>
@@ -437,7 +439,6 @@
     <string name="home_next_up_max_days_disabled">Disabled</string>
     <string name="tv_provider_enabled">Integrate with Android TV home</string>
     <string name="tv_provider_enabled_description">Show Jellyfin channels and recommendations on the Android TV home screen</string>
-    <string name="searchable_hint">Search Jellyfin</string>
     <string name="searchable_settings_description">Media</string>
     <string name="pref_subtitles_background_title">Enable background</string>
     <string name="pref_subtitles_background_summary">Show a black background behind the subtitles</string>

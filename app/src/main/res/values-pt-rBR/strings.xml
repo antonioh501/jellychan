@@ -277,7 +277,6 @@
     <string name="lbl_tomatoes">Tomates</string>
     <string name="lbl_stars">Estrelas</string>
     <string name="login_help_description">O JellyChan requer um servidor para se conectar. Visite nossa documentação em docs.jellyfin.org ou escanei o QR code para começar a usar o Jellyfin.</string>
-    <string name="login_help_description">O Jellyfin requer um servidor para se conectar. Visite nossa documentação em docs.jellyfin.org ou escanei o QR code para começar a usar o Jellyfin.</string>
     <string name="login_help_title">Precisa de ajuda\?</string>
     <string name="connect_manually_by_address">Digite o endereço do servidor</string>
     <string name="discovered_servers_empty">Nenhum servidor encontrado na rede local.</string>

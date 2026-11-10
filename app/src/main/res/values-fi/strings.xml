@@ -450,7 +450,6 @@
     <string name="color_cyan">Syaani</string>
     <string name="app_notification_beta">Sovellus päivitettiin versioon %1$s
 \nKiitos osallistumisesta JellyChanin betatestaukseen.</string>
-    <string name="app_notification_beta">Sovellus päivitettiin versioon %1$s\nKiitos osallistumisesta Jellyfinin betatestaukseen.</string>
     <string name="item_deleted">%1$s poistettiin</string>
     <string name="item_deletion_failed">Kohdetta %1$s ei voitu poistaa</string>
     <string name="pref_enable_media_management">Ota median hallinta käyttöön</string>

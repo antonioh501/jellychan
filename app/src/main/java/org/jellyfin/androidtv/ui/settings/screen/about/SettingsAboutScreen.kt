@@ -1,4 +1,4 @@
-package org.jellyfin.androidtv.ui.settings.screen.about
+﻿package org.jellyfin.androidtv.ui.settings.screen.about
 
 import android.content.ClipData
 import android.os.Build
@@ -39,7 +39,7 @@ fun SettingsAboutScreen(launchedFromLogin: Boolean = false) {
 			val heading = "Jellyfin app version"
 			val caption = "jellyfin-androidtv ${BuildConfig.VERSION_NAME} ${BuildConfig.BUILD_TYPE}"
 			ListButton(
-				leadingContent = { Icon(painterResource(R.drawable.ic_jellyfin), contentDescription = null) },
+				leadingContent = { Icon(painterResource(R.drawable.ic_jellychan), contentDescription = null) },
 				headingContent = { Text(heading) },
 				captionContent = { Text(caption) },
 				onClick = copyAction(ClipData.newPlainText(heading, caption)),

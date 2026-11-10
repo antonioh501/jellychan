@@ -182,8 +182,12 @@ Regole permanenti:
    **segna come pre-release**, note dal CHANGELOG, allega l'APK.
    Con `gh` autenticato: `gh release create vX.Y.Z-alpha.N <apk> --verify-tag --prerelease --notes-file ...`.
 
-Stato: ultima pre-release pubblicata `v0.1.0-alpha.5`. Esiste solo il branch `main` (locale e remoto): i branch
-`feature/...` si cancellano dopo il merge.
+Stato: ultima pre-release pubblicata `v0.2.0-beta.1`. Il repo è un fork GitHub vero di `jellyfin-androidtv` (remote
+`upstream`), basato su 0.19.x: il merge di upstream 0.20 richiede un porting dell'interfaccia (upstream ha rimosso
+`CardPresenter`, `LegacyImageCardView` e le schermate delle preferenze) ed è rimandato. Il vecchio repo senza
+fork è `jellychan-old`. Il branch `master` del fork è lo specchio di upstream; il lavoro sta su `main`. I branch
+`feature/...` si cancellano dopo il merge. Le beta usano `0.2.0-beta.N` perché il `versionCode` deve restare
+sopra quello delle alpha (10005).
 
 ## Idee aperte (solo se richieste)
 

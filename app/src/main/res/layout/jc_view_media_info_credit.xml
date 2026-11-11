@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:minHeight="38dp"
+    android:minHeight="30dp"
     android:orientation="horizontal"
-    android:paddingStart="14dp"
-    android:paddingEnd="14dp">
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp">
 
     <TextView
         android:id="@+id/jcCreditLabel"
@@ -16,7 +16,7 @@
         android:fontFamily="@font/inter_bold"
         android:maxLines="1"
         android:textColor="@color/white"
-        android:textSize="14sp"
+        android:textSize="12sp"
         tools:text="Director" />
 
     <TextView
@@ -30,6 +30,6 @@
         android:gravity="end"
         android:maxLines="1"
         android:textColor="@color/jc_text_dim"
-        android:textSize="14sp"
+        android:textSize="12sp"
         tools:text="Nigel Dick" />
 </LinearLayout>

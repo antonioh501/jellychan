@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.preference.UserPreferences
+import org.jellyfin.androidtv.preference.constant.APP_THEME_SELECTION_ENABLED
 import org.jellyfin.androidtv.preference.constant.AppTheme
 import org.koin.android.ext.android.inject
 import timber.log.Timber
@@ -33,7 +34,8 @@ class ThemeViewModel : ViewModel() {
 fun FragmentActivity.applyTheme() {
 	val viewModel by viewModels<ThemeViewModel>()
 	val userPreferences by inject<UserPreferences>()
-	val theme = userPreferences[UserPreferences.appTheme]
+	// JellyChan: theme selection is disabled for now, always dark
+	val theme = if (APP_THEME_SELECTION_ENABLED) userPreferences[UserPreferences.appTheme] else AppTheme.DARK
 
 	if (viewModel.theme != theme) {
 		if (viewModel.theme != null) {

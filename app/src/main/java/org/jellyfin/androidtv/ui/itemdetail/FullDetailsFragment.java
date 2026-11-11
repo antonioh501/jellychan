@@ -133,6 +133,13 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
     public UUID mPrevItemId;
 
     private RowsSupportFragment mRowsFragment;
+    // JellyChan: true once a row below the first one is selected, the toolbar veil is shown only then
+    private final kotlinx.coroutines.flow.MutableStateFlow<Boolean> jcScrolledDown = kotlinx.coroutines.flow.StateFlowKt.MutableStateFlow(false);
+
+    public kotlinx.coroutines.flow.StateFlow<Boolean> getJcScrolledDown() {
+        return jcScrolledDown;
+    }
+
     private MutableObjectAdapter<Row> mRowsAdapter;
 
     private MyDetailsOverviewRowPresenter mDorPresenter;
@@ -168,6 +175,8 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         FragmentFullDetailsBinding binding = FragmentFullDetailsBinding.inflate(getLayoutInflater(), container, false);
         jcBinding = binding;
+        // JellyChan: same toolbar as the home screen
+        FullDetailsFragmentToolbarKt.setupToolbar(this, binding.jcToolbar);
 
         BUTTON_SIZE = Utils.convertDpToPixel(requireContext(), 40);
 
@@ -244,6 +253,9 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
         super.onResume();
 
         startClock();
+
+        // JellyChan: the player disables the app background, bring the item backdrop back when returning
+        if (mBaseItem != null) backgroundService.getValue().setBackground(mBaseItem);
 
         //Update information that may have changed - delay slightly to allow changes to take on the server
         new Handler().postDelayed(new Runnable() {
@@ -595,7 +607,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
 
                 //Chapters
                 if (mBaseItem.getChapters() != null && !mBaseItem.getChapters().isEmpty()) {
-                    List<ChapterItemInfo> chapters = BaseItemExtensionsKt.buildChapterItems(mBaseItem, api.getValue());
+                    List<ChapterItemInfo> chapters = BaseItemExtensionsKt.buildChapterItems(mBaseItem);
                     ItemRowAdapter chapterAdapter = new ItemRowAdapter(requireContext(), chapters, new CardPresenter(true, 120), adapter);
                     addItemRow(adapter, chapterAdapter, 2, getString(R.string.lbl_chapters));
                 }
@@ -660,6 +672,12 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
                 break;
 
             case EPISODE:
+                //Additional Parts
+                if (mBaseItem.getPartCount() != null && mBaseItem.getPartCount() > 0) {
+                    ItemRowAdapter additionalPartsAdapter = new ItemRowAdapter(requireContext(), new GetAdditionalPartsRequest(mBaseItem.getId()), new CardPresenter(), adapter);
+                    addItemRow(adapter, additionalPartsAdapter, 0, getString(R.string.lbl_additional_parts));
+                }
+
                 if (mBaseItem.getSeasonId() != null && mBaseItem.getIndexNumber() != null) {
                     // query index is zero-based but episode no is not
                     ItemRowAdapter nextAdapter = new ItemRowAdapter(requireContext(), BrowsingUtils.createNextEpisodesRequest(mBaseItem.getSeasonId(), mBaseItem.getIndexNumber()), 0, false, true, new CardPresenter(true, 120), adapter);
@@ -680,7 +698,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
 
                 //Chapters
                 if (mBaseItem.getChapters() != null && !mBaseItem.getChapters().isEmpty()) {
-                    List<ChapterItemInfo> chapters = BaseItemExtensionsKt.buildChapterItems(mBaseItem, api.getValue());
+                    List<ChapterItemInfo> chapters = BaseItemExtensionsKt.buildChapterItems(mBaseItem);
                     ItemRowAdapter chapterAdapter = new ItemRowAdapter(requireContext(), chapters, new CardPresenter(true, 120), adapter);
                     addItemRow(adapter, chapterAdapter, 1, getString(R.string.lbl_chapters));
                 }
@@ -1047,22 +1065,20 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
             mDetailsOverviewRow.addAction(goToSeriesButton);
         }
 
-        if (userPreferences.getValue().get(UserPreferences.Companion.getMediaManagementEnabled())) {
-            boolean deletableItem = false;
-            UserDto currentUser = KoinJavaComponent.<UserRepository>get(UserRepository.class).getCurrentUser().getValue();
-            if (mBaseItem.getType() == BaseItemKind.RECORDING && currentUser.getPolicy().getEnableLiveTvManagement() && mBaseItem.getCanDelete() != null)
-                deletableItem = mBaseItem.getCanDelete();
-            else if (mBaseItem.getCanDelete() != null) deletableItem = mBaseItem.getCanDelete();
+        boolean deletableItem = false;
+        UserDto currentUser = KoinJavaComponent.<UserRepository>get(UserRepository.class).getCurrentUser().getValue();
+        if (mBaseItem.getType() == BaseItemKind.RECORDING && currentUser.getPolicy().getEnableLiveTvManagement() && mBaseItem.getCanDelete() != null)
+            deletableItem = mBaseItem.getCanDelete();
+        else if (mBaseItem.getCanDelete() != null) deletableItem = mBaseItem.getCanDelete();
 
-            if (deletableItem) {
-                deleteButton = TextUnderButton.create(requireContext(), R.drawable.ic_delete, buttonSize, 0, getString(R.string.lbl_delete), new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        deleteItem();
-                    }
-                });
-                mDetailsOverviewRow.addAction(deleteButton);
-            }
+        if (deletableItem) {
+            deleteButton = TextUnderButton.create(requireContext(), R.drawable.ic_delete, buttonSize, 0, getString(R.string.lbl_delete), new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deleteItem();
+                }
+            });
+            mDetailsOverviewRow.addAction(deleteButton);
         }
 
         if (mSeriesTimerInfo != null) {
@@ -1313,6 +1329,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+            jcScrolledDown.setValue(mRowsFragment.getSelectedPosition() > 0);
             if (!(item instanceof BaseRowItem)) {
                 mCurrentItem = null;
             } else {

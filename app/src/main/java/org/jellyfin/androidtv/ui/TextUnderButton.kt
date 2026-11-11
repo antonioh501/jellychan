@@ -1,7 +1,6 @@
 package org.jellyfin.androidtv.ui
 
 import android.content.Context
-import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
@@ -12,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.core.widget.ImageViewCompat
 import org.jellyfin.androidtv.databinding.TextUnderButtonBinding
+import org.jellyfin.androidtv.util.AndroidVersion
 import org.jellyfin.androidtv.util.dp
 
 class TextUnderButton @JvmOverloads constructor(
@@ -26,7 +26,7 @@ class TextUnderButton @JvmOverloads constructor(
 		isFocusable = true
 		isFocusableInTouchMode = true
 		descendantFocusability = FOCUS_BLOCK_DESCENDANTS
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) defaultFocusHighlightEnabled = false
+		if (AndroidVersion.isAtLeastO) defaultFocusHighlightEnabled = false
 	}
 
 	// JellyChan: icon-only buttons, the label appears only under the focused one

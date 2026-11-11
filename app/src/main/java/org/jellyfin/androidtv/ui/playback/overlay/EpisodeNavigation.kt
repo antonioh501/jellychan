@@ -35,7 +35,7 @@ object EpisodeNavigation : KoinComponent {
 					forward -> episodes.lastOrNull()
 					else -> episodes.firstOrNull()
 				}
-				if (target != null) playbackHelper.retrieveAndPlay(target.id, false, 0L, context)
+				if (target != null) playbackHelper.retrieveAndPlay(target.id, false, context)
 			} catch (error: Exception) {
 				Timber.w(error, "JellyChan: unable to get adjacent episode")
 			}

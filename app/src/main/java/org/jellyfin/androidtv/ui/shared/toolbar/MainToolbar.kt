@@ -4,22 +4,29 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.flow.filterNotNull
@@ -31,6 +38,7 @@ import org.jellyfin.androidtv.data.seerr.SeerrState
 import org.jellyfin.androidtv.ui.NowPlayingComposable
 import org.jellyfin.androidtv.ui.base.Icon
 import org.jellyfin.androidtv.ui.base.JellyfinTheme
+import org.jellyfin.androidtv.ui.base.ProfilePicture
 import org.jellyfin.androidtv.ui.base.ProvideTextStyle
 import org.jellyfin.androidtv.ui.base.Text
 import org.jellyfin.androidtv.ui.base.button.Button
@@ -41,18 +49,12 @@ import org.jellyfin.androidtv.ui.navigation.ActivityDestinations
 import org.jellyfin.androidtv.ui.navigation.Destinations
 import org.jellyfin.androidtv.ui.navigation.NavigationRepository
 import org.jellyfin.androidtv.ui.playback.MediaManager
+import org.jellyfin.androidtv.ui.settings.compat.SettingsViewModel
 import org.jellyfin.androidtv.util.apiclient.getUrl
 import org.jellyfin.androidtv.util.apiclient.primaryImage
 import org.jellyfin.sdk.api.client.ApiClient
 import org.koin.compose.koinInject
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.sp
+import org.koin.compose.viewmodel.koinActivityViewModel
 
 enum class MainToolbarActiveButton {
 	User,
@@ -91,7 +93,9 @@ private fun MainToolbar(
 	val sessionRepository = koinInject<SessionRepository>()
 	val seerrRepository = koinInject<SeerrRepository>()
 	val seerrState by seerrRepository.state.collectAsState()
+	val settingsViewModel = koinActivityViewModel<SettingsViewModel>()
 	val activity = LocalActivity.current
+
 	// JellyChan: active tab is a light grey pill, like the library tabs
 	val activeButtonColors = ButtonDefaults.colors(
 		containerColor = Color(0xFFD1D5DB),
@@ -181,7 +185,6 @@ private fun MainToolbar(
 							}
 						},
 						colors = if (activeButton == MainToolbarActiveButton.Search) activeButtonColors else ButtonDefaults.colors(),
-						// JellyChan: compact pill with icon, like the web tabs
 						contentPadding = PaddingValues(horizontal = 15.dp, vertical = 6.dp),
 						content = {
 							Icon(
@@ -201,6 +204,8 @@ private fun MainToolbar(
 				val userImagePainter = rememberAsyncImagePainter(userImage)
 				val userImageState by userImagePainter.state.collectAsState()
 				val userImageVisible = userImageState is AsyncImagePainter.State.Success
+
+				// JellyChan: the user button lives on the right, next to settings
 				IconButton(
 					onClick = {
 						if (activeButton != MainToolbarActiveButton.User) {
@@ -215,27 +220,17 @@ private fun MainToolbar(
 					colors = if (activeButton == MainToolbarActiveButton.User) activeButtonColors else ButtonDefaults.colors(),
 					contentPadding = if (userImageVisible) PaddingValues(3.dp) else IconButtonDefaults.ContentPadding,
 				) {
-					if (!userImageVisible) {
-						Icon(
-							imageVector = ImageVector.vectorResource(R.drawable.ic_user),
-							contentDescription = stringResource(R.string.lbl_switch_user),
-						)
-					} else {
-						Image(
-							painter = userImagePainter,
-							contentDescription = stringResource(R.string.lbl_switch_user),
-							contentScale = ContentScale.Crop,
-							modifier = Modifier
-								.aspectRatio(1f)
-								.clip(IconButtonDefaults.Shape)
-						)
-					}
+					ProfilePicture(
+						url = userImage,
+						contentDescription = stringResource(R.string.lbl_switch_user),
+						modifier = Modifier
+							.aspectRatio(1f)
+							.clip(IconButtonDefaults.Shape)
+					)
 				}
 
 				IconButton(
-					onClick = {
-						activity?.startActivity(ActivityDestinations.userPreferences(activity))
-					},
+					onClick = { settingsViewModel.show() },
 				) {
 					Icon(
 						imageVector = ImageVector.vectorResource(R.drawable.ic_settings),

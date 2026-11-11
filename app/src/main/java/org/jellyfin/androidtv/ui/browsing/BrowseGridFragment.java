@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.leanback.widget.BaseGridView;
+import androidx.leanback.widget.FocusHighlight;
 import androidx.leanback.widget.OnItemViewClickedListener;
 import androidx.leanback.widget.OnItemViewSelectedListener;
 import androidx.leanback.widget.Presenter;
@@ -42,7 +43,6 @@ import org.jellyfin.androidtv.constant.QueryType;
 import org.jellyfin.androidtv.data.model.FilterOptions;
 import org.jellyfin.androidtv.data.querying.GetUserViewsRequest;
 import org.jellyfin.androidtv.data.repository.CustomMessageRepository;
-import org.jellyfin.androidtv.data.repository.UserViewsRepository;
 import org.jellyfin.androidtv.data.service.BackgroundService;
 import org.jellyfin.androidtv.databinding.HorizontalGridBrowseBinding;
 import org.jellyfin.androidtv.databinding.PopupEmptyBinding;
@@ -53,7 +53,6 @@ import org.jellyfin.androidtv.ui.itemhandling.BaseRowItem;
 import org.jellyfin.androidtv.ui.itemhandling.ItemLauncher;
 import org.jellyfin.androidtv.ui.itemhandling.ItemRowAdapter;
 import org.jellyfin.androidtv.ui.itemhandling.ItemRowAdapterHelperKt;
-import org.jellyfin.androidtv.ui.navigation.ActivityDestinations;
 import org.jellyfin.androidtv.ui.navigation.Destinations;
 import org.jellyfin.androidtv.ui.navigation.NavigationRepository;
 import org.jellyfin.androidtv.ui.presentation.CardPresenter;
@@ -78,6 +77,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import kotlin.Lazy;
+import kotlinx.coroutines.flow.MutableStateFlow;
 import kotlinx.serialization.json.Json;
 import timber.log.Timber;
 
@@ -119,12 +119,11 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
 
     private final Lazy<BackgroundService> backgroundService = inject(BackgroundService.class);
     private final Lazy<PreferencesRepository> preferencesRepository = inject(PreferencesRepository.class);
-    private final Lazy<UserViewsRepository> userViewsRepository = inject(UserViewsRepository.class);
     private final Lazy<CustomMessageRepository> customMessageRepository = inject(CustomMessageRepository.class);
-    private final Lazy<NavigationRepository> navigationRepository = inject(NavigationRepository.class);
     private final Lazy<ItemLauncher> itemLauncher = inject(ItemLauncher.class);
     private final Lazy<KeyProcessor> keyProcessor = inject(KeyProcessor.class);
     private final Lazy<ApiClient> api = inject(ApiClient.class);
+    private final Lazy<NavigationRepository> navigationRepository = inject(NavigationRepository.class);
 
     private int mCardsScreenEst = 0;
     private int mCardsScreenStride = 0;
@@ -163,7 +162,7 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
         if (mGridDirection.equals(GridDirection.VERTICAL))
         {
             // JellyChan: flat cards, no focus shadow box behind the title
-            VerticalGridPresenter vgp = new VerticalGridPresenter();
+            VerticalGridPresenter vgp = new VerticalGridPresenter(FocusHighlight.ZOOM_FACTOR_LARGE, false);
             vgp.setShadowEnabled(false);
             setGridPresenter(vgp);
         }
@@ -172,21 +171,27 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
 
         sortOptions = new HashMap<>();
         {
+            boolean isTvShows = mFolder.getCollectionType() == CollectionType.TVSHOWS;
+
             sortOptions.put(0, new SortOption(getString(R.string.lbl_name), ItemSortBy.SORT_NAME, SortOrder.ASCENDING));
-            sortOptions.put(1, new SortOption(getString(R.string.lbl_date_added), ItemSortBy.DATE_CREATED, SortOrder.DESCENDING));
+            if (isTvShows) {
+                sortOptions.put(1, new SortOption(getString(R.string.lbl_date_show_added), ItemSortBy.DATE_CREATED, SortOrder.DESCENDING));
+            } else {
+                sortOptions.put(1, new SortOption(getString(R.string.lbl_date_added), ItemSortBy.DATE_CREATED, SortOrder.DESCENDING));
+            }
             sortOptions.put(2, new SortOption(getString(R.string.lbl_premier_date), ItemSortBy.PREMIERE_DATE, SortOrder.DESCENDING));
             sortOptions.put(3, new SortOption(getString(R.string.lbl_rating), ItemSortBy.OFFICIAL_RATING, SortOrder.ASCENDING));
             sortOptions.put(4, new SortOption(getString(R.string.lbl_community_rating), ItemSortBy.COMMUNITY_RATING, SortOrder.DESCENDING));
             sortOptions.put(5, new SortOption(getString(R.string.lbl_critic_rating), ItemSortBy.CRITIC_RATING, SortOrder.DESCENDING));
 
-            if (mFolder.getCollectionType() == CollectionType.TVSHOWS) {
+            if (isTvShows) {
                 sortOptions.put(6, new SortOption(getString(R.string.lbl_last_played), ItemSortBy.SERIES_DATE_PLAYED, SortOrder.DESCENDING));
+                sortOptions.put(7, new SortOption(getString(R.string.lbl_date_episode_added), ItemSortBy.DATE_LAST_CONTENT_ADDED, SortOrder.DESCENDING));
             } else {
                 sortOptions.put(6, new SortOption(getString(R.string.lbl_last_played), ItemSortBy.DATE_PLAYED, SortOrder.DESCENDING));
-            }
-
-            if (mFolder.getCollectionType() != null && mFolder.getCollectionType() == CollectionType.MOVIES) {
-                sortOptions.put(7, new SortOption(getString(R.string.lbl_runtime), ItemSortBy.RUNTIME, SortOrder.ASCENDING));
+                if (mFolder.getCollectionType() == CollectionType.MOVIES) {
+                    sortOptions.put(7, new SortOption(getString(R.string.lbl_runtime), ItemSortBy.RUNTIME, SortOrder.ASCENDING));
+                }
             }
         }
 
@@ -287,6 +292,7 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
         }
         gridPresenter.setOnItemViewSelectedListener(mRowSelectedListener);
         gridPresenter.setOnItemViewClickedListener(mClickedListener);
+        gridPresenter.setShadowEnabled(false);
         mGridPresenter = gridPresenter;
     }
 
@@ -299,6 +305,7 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
         }
         gridPresenter.setOnItemViewSelectedListener(mRowSelectedListener);
         gridPresenter.setOnItemViewClickedListener(mClickedListener);
+        gridPresenter.setShadowEnabled(false);
         mGridPresenter = gridPresenter;
     }
 
@@ -610,7 +617,7 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
             mGridDirection = gridDirection;
 
             if (mGridDirection.equals(GridDirection.VERTICAL) && (mGridPresenter == null || !(mGridPresenter instanceof VerticalGridPresenter))) {
-                setGridPresenter(new VerticalGridPresenter());
+                setGridPresenter(new VerticalGridPresenter(FocusHighlight.ZOOM_FACTOR_LARGE, false));
             } else if (mGridDirection.equals(GridDirection.HORIZONTAL) && (mGridPresenter == null || !(mGridPresenter instanceof HorizontalGridPresenter))) {
                 setGridPresenter(new HorizontalGridPresenter());
             }
@@ -641,8 +648,7 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
     }
 
     private void buildAdapter() {
-        mCardPresenter = new CardPresenter(mGridDirection.equals(GridDirection.VERTICAL), mImageType, mCardHeight); // JellyChan: title + year under posters
-        mCardPresenter.setUniformAspect(true); // make grid layouts always uniform
+        mCardPresenter = new CardPresenter(mGridDirection.equals(GridDirection.VERTICAL), mImageType, mCardHeight, true); // JellyChan: title + year under posters
 
         Timber.d("buildAdapter cardHeight <%s> getCardWidthBy <%s> chunks <%s> type <%s>", mCardHeight, (int) getCardWidthBy(mCardHeight, mImageType, mFolder), mRowDef.getChunkSize(), mRowDef.getQueryType().toString());
 
@@ -764,12 +770,13 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
         binding.toolBar.addView(shuffle);
 
         // View settings
-        mSettingsButton = createToolButton(R.drawable.ic_grid, R.string.lbl_settings);
-        mSettingsButton.setOnClickListener(v -> {
-            boolean allowViewSelection = userViewsRepository.getValue().allowViewSelection(mFolder.getCollectionType());
-            startActivity(ActivityDestinations.INSTANCE.displayPreferences(getContext(), mFolder.getDisplayPreferencesId(), allowViewSelection));
-        });
-        binding.toolBar.addView(mSettingsButton);
+        if (mFolder.getDisplayPreferencesId() != null) {
+            MutableStateFlow<Boolean> settingsVisible = BrowseGridFragmentHelperKt.createSettingsVisibility(BrowseGridFragment.this);
+            mSettingsButton = createToolButton(R.drawable.ic_grid, R.string.lbl_settings);
+            mSettingsButton.setOnClickListener(v -> settingsVisible.setValue(true));
+            binding.toolBar.addView(mSettingsButton);
+            BrowseGridFragmentHelperKt.addSettings(BrowseGridFragment.this, binding.settings, mFolder.getId(), mFolder.getDisplayPreferencesId(), settingsVisible);
+        }
 
         // Sort
         mSortButton = createToolButton(R.drawable.ic_abc, R.string.lbl_sort_by);

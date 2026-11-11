@@ -12,7 +12,6 @@ import androidx.core.view.isVisible
 import androidx.leanback.widget.Row
 import androidx.leanback.widget.RowPresenter
 import org.jellyfin.androidtv.R
-import org.jellyfin.androidtv.databinding.JcViewMediaInfoChipBinding
 import org.jellyfin.androidtv.databinding.JcViewMediaInfoCreditBinding
 import org.jellyfin.androidtv.databinding.JcViewMediaInfoRowBinding
 import org.jellyfin.androidtv.databinding.JcViewMediaInfoStreamBinding
@@ -36,7 +35,6 @@ class JcMediaInfoRow(
 	private val mediaSource get() = item.mediaSources?.getOrNull(overview.selectedMediaSourceIndex)
 	private val streams get() = mediaSource?.mediaStreams ?: item.mediaStreams.orEmpty()
 
-	val links get() = item.externalUrls.orEmpty().mapNotNull { it.name?.takeIf(String::isNotBlank) }.distinct()
 	val videoStream get() = streams.firstOrNull { it.type == MediaStreamType.VIDEO }
 	val audioStreams get() = streams.filter { it.type == MediaStreamType.AUDIO }
 	val subtitleStreams get() = streams.filter { it.type == MediaStreamType.SUBTITLE }
@@ -57,7 +55,7 @@ class JcMediaInfoRow(
 			R.string.lbl_genres to item.genres.orEmpty().joinToString(", "),
 		).filter { (_, value) -> value.isNotBlank() }
 
-	val hasContent get() = links.isNotEmpty() || credits.isNotEmpty() || streams.isNotEmpty()
+	val hasContent get() = credits.isNotEmpty() || streams.isNotEmpty()
 
 	private fun BaseItemDto.peopleNames(kind: PersonKind) =
 		people.orEmpty().filter { it.type == kind }.mapNotNull { it.name }.distinct().joinToString(", ")
@@ -72,20 +70,11 @@ class JcMediaInfoRowPresenter(
 		private val inflater = LayoutInflater.from(binding.root.context)
 
 		fun bind(row: JcMediaInfoRow) {
-			bindLinks(row)
 			bindCredits(row)
 			val hasSelector = bindStreams(row)
 
 			// Without selectors the row still needs a focus stop to scroll into view
 			binding.root.isFocusable = !hasSelector
-		}
-
-		private fun bindLinks(row: JcMediaInfoRow) {
-			binding.jcMediaChips.removeAllViews()
-			row.links.forEach { name ->
-				JcViewMediaInfoChipBinding.inflate(inflater, binding.jcMediaChips, true).root.text = name
-			}
-			binding.jcMediaChips.isVisible = row.links.isNotEmpty()
 		}
 
 		private fun bindCredits(row: JcMediaInfoRow) {

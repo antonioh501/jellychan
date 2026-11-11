@@ -119,6 +119,11 @@
         android:layout_marginTop="6dp"
         android:layout_toStartOf="@+id/jc_alpha_index" />
 
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/settings"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <!-- Kept for code compatibility, not shown in this layout -->
     <TextView
         android:id="@+id/title"

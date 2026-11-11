@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.jellyfin.androidtv.auth.model.Server
 import org.jellyfin.androidtv.preference.UserPreferences
+import org.jellyfin.androidtv.preference.constant.BackdropBehavior
 import org.jellyfin.androidtv.util.apiclient.getUrl
 import org.jellyfin.androidtv.util.apiclient.itemBackdropImages
 import org.jellyfin.androidtv.util.apiclient.parentBackdropImages
@@ -74,12 +75,14 @@ class BackgroundService(
 	 * Use all available backdrops from [baseItem] as background.
 	 */
 	fun setBackground(baseItem: BaseItemDto?) {
+		val backdropBehavior = userPreferences[UserPreferences.backdropBehavior]
+
 		// Check if item is set and backgrounds are enabled
-		if (baseItem == null)
+		if (baseItem == null || backdropBehavior == BackdropBehavior.DISABLED)
 			return clearBackgrounds()
 
 		// Enable blur for backdrops
-		_blurBackground.value = true
+		_blurBackground.value = backdropBehavior == BackdropBehavior.BACKDROP_WITH_BLUR
 
 		// Get all backdrop urls
 		val backdropUrls = (baseItem.itemBackdropImages + baseItem.parentBackdropImages)
@@ -93,6 +96,10 @@ class BackgroundService(
 	 * Use splashscreen from [server] as background.
 	 */
 	fun setBackground(server: Server) {
+		// Check if item is set and backgrounds are enabled
+		if (userPreferences[UserPreferences.backdropBehavior] == BackdropBehavior.DISABLED)
+			return clearBackgrounds()
+
 		// Check if splashscreen is enabled in (cached) branding options
 		if (!server.splashscreenEnabled)
 			return clearBackgrounds()
@@ -126,6 +133,22 @@ class BackgroundService(
 			_currentIndex = 0
 			update()
 		}
+	}
+
+	/**
+	 * JellyChan: drop everything shown by the background right away (no transition), e.g. before the splash screen so
+	 * it never shows the backdrop of the last carousel or title that was on screen.
+	 */
+	fun resetBackground() {
+		loadBackgroundsJob?.cancel()
+		updateBackgroundTimerJob?.cancel()
+
+		_backgrounds = emptyList()
+		_currentIndex = 0
+		_currentBackground.value = null
+		_spotlight.value = false
+		_trailerUrl.value = null
+		_enabled.value = true
 	}
 
 	fun clearBackgrounds() {

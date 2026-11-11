@@ -22,8 +22,9 @@ private val VeilFadeHeight = 35.dp
 
 // Same shape as the gradient at the top of the home carousel: dark at the very top, fading out downwards
 private val VeilBrush = Brush.verticalGradient(
-	0.0f to Color(0xF2111827),
-	0.41f to Color(0xCC111827),
+	0.0f to Color(0xFA111827),
+	0.5f to Color(0xF0111827),
+	0.73f to Color(0xD9111827),
 	1.0f to Color(0x00111827),
 )
 

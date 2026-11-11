@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.unit.dp
@@ -60,7 +61,8 @@ fun UserCard(
 	// Mix button background with input foreground because we display text beneath the profile picture on a transparent background similar
 	// to the input text
 	val color = when {
-		focused -> JellyfinTheme.colorScheme.buttonFocused to JellyfinTheme.colorScheme.onInputFocused
+		// JellyChan: the name sits on the dark screen background, so keep it light when focused too
+		focused -> JellyfinTheme.colorScheme.buttonFocused to Color.White
 		else -> JellyfinTheme.colorScheme.button to JellyfinTheme.colorScheme.onInput
 	}
 	val scale by animateFloatAsState(if (focused) 1.1f else 1f, label = "UserCardFocusScale")

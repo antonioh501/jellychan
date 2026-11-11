@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [0.3.0-beta.1] - 2026-11-11
+
+### Changed
+- Rebased on upstream jellyfin-androidtv 0.20.0 with the JellyChan interface ported on top.
+- New logo (line-art jellyfish with a pink-to-violet gradient) on the splash screen, toolbar, launcher icon and banner.
+- The toolbar floats over the content: after scrolling down, a dark veil keeps the buttons readable over the
+  rows and the background.
+- Details screens: smaller episode thumbnail with more room from the toolbar, more compact information boxes
+  under the synopsis, and the non-clickable IMDb/TheTVDB/TMDB chips are gone.
+- The home carousel has a denser top gradient.
+- The focused user name on the user selection screen is readable again.
+- The splash screen is shown for at least 1.5 seconds and no longer flashes a stale background.
+- The theme selection is hidden (only the default theme is available).
+
 ## [0.2.0-beta.1] - 2026-11-10
 
 ### Changed
@@ -116,7 +130,8 @@ First public pre-release. Based on Jellyfin for Android TV 0.19.10.
 - Rating badges on cards.
 - Profile picture in the player overlay.
 
-[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.2.0-beta.1...HEAD
+[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.3.0-beta.1...HEAD
+[0.3.0-beta.1]: https://github.com/antonioh501/jellychan/compare/v0.2.0-beta.1...v0.3.0-beta.1
 [0.2.0-beta.1]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.5...v0.2.0-beta.1
 [0.1.0-alpha.5]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.4...v0.1.0-alpha.5
 [0.1.0-alpha.4]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.3...v0.1.0-alpha.4

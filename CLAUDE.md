@@ -1,7 +1,7 @@
 # JellyChan — istruzioni per Claude Code
 
 Client Android TV / Fire TV per server Jellyfin. Fork non ufficiale di
-[jellyfin-androidtv](https://github.com/jellyfin/jellyfin-androidtv) v0.19.10 con interfaccia ridisegnata
+[jellyfin-androidtv](https://github.com/jellyfin/jellyfin-androidtv) v0.20.0 con interfaccia ridisegnata
 (palette navy, Inter, card arrotondate, hero a carosello). Autore: Antonio (Roma). Parla italiano, tono diretto e
 tecnico; se un'impostazione è debole dillo e proponi l'alternativa.
 
@@ -29,7 +29,7 @@ Target principale: **Fire TV Stick 4K Max (Fire OS 8, Android 11)**. Funziona an
   `getVersionCode` (0.1.0-alpha.1 → 10001). Non toccare `versionCode` a mano.
 - Changelog: `CHANGELOG.md` (Keep a Changelog). Ogni modifica visibile all'utente va sotto `[Unreleased]`.
 - Commit piccoli e descrittivi, in inglese. Branch di lavoro `feature/...`, merge su `main`.
-- Il logo (medusa kawaii lilla, gradiente #C4B5FD→#7C6CF0, sfondo #111827) ha i sorgenti SVG in `branding/`.
+- Il logo (medusa a linee con gradiente rosa→viola #EF5DB5→#805CF4, scritta bianca, sfondo #111827) ha i sorgenti SVG in `branding/` (`jellychan-logo.svg` è l'originale).
   Colori tema in `app/src/main/res/values/logo.xml` e `colors.xml`.
 
 ## Ambiente di build (PC Windows di Antonio)
@@ -106,7 +106,7 @@ container cloud: build e prove su Fire TV si fanno sul PC di Antonio.
   `HomeSpotlight.kt`.
 - Seerr (tab "Scopri", funzione propria di JellyChan, assente upstream): client HTTP e modelli in `data/seerr/`
   (`SeerrClient`, `SeerrRepository`, `SeerrAccountStore`), UI Compose in `ui/seerr/` con un ViewModel per schermata.
-- Essendo un fork di upstream v0.19.10, la maggior parte del codice non-Seerr/non-UI è invariata: per fix o
+- Essendo un fork di upstream v0.20.0, la maggior parte del codice non-Seerr/non-UI è invariata: per fix o
   merge dall'upstream preferisci modifiche minime nei file upstream.
 
 ## Note UI (Compose)
@@ -182,11 +182,10 @@ Regole permanenti:
    **segna come pre-release**, note dal CHANGELOG, allega l'APK.
    Con `gh` autenticato: `gh release create vX.Y.Z-alpha.N <apk> --verify-tag --prerelease --notes-file ...`.
 
-Stato: ultima pre-release pubblicata `v0.2.0-beta.1`. Il repo è un fork GitHub vero di `jellyfin-androidtv` (remote
-`upstream`), basato su 0.19.x: il merge di upstream 0.20 richiede un porting dell'interfaccia (upstream ha rimosso
-`CardPresenter`, `LegacyImageCardView` e le schermate delle preferenze) ed è rimandato. Il vecchio repo senza
+Stato: ultima pre-release pubblicata `v0.3.0-beta.1`. Il repo è un fork GitHub vero di `jellyfin-androidtv` (remote
+`upstream`), basato su upstream 0.20.0 (interfaccia JellyChan portata sopra). Il vecchio repo senza
 fork è `jellychan-old`. Il branch `master` del fork è lo specchio di upstream; il lavoro sta su `main`. I branch
-`feature/...` si cancellano dopo il merge. Le beta usano `0.2.0-beta.N` perché il `versionCode` deve restare
+`feature/...` si cancellano dopo il merge. Le beta usano `0.x.0-beta.N` perché il `versionCode` deve restare
 sopra quello delle alpha (10005).
 
 ## Idee aperte (solo se richieste)

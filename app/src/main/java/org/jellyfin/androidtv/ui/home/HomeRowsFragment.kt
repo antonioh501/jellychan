@@ -87,6 +87,22 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 	private val notificationsRow by lazy { NotificationsHomeFragmentRow(lifecycleScope, notificationsRepository) }
 	private val nowPlaying by lazy { HomeFragmentNowPlayingRow(lifecycleScope, playbackManager, mediaManager) }
 
+	/** JellyChan: true once a row below the carousel is selected; the toolbar veil is shown only then. */
+	val isScrolledDown = kotlinx.coroutines.flow.MutableStateFlow(false)
+
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		super.onViewCreated(view, savedInstanceState)
+
+		// JellyChan: rows may scroll up under the translucent toolbar, so nothing may clip them at the top of this view
+		var parent: View? = view
+		while (parent is android.view.ViewGroup) {
+			parent.clipChildren = false
+			parent.clipToPadding = false
+			parent = parent.parent as? View
+			if (parent is androidx.compose.ui.platform.ComposeView) break
+		}
+	}
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
@@ -290,6 +306,7 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 			row: Row?,
 		) {
 			// JellyChan: the spotlight row manages the background itself
+			isScrolledDown.value = selectedPosition > 0
 			if (row is HomeSpotlightRow) {
 				currentItem = null
 				return

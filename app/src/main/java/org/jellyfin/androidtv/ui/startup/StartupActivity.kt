@@ -5,6 +5,7 @@ import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.SystemClock
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
@@ -19,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.work.WorkManager
 import androidx.work.await
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -32,6 +34,7 @@ import org.jellyfin.androidtv.auth.repository.SessionRepository
 import org.jellyfin.androidtv.auth.repository.SessionRepositoryState
 import org.jellyfin.androidtv.auth.repository.UserRepository
 import org.jellyfin.androidtv.data.eventhandling.SocketHandler
+import org.jellyfin.androidtv.data.service.BackgroundService
 import org.jellyfin.androidtv.databinding.ActivityStartupBinding
 import org.jellyfin.androidtv.integration.LeanbackChannelWorker
 import org.jellyfin.androidtv.ui.background.AppBackground
@@ -60,7 +63,13 @@ class StartupActivity : FragmentActivity() {
 		const val EXTRA_ITEM_ID = "ItemId"
 		const val EXTRA_ITEM_IS_USER_VIEW = "ItemIsUserView"
 		const val EXTRA_HIDE_SPLASH = "HideSplash"
+
+		/** JellyChan: the splash stays on screen at least this long, so it never just flashes (or is skipped). */
+		private const val MIN_SPLASH_DURATION_MS = 1500L
 	}
+
+	private val backgroundService: BackgroundService by inject()
+	private var createdAt = 0L
 
 	private val startupViewModel: StartupViewModel by viewModel()
 	private val api: ApiClient by inject()
@@ -98,6 +107,10 @@ class StartupActivity : FragmentActivity() {
 
 		super.onCreate(savedInstanceState)
 
+		// JellyChan: never start the splash over the backdrop left by the previous screen
+		backgroundService.resetBackground()
+		createdAt = SystemClock.elapsedRealtime()
+
 		binding = ActivityStartupBinding.inflate(layoutInflater)
 		binding.background.setContent { AppBackground() }
 		binding.screensaver.isVisible = false
@@ -130,6 +143,12 @@ class StartupActivity : FragmentActivity() {
 				Timber.i("CurrentUser changed to ${currentUser?.id} while waiting for startup.")
 
 				lifecycleScope.launch {
+					// JellyChan: keep the splash visible for a minimum time when it is shown
+					if (!intent.getBooleanExtra(EXTRA_HIDE_SPLASH, false)) {
+						val remaining = MIN_SPLASH_DURATION_MS - (SystemClock.elapsedRealtime() - createdAt)
+						if (remaining > 0) delay(remaining)
+					}
+
 					openNextActivity()
 				}
 			} else {

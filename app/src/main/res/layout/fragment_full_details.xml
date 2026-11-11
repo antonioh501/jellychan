@@ -31,7 +31,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="false"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="40sp" />
+        android:layout_marginEnd="40sp"
+        android:visibility="gone" />
 
     <org.jellyfin.androidtv.ui.NowPlayingView
         android:layout_width="wrap_content"
@@ -39,6 +40,14 @@
         android:id="@+id/npBug"
         android:layout_alignBottom="@+id/fdClock"
         android:layout_marginEnd="25dp"
-        android:layout_toStartOf="@+id/fdClock" />
+        android:layout_toStartOf="@+id/fdClock"
+        android:visibility="gone" />
+
+    <!-- JellyChan: the same toolbar as the home screen (logo, tabs, user, settings, clock) -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/jcToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true" />
 
 </RelativeLayout>

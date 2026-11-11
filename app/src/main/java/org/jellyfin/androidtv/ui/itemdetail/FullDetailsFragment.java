@@ -133,6 +133,13 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
     public UUID mPrevItemId;
 
     private RowsSupportFragment mRowsFragment;
+    // JellyChan: true once a row below the first one is selected, the toolbar veil is shown only then
+    private final kotlinx.coroutines.flow.MutableStateFlow<Boolean> jcScrolledDown = kotlinx.coroutines.flow.StateFlowKt.MutableStateFlow(false);
+
+    public kotlinx.coroutines.flow.StateFlow<Boolean> getJcScrolledDown() {
+        return jcScrolledDown;
+    }
+
     private MutableObjectAdapter<Row> mRowsAdapter;
 
     private MyDetailsOverviewRowPresenter mDorPresenter;
@@ -168,6 +175,8 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         FragmentFullDetailsBinding binding = FragmentFullDetailsBinding.inflate(getLayoutInflater(), container, false);
         jcBinding = binding;
+        // JellyChan: same toolbar as the home screen
+        FullDetailsFragmentToolbarKt.setupToolbar(this, binding.jcToolbar);
 
         BUTTON_SIZE = Utils.convertDpToPixel(requireContext(), 40);
 
@@ -1320,6 +1329,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+            jcScrolledDown.setValue(mRowsFragment.getSelectedPosition() > 0);
             if (!(item instanceof BaseRowItem)) {
                 mCurrentItem = null;
             } else {

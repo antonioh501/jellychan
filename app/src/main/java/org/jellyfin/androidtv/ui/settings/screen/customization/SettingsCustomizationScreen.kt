@@ -13,6 +13,7 @@ import androidx.work.WorkManager
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.integration.LeanbackChannelWorker
 import org.jellyfin.androidtv.preference.UserPreferences
+import org.jellyfin.androidtv.preference.constant.APP_THEME_SELECTION_ENABLED
 import org.jellyfin.androidtv.preference.constant.RatingType
 import org.jellyfin.androidtv.ui.base.Icon
 import org.jellyfin.androidtv.ui.base.Text
@@ -59,7 +60,8 @@ fun SettingsCustomizationScreen() {
 			)
 		}
 
-		item {
+		// JellyChan: the theme choice is hidden for now (see APP_THEME_SELECTION_ENABLED)
+		if (APP_THEME_SELECTION_ENABLED) item {
 			var appTheme by rememberPreference(userPreferences, UserPreferences.appTheme)
 
 			ListButton(

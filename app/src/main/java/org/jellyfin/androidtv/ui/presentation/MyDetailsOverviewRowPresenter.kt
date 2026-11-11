@@ -83,8 +83,19 @@ class MyDetailsOverviewRowPresenter(
 					layoutParams = it
 				}
 			}
-			binding.fdEpisodeThumb.setBottomMargin(if (isEpisode) 12 else 16)
-			binding.mainImage.setBottomMargin(if (isEpisode) 6 else 14)
+			binding.fdEpisodeThumb.setBottomMargin(if (isEpisode) 8 else 16)
+			// JellyChan: smaller episode thumbnail and a lower stack, keeping some air under the toolbar
+			binding.fdEpisodeThumb.layoutParams = binding.fdEpisodeThumb.layoutParams.apply {
+				width = ((if (isEpisode) 256 else 320) * density).toInt()
+				height = ((if (isEpisode) 144 else 180) * density).toInt()
+			}
+			binding.fdHeaderRoot.setPadding(
+				binding.fdHeaderRoot.paddingLeft,
+				binding.fdHeaderRoot.paddingTop,
+				binding.fdHeaderRoot.paddingRight,
+				((if (isEpisode) 0 else 8) * density).toInt(),
+			)
+			binding.mainImage.setBottomMargin(if (isEpisode) 4 else 14)
 			binding.fdGenreRow.isVisible = !isEpisode && row.item.type != BaseItemKind.PERSON
 			binding.fdButtonRow.setBottomMargin(if (isEpisode) 8 else 14)
 			binding.fdMainInfoRow.setBottomMargin(if (isEpisode) 16 else 4)

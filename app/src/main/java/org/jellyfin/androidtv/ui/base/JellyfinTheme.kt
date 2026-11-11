@@ -6,6 +6,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import org.jellyfin.androidtv.preference.UserPreferences
+import org.jellyfin.androidtv.preference.constant.APP_THEME_SELECTION_ENABLED
+import org.jellyfin.androidtv.preference.constant.AppTheme
 import org.koin.compose.koinInject
 
 /**
@@ -14,7 +16,9 @@ import org.koin.compose.koinInject
 @Composable
 private fun rememberAppColorScheme(): ColorScheme {
 	val userPreferences = koinInject<UserPreferences>()
-	val theme = remember { userPreferences[UserPreferences.appTheme] }
+	val theme = remember {
+		if (APP_THEME_SELECTION_ENABLED) userPreferences[UserPreferences.appTheme] else AppTheme.DARK
+	}
 	return remember(theme) { colorScheme(theme) }
 }
 

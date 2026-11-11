@@ -135,6 +135,22 @@ class BackgroundService(
 		}
 	}
 
+	/**
+	 * JellyChan: drop everything shown by the background right away (no transition), e.g. before the splash screen so
+	 * it never shows the backdrop of the last carousel or title that was on screen.
+	 */
+	fun resetBackground() {
+		loadBackgroundsJob?.cancel()
+		updateBackgroundTimerJob?.cancel()
+
+		_backgrounds = emptyList()
+		_currentIndex = 0
+		_currentBackground.value = null
+		_spotlight.value = false
+		_trailerUrl.value = null
+		_enabled.value = true
+	}
+
 	fun clearBackgrounds() {
 		loadBackgroundsJob?.cancel()
 

@@ -1,9 +1,12 @@
 package org.jellyfin.androidtv.ui.home
 
+import android.content.Context
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,11 +17,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.compose.AndroidFragment
 import androidx.fragment.compose.content
@@ -32,10 +37,10 @@ import kotlinx.coroutines.flow.onEach
 import org.jellyfin.androidtv.auth.repository.ServerRepository
 import org.jellyfin.androidtv.auth.repository.SessionRepository
 import org.jellyfin.androidtv.data.repository.NotificationsRepository
-import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbarHeight
-import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbarOverlay
 import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbarActiveButton
+import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbarOverlay
 import org.koin.android.ext.android.inject
+import timber.log.Timber
 
 class HomeFragment : Fragment() {
 	private val sessionRepository by inject<SessionRepository>()
@@ -46,7 +51,12 @@ class HomeFragment : Fragment() {
 		inflater: LayoutInflater,
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
-	) = content {
+	): View = KeySafeFrameLayout(requireContext()).apply {
+		addView(content { HomeContent() })
+	}
+
+	@androidx.compose.runtime.Composable
+	private fun HomeContent() {
 		val rowsFocusRequester = remember { FocusRequester() }
 		LaunchedEffect(rowsFocusRequester) { rowsFocusRequester.requestFocus() }
 
@@ -71,16 +81,30 @@ class HomeFragment : Fragment() {
 						}
 					}
 					.fillMaxSize()
-					.padding(top = MainToolbarHeight),
+					.padding(top = HomeToolbarHeight),
 				maxLifecycle = Lifecycle.State.RESUMED,
 				onUpdate = { fragment ->
 					rowsSupportFragment = fragment
 				}
 			)
 
-			// JellyChan: translucent toolbar over both the background and the rows scrolling underneath
-			val scrolledDown by (rowsSupportFragment?.isScrolledDown ?: flowOf(false)).collectAsState(false)
-			MainToolbarOverlay(MainToolbarActiveButton.Home, showVeil = scrolledDown)
+			// JellyChan: the home moves by whole pages that start under the toolbar, so the toolbar needs no veil;
+			// arrows show whether a page sits above or below the current one
+			val arrows by (rowsSupportFragment?.pageArrows ?: flowOf(HomePageArrows())).collectAsState(HomePageArrows())
+			HomeScrollHint(
+				visible = arrows.down,
+				modifier = Modifier
+					.align(Alignment.BottomCenter)
+					.padding(bottom = 8.dp),
+			)
+			HomeScrollHint(
+				visible = arrows.up,
+				up = true,
+				modifier = Modifier
+					.align(Alignment.TopCenter)
+					.padding(top = HomeToolbarHeight - 6.dp),
+			)
+			MainToolbarOverlay(MainToolbarActiveButton.Home, showVeil = false, raise = HomeToolbarRaise)
 		}
 	}
 
@@ -97,5 +121,19 @@ class HomeFragment : Fragment() {
 				notificationRepository.updateServerNotifications(server)
 			}
 			.launchIn(viewLifecycleOwner.lifecycleScope)
+	}
+}
+
+/**
+ * JellyChan: back from another screen, Compose may look for the next focus starting from a view that is no longer
+ * part of the home (the rows are rebuilt) and throw. Drop that key press instead of crashing; the focus is still on
+ * the rows, so the next press works.
+ */
+private class KeySafeFrameLayout(context: Context) : FrameLayout(context) {
+	override fun dispatchKeyEvent(event: KeyEvent): Boolean = try {
+		super.dispatchKeyEvent(event)
+	} catch (error: IllegalArgumentException) {
+		Timber.w(error, "Ignored a key event that failed the focus search")
+		true
 	}
 }

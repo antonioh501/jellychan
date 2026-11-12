@@ -13,13 +13,9 @@ import org.jellyfin.androidtv.ui.presentation.MutableObjectAdapter
 class HomeFragmentViewsRow(
 	val small: Boolean,
 ) : HomeFragmentRow {
-	private companion object {
-		val smallCardPresenter = CardPresenter(true, 75)
-		val largeCardPresenter = CardPresenter(true, 126)
-	}
-
 	override fun addToRowsAdapter(context: Context, cardPresenter: CardPresenter, rowsAdapter: MutableObjectAdapter<Row>) {
-		val presenter = if (small) smallCardPresenter else largeCardPresenter
+		// JellyChan: libraries as pill buttons
+		val presenter = HomeLibraryPillPresenter()
 		val rowAdapter = ItemRowAdapter(context, GetUserViewsRequest, presenter, rowsAdapter)
 
 		val header = HeaderItem(context.getString(R.string.lbl_my_media))

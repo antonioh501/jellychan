@@ -23,8 +23,12 @@ import org.jellyfin.androidtv.preference.constant.ClockBehavior
 import org.koin.compose.koinInject
 import org.jellyfin.androidtv.ui.base.JellyfinTheme
 import org.jellyfin.androidtv.ui.base.Text
-import org.jellyfin.androidtv.ui.composable.modifier.overscan
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.Dp
 import org.jellyfin.androidtv.ui.composable.rememberCurrentTime
+
+private val overscanHorizontal = 48.dp
+private val overscanVertical = 27.dp
 
 @Composable
 fun Logo(modifier: Modifier = Modifier) {
@@ -35,17 +39,22 @@ fun Logo(modifier: Modifier = Modifier) {
 	)
 }
 
+/**
+ * JellyChan: [raise] moves the toolbar content up and takes the same amount off the bottom too, so the toolbar is a
+ * thinner band with its content still vertically centered.
+ */
 @Composable
 fun Toolbar(
 	modifier: Modifier = Modifier,
 	start: @Composable () -> Unit = { Logo() },
 	center: @Composable () -> Unit = {},
 	end: @Composable () -> Unit = { ToolbarClock() },
+	raise: Dp = 0.dp,
 ) {
 	ToolbarLayout(
 		modifier = modifier
-			.height(95.dp)
-			.overscan(),
+			.height(95.dp - raise * 2)
+			.padding(horizontal = overscanHorizontal, vertical = overscanVertical - raise),
 		start = start,
 		center = center,
 		end = end,

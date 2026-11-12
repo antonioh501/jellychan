@@ -106,6 +106,8 @@ private fun MainToolbar(
 		modifier = Modifier
 			.focusRestorer(focusRequester)
 			.focusGroup(),
+		// JellyChan: higher than the upstream toolbar, centered in a thinner band
+		raise = MainToolbarRaise,
 		start = {
 			// JellyChan: full app logo, the text is drawn live to stay sharp at this size
 			Row(verticalAlignment = Alignment.CenterVertically) {

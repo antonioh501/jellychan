@@ -127,8 +127,16 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 			// Rows may change size or be laid out again (back from another screen, refreshed rows): keep the page where
 			// it belongs once the grid is idle
 			viewTreeObserver.addOnGlobalLayoutListener {
+				measurePageTops()
 				if (scrollState == RecyclerView.SCROLL_STATE_IDLE && selectedPosition >= 0) alignPage(selectedPosition, retry = false)
 			}
+			// A page reached from far away may be placed on a stale guess: once the scroll ends its rows are laid out, so
+			// place it again on their real positions
+			addOnScrollListener(object : RecyclerView.OnScrollListener() {
+				override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+					if (newState == RecyclerView.SCROLL_STATE_IDLE && selectedPosition >= 0) alignPage(selectedPosition, retry = false)
+				}
+			})
 			// Rows of the other pages stay hidden when they are laid out
 			addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
 				override fun onChildViewAttachedToWindow(view: View) {
@@ -192,23 +200,17 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 			grid.post { if (grid.selectedPosition == position) alignPage(position, retry = false) }
 		}
 
-		// Remember where the rows of this page sit, measured while its first row is laid out
-		if (firstView != null && page != null) {
-			for (i in 0 until grid.childCount) {
-				val child = grid.getChildAt(i)
-				val childPosition = grid.getChildAdapterPosition(child)
-				if (childPosition == RecyclerView.NO_POSITION || pageOf(childPosition) != page) continue
-				val row = adapter?.get(childPosition) as? Row ?: continue
-				rowPageTops[row] = child.top - firstView.top
-			}
-		}
+		measurePageTops()
 
 		var rowTop = 0
 		if (first != position && view != null) {
 			val known = (adapter?.get(position) as? Row)?.let { rowPageTops[it] }
 			rowTop = when {
 				firstView != null -> view.top - firstView.top
-				known != null -> known
+				// While moving, trust where the row was last seen; once the grid settles (retry is off) the first row of
+				// a page that fits the screen must be laid out, so if it is not that position was stale (rows refreshed
+				// while away): put the row at the bottom, which brings the page start in and gets measured again
+				known != null && retry -> known
 				else -> available - rowHeight
 			}
 			// A page taller than the screen scrolls just enough to show the selected row whole
@@ -227,6 +229,28 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 					child.animate().alpha(if (pageKey(childPosition) == key) 1f else 0f).setDuration(PAGE_FADE_MS).start()
 				}
 			}
+		}
+	}
+
+	/**
+	 * Remember where the rows of every page sit, measured while the first row of their page is laid out. All pages are
+	 * measured, not only the current one: rows of a page may change size (loaded later, refreshed) while another page
+	 * is shown.
+	 */
+	private fun measurePageTops() {
+		val grid = verticalGridView ?: return
+		val layoutManager = grid.layoutManager ?: return
+		val count = adapter?.size() ?: return
+		for (i in 0 until grid.childCount) {
+			val child = grid.getChildAt(i)
+			val position = grid.getChildAdapterPosition(child)
+			if (position == RecyclerView.NO_POSITION || position >= count) continue
+			val page = pageOf(position) ?: continue
+			var first = position
+			while (first > 0 && pageOf(first - 1) == page) first--
+			val firstView = layoutManager.findViewByPosition(first) ?: continue
+			val row = adapter?.get(position) as? Row ?: continue
+			rowPageTops[row] = child.top - firstView.top
 		}
 	}
 

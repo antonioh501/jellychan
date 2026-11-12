@@ -1,12 +1,9 @@
 package org.jellyfin.androidtv.ui.home
 
-import android.content.Context
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,7 +37,6 @@ import org.jellyfin.androidtv.data.repository.NotificationsRepository
 import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbarActiveButton
 import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbarOverlay
 import org.koin.android.ext.android.inject
-import timber.log.Timber
 
 class HomeFragment : Fragment() {
 	private val sessionRepository by inject<SessionRepository>()
@@ -51,9 +47,7 @@ class HomeFragment : Fragment() {
 		inflater: LayoutInflater,
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
-	): View = KeySafeFrameLayout(requireContext()).apply {
-		addView(content { HomeContent() })
-	}
+	): View = content { HomeContent() }
 
 	@androidx.compose.runtime.Composable
 	private fun HomeContent() {
@@ -104,7 +98,7 @@ class HomeFragment : Fragment() {
 					.align(Alignment.TopCenter)
 					.padding(top = HomeToolbarHeight - 6.dp),
 			)
-			MainToolbarOverlay(MainToolbarActiveButton.Home, showVeil = false, raise = HomeToolbarRaise)
+			MainToolbarOverlay(MainToolbarActiveButton.Home, showVeil = false)
 		}
 	}
 
@@ -121,19 +115,5 @@ class HomeFragment : Fragment() {
 				notificationRepository.updateServerNotifications(server)
 			}
 			.launchIn(viewLifecycleOwner.lifecycleScope)
-	}
-}
-
-/**
- * JellyChan: back from another screen, Compose may look for the next focus starting from a view that is no longer
- * part of the home (the rows are rebuilt) and throw. Drop that key press instead of crashing; the focus is still on
- * the rows, so the next press works.
- */
-private class KeySafeFrameLayout(context: Context) : FrameLayout(context) {
-	override fun dispatchKeyEvent(event: KeyEvent): Boolean = try {
-		super.dispatchKeyEvent(event)
-	} catch (error: IllegalArgumentException) {
-		Timber.w(error, "Ignored a key event that failed the focus search")
-		true
 	}
 }

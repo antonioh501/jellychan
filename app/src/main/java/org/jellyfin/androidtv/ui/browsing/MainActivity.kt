@@ -142,4 +142,22 @@ class MainActivity : FragmentActivity() {
 
 	override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean =
 		onKeyEvent(keyCode, event) || super.onKeyUp(keyCode, event)
+
+	/**
+	 * JellyChan: when a screen is replaced, Compose may look for the next focus starting from a view that is no
+	 * longer part of the window and throw. Drop that key press instead of crashing.
+	 */
+	override fun dispatchKeyEvent(event: KeyEvent): Boolean = try {
+		// A view removed with its screen may still be marked as focused (seen leaving the home rows, which sit inside
+		// Compose). Every key press would then fail: drop that stale focus so the window can focus the new screen.
+		if (currentFocus?.isAttachedToWindow == false) {
+			Timber.w("Cleared the focus of a view that is no longer on screen")
+			window.decorView.clearFocus()
+		}
+		super.dispatchKeyEvent(event)
+	} catch (error: IllegalArgumentException) {
+		if (error.message?.contains("descendant") != true) throw error
+		Timber.w(error, "Ignored a key event that failed the focus search")
+		true
+	}
 }

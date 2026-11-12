@@ -1191,14 +1191,31 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
         boolean resumeButtonVisible = (isSeries && isStarted && !isFinished) || (JavaCompat.getCanResume(mBaseItem));
         mResumeButton.setVisibility(resumeButtonVisible ? View.VISIBLE : View.GONE);
 
-        if (resumeButtonVisible) {
-            mResumeButton.requestFocus();
-        } else {
-            playButton.requestFocus();
-        }
+        requestFocusWhenAttached(resumeButtonVisible ? mResumeButton : playButton);
 
         // Series get here asynchronously, after the buttons are ready
         if (moreButton != null) showMoreButtonIfNeeded();
+    }
+
+    // JellyChan: the buttons may not be on screen yet (series get here asynchronously); a focus request made then is
+    // lost and the page is left without focus, so make it once the button is attached
+    private void requestFocusWhenAttached(View button) {
+        if (button == null) return;
+        if (button.isAttachedToWindow()) {
+            button.requestFocus();
+            return;
+        }
+        button.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(@NonNull View v) {
+                v.removeOnAttachStateChangeListener(this);
+                v.post(v::requestFocus);
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(@NonNull View v) {
+            }
+        });
     }
 
     void showVersionsMenu(View anchor) {

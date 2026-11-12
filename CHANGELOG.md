@@ -9,9 +9,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Fixed
 - Item detail page: pressing up from the row below the audio/subtitle selectors no longer jumps straight to the toolbar; it now moves to the selectors and scrolls the page up.
 - Home: after coming back from a details page, the toolbar veil no longer covers the top of the carousel.
-- Home: the app no longer crashes on some key presses after coming back from another screen.
+- The app no longer crashes on some key presses right after changing screen.
+- Series opened from the home rows (Recently added in particular) get the focus on their Play button again: the
+  page could be left without focus, so it could not be scrolled and every key press crashed the app.
+- Cast & crew pages (and any page opened from another one) can be scrolled again: the page opened could be left
+  without focus.
+- Home: coming back from an item of the last page no longer shows that page cut off at the top.
 - Home: the rows of a page no longer shift slightly while moving between them, and the page is no longer cut off
   after coming back from an item of the last row.
+- Home: moving up from the last page shows the previous page whole instead of cut off at the top, and the page
+  arrows keep following the current page after coming back from another screen.
 
 ### Changed
 - Home split into pages: the carousel fills the first page, with an arrow inviting to scroll down; the second
@@ -19,8 +26,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
   last row of a page (or up from the first) brings in the whole next page.
 - Below the carousel the home background is solid instead of following the selection, and the cards are
   smaller 16:9 tiles so three rows fit on one page.
-- The home toolbar sits higher, centered in a thinner top band, and the carousel is back to its original,
-  lighter top gradient.
+- The toolbar sits higher on every screen, centered in a thinner top band, so the content below starts higher
+  too. The home carousel is back to its original, lighter top gradient.
 - Home pages show an arrow down when a page follows and an arrow up when one comes before.
 - My media on the home is a row of pill buttons, leaving room for larger Next up and Continue watching cards.
 - Recently added rows always show landscape thumbnails; episodes and seasons use the one of their series.

@@ -2,4 +2,6 @@
 <resources>
     <!-- Tag: top padding of a home row's card grid while the row is not selected -->
     <item name="jc_row_padding_top" type="id" />
+    <!-- Tag: focusability of a screen's view while it is kept out of the focus during navigation -->
+    <item name="jc_focus_blocked" type="id" />
 </resources>

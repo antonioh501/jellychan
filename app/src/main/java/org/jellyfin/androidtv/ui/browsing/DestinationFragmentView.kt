@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.os.BundleCompat
 import androidx.core.os.ParcelCompat
@@ -150,11 +151,16 @@ class DestinationFragmentView @JvmOverloads constructor(
 			setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
 
 			// Detach current fragment
-			fragmentManager.findFragmentByTag(FRAGMENT_TAG_CONTENT)?.let(::detach)
+			fragmentManager.findFragmentByTag(FRAGMENT_TAG_CONTENT)?.let { current ->
+				blockFocus(current)
+				detach(current)
+			}
 
 			// Attach or add next fragment
 			if (fragment.isDetached) attach(fragment)
 			else replace(container.id, fragment, FRAGMENT_TAG_CONTENT)
+
+			runOnCommit { restoreFocus(fragment) }
 		}
 
 		if (fragmentManager.isDestroyed) {
@@ -164,6 +170,27 @@ class DestinationFragmentView @JvmOverloads constructor(
 		} else {
 			transaction.commit()
 		}
+	}
+
+	/**
+	 * JellyChan: while it is being removed the old screen is still laid out, and leanback rows hand the focus back to
+	 * one of their cards as soon as the window has none. That card is then removed while still focused, leaving the
+	 * next screen without focus (no scrolling, failing key presses). Keep the old screen out of the focus.
+	 */
+	private fun blockFocus(fragment: Fragment) {
+		val view = fragment.view as? ViewGroup ?: return
+		if (view.getTag(R.id.jc_focus_blocked) == null) view.setTag(R.id.jc_focus_blocked, view.descendantFocusability)
+		view.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
+	}
+
+	/**
+	 * JellyChan: a screen coming back from the history keeps its view, let it take the focus again.
+	 */
+	private fun restoreFocus(fragment: Fragment) {
+		val view = fragment.view as? ViewGroup ?: return
+		val focusability = view.getTag(R.id.jc_focus_blocked) as? Int ?: return
+		view.setTag(R.id.jc_focus_blocked, null)
+		view.descendantFocusability = focusability
 	}
 
 	override fun onSaveInstanceState(): Parcelable {

@@ -138,6 +138,14 @@ class HomeSpotlightView @JvmOverloads constructor(
 
 	private fun current() = items.getOrNull(index)
 
+	// The carousel fills the whole first home page, from the toolbar to the bottom of the screen, so the rows below
+	// it start off screen
+	override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+		val toolbarHeight = (HomeToolbarHeight.value * resources.displayMetrics.density).toInt()
+		val height = resources.displayMetrics.heightPixels - toolbarHeight
+		super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY))
+	}
+
 	override fun dispatchKeyEvent(event: KeyEvent): Boolean {
 		if (event.action == KeyEvent.ACTION_DOWN && items.size > 1) {
 			if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT && binding.jcPlay.isFocused) {
@@ -206,8 +214,10 @@ class HomeSpotlightView @JvmOverloads constructor(
 
 		cycleJob?.cancel()
 		cycleJob = scope?.launch {
-			// Re-apply the backdrop once the home has settled (startup may clear it)
+			// Re-apply the backdrop once the home has settled (startup may clear it, and the details screen turns the
+			// spotlight mode off while it is torn down, after the home is back)
 			delay(0.6.seconds)
+			backgroundService.setSpotlight(true)
 			backgroundService.setBackground(item)
 			// Give the backdrop a moment, then try a local trailer
 			delay(1.9.seconds)

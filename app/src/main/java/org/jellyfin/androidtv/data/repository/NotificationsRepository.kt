@@ -3,7 +3,6 @@ package org.jellyfin.androidtv.data.repository
 import android.content.Context
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.jellyfin.androidtv.BuildConfig
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.auth.model.Server
 import org.jellyfin.androidtv.auth.repository.ServerRepository
@@ -37,7 +36,7 @@ class NotificationsRepositoryImpl(
 
 	override fun addDefaultNotifications() {
 		addUiModeNotification()
-		addBetaNotification()
+		// JellyChan: no "app updated" beta notification on the home screen
 	}
 
 	private fun addNotification(
@@ -62,19 +61,6 @@ class NotificationsRepositoryImpl(
 				context.getString(R.string.app_notification_uimode_invalid),
 				public = true
 			)
-		}
-	}
-
-	private fun addBetaNotification() {
-		val dismissedVersion = systemPreferences[SystemPreferences.dismissedBetaNotificationVersion]
-		val currentVersion = BuildConfig.VERSION_NAME
-		val isBeta = currentVersion.lowercase().contains("beta")
-
-		if (isBeta && currentVersion != dismissedVersion) {
-			addNotification(context.getString(R.string.app_notification_beta, currentVersion)) {
-				systemPreferences[SystemPreferences.dismissedBetaNotificationVersion] =
-					currentVersion
-			}
 		}
 	}
 

@@ -145,9 +145,9 @@ private fun SpotlightGradient() = Box(
 		.fillMaxSize()
 		.background(
 			Brush.verticalGradient(
-				0.0f to Color(0xF2111827),
-				0.1f to Color(0xCC111827),
-				0.24f to Color(0x24111827),
+				0.0f to Color(0xE6111827),
+				0.1f to Color(0xB3111827),
+				0.24f to Color(0x00111827),
 				0.34f to Color(0x0A111827),
 				0.52f to Color(0x99111827),
 				0.66f to Color(0xE0111827),

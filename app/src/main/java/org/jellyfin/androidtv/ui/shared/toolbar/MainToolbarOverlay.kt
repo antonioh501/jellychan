@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /** Height of [MainToolbar]; screens that show the overlay place their content starting below it. */
@@ -31,12 +35,13 @@ private val VeilBrush = Brush.verticalGradient(
 /**
  * JellyChan: the toolbar drawn on top of everything. A dark navy gradient covers both the background and the
  * content scrolling underneath it, fading out downwards. The gradient only shows once the screen has been
- * scrolled down ([showVeil]).
+ * scrolled down ([showVeil]). [raise] moves the buttons up from their default position.
  */
 @Composable
 fun MainToolbarOverlay(
 	activeButton: MainToolbarActiveButton = MainToolbarActiveButton.None,
 	showVeil: Boolean = true,
+	raise: Dp = 0.dp,
 ) {
 	val veilAlpha by animateFloatAsState(if (showVeil) 1f else 0f, tween(250), label = "ToolbarVeil")
 
@@ -48,7 +53,14 @@ fun MainToolbarOverlay(
 				.background(VeilBrush)
 		)
 		Column(modifier = Modifier.fillMaxWidth()) {
-			MainToolbar(activeButton)
+			Box(modifier = Modifier.height(MainToolbarHeight - raise)) {
+				// Full height toolbar, just drawn higher
+				Box(
+					modifier = Modifier
+						.wrapContentHeight(Alignment.Top, unbounded = true)
+						.offset(y = -raise)
+				) { MainToolbar(activeButton) }
+			}
 			Box(modifier = Modifier.height(VeilFadeHeight))
 		}
 	}

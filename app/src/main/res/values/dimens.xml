@@ -32,7 +32,8 @@
     <dimen name="lb_browse_header_height">22dp</dimen>
 
     <!-- JellyChan home spotlight (carousel) height -->
-    <dimen name="jc_home_spotlight_height">390dp</dimen>
+    <!-- Room under the carousel info for the scroll hint arrow -->
+    <dimen name="jc_home_spotlight_info_margin_bottom">71dp</dimen>
 
     <!-- JellyChan player: compact controls like the web OSD -->
     <dimen name="lb_control_button_diameter">48dp</dimen>

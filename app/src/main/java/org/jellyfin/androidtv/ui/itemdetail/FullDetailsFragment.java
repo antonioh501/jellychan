@@ -1325,11 +1325,26 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
         }
     }
 
+    // JellyChan: UP from the row under the media info row must land on its track selectors. The default focus
+    // search skips them (they sit on the other side of the screen) and jumps out of the grid to the toolbar.
+    private void jcInstallMediaInfoUpKey() {
+        androidx.leanback.widget.VerticalGridView grid = mRowsFragment.getVerticalGridView();
+        if (grid == null || mMediaInfoRow == null || mRowsAdapter == null) return;
+        grid.setOnKeyInterceptListener(event -> {
+            if (event.getAction() != KeyEvent.ACTION_DOWN || event.getKeyCode() != KeyEvent.KEYCODE_DPAD_UP) return false;
+            int mediaPosition = mRowsAdapter.indexOf(mMediaInfoRow);
+            if (mediaPosition < 0 || mRowsFragment.getSelectedPosition() != mediaPosition + 1) return false;
+            androidx.recyclerview.widget.RecyclerView.ViewHolder holder = grid.findViewHolderForAdapterPosition(mediaPosition);
+            return holder != null && holder.itemView.requestFocus(View.FOCUS_UP);
+        });
+    }
+
     private final class ItemViewSelectedListener implements OnItemViewSelectedListener {
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                                    RowPresenter.ViewHolder rowViewHolder, Row row) {
             jcScrolledDown.setValue(mRowsFragment.getSelectedPosition() > 0);
+            jcInstallMediaInfoUpKey();
             if (!(item instanceof BaseRowItem)) {
                 mCurrentItem = null;
             } else {

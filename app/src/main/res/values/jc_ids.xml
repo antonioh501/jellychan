@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tag: top padding of a home row's card grid while the row is not selected -->
+    <item name="jc_row_padding_top" type="id" />
+</resources>

@@ -51,9 +51,13 @@ import org.jellyfin.androidtv.util.apiclient.JellyfinImage
 import org.jellyfin.androidtv.util.apiclient.getUrl
 import org.jellyfin.androidtv.util.apiclient.itemBackdropImages
 import org.jellyfin.androidtv.util.apiclient.itemImages
+import org.jellyfin.androidtv.util.apiclient.parentBackdropImages
+import org.jellyfin.androidtv.util.apiclient.parentImages
+import org.jellyfin.androidtv.util.apiclient.seriesThumbImage
 import org.jellyfin.androidtv.util.getActivity
 import org.jellyfin.design.Tokens
 import org.jellyfin.sdk.api.client.ApiClient
+import org.jellyfin.sdk.model.api.BaseItemDto
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.koin.compose.koinInject
 
@@ -73,6 +77,15 @@ class CardPresenter private constructor(
 
 	/** JellyChan: use landscape art (thumb/backdrop) for movies and videos in this row. */
 	var landscapeVideos = false
+
+	/**
+	 * JellyChan: home pages. When set, every card is a 16:9 tile of this height (dp), using landscape art for
+	 * movies and series too, so that three rows fit on one page.
+	 */
+	var homeTileHeight: Int? = null
+
+	/** JellyChan: episodes and seasons show the landscape art of their series (Recently added rows). */
+	var seriesArt = false
 
 	override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
 		val view = ComposeView(parent.context).apply {
@@ -121,6 +134,8 @@ class CardPresenter private constructor(
 					uniformAspect = uniformAspect,
 					compactRow = compactRow,
 					landscapeVideos = landscapeVideos,
+					homeTileHeight = homeTileHeight,
+					seriesArt = seriesArt,
 				)
 			}
 
@@ -140,6 +155,13 @@ class CardPresenter private constructor(
 	}
 }
 
+/**
+ * JellyChan: landscape art of the series of an episode or season. The server sends the series thumbnail as the
+ * parent thumb (the series thumb tag is usually missing), the series backdrop is the last resort.
+ */
+private val BaseItemDto.seriesLandscapeImage
+	get() = parentImages[org.jellyfin.sdk.model.api.ImageType.THUMB] ?: seriesThumbImage ?: parentBackdropImages.firstOrNull()
+
 private data class BaseRowItemDisplayConfig(
 	val image: JellyfinImage?,
 	val iconRes: Int,
@@ -148,18 +170,49 @@ private data class BaseRowItemDisplayConfig(
 	val scaleType: ImageView.ScaleType? = null,
 )
 
-private fun BaseRowItem.getDisplayConfig(imageType: ImageType, uniformAspect: Boolean, landscapeVideos: Boolean): BaseRowItemDisplayConfig =
+private fun BaseRowItem.getDisplayConfig(
+	imageType: ImageType,
+	uniformAspect: Boolean,
+	landscapeVideos: Boolean,
+	landscapeAll: Boolean = false,
+	seriesArt: Boolean = false,
+): BaseRowItemDisplayConfig =
 	getBaseDisplayConfig(imageType, uniformAspect).let { config ->
 		val item = baseItem
 		val thumb = item?.itemImages?.get(org.jellyfin.sdk.model.api.ImageType.THUMB)
 		val backdrop = item?.itemBackdropImages?.firstOrNull()
-		val landscapeKind = item?.type == BaseItemKind.MOVIE || item?.type == BaseItemKind.VIDEO || item?.type == BaseItemKind.MUSIC_VIDEO
+		val landscapeKind = item?.type == BaseItemKind.MOVIE || item?.type == BaseItemKind.VIDEO || item?.type == BaseItemKind.MUSIC_VIDEO ||
+			(landscapeAll && (item?.type == BaseItemKind.SERIES || item?.type == BaseItemKind.SEASON || item?.type == BaseItemKind.BOX_SET))
 
 		when {
+			// JellyChan: Recently added rows show episodes and seasons with the thumbnail of their series
+			seriesArt && baseRowType == BaseRowType.BaseItem &&
+				(item?.type == BaseItemKind.EPISODE || item?.type == BaseItemKind.SEASON) &&
+				item.seriesLandscapeImage != null -> config.copy(
+				aspectRatio = ImageHelper.ASPECT_RATIO_16_9.toFloat(),
+				image = item.seriesLandscapeImage,
+			)
+
+			// JellyChan: home pages show episodes as 16:9 tiles too (episode still, else the series art)
+			landscapeAll && baseRowType == BaseRowType.BaseItem && item?.type == BaseItemKind.EPISODE && config.aspectRatio <= 1f -> {
+				val still = item.itemImages[org.jellyfin.sdk.model.api.ImageType.PRIMARY]
+					?.takeIf { (item.primaryImageAspectRatio ?: 0.0) > 1.0 }
+				val landscape = still ?: item.seriesLandscapeImage
+				if (landscape != null) config.copy(aspectRatio = ImageHelper.ASPECT_RATIO_16_9.toFloat(), image = landscape)
+				else config
+			}
+
 			// JellyChan: movies/videos with landscape art are shown as 16:9 tiles (thumb, else backdrop)
-			landscapeVideos && baseRowType == BaseRowType.BaseItem && landscapeKind && (thumb != null || backdrop != null) -> config.copy(
+			(landscapeVideos || landscapeAll) && baseRowType == BaseRowType.BaseItem && landscapeKind && (thumb != null || backdrop != null) -> config.copy(
 				aspectRatio = ImageHelper.ASPECT_RATIO_16_9.toFloat(),
 				image = thumb ?: backdrop,
+			)
+
+			// JellyChan: home pages show seasons (which rarely have landscape art) with the art of their series
+			landscapeAll && baseRowType == BaseRowType.BaseItem && item?.type == BaseItemKind.SEASON &&
+				item.seriesLandscapeImage != null -> config.copy(
+				aspectRatio = ImageHelper.ASPECT_RATIO_16_9.toFloat(),
+				image = item.seriesLandscapeImage,
 			)
 
 			// JellyChan: a landscape card without a thumb uses the backdrop instead of the portrait poster
@@ -325,13 +378,17 @@ private fun CardViewHolderContent(
 	uniformAspect: Boolean,
 	compactRow: Boolean,
 	landscapeVideos: Boolean,
+	homeTileHeight: Int? = null,
+	seriesArt: Boolean = false,
 ) {
 	val context = LocalContext.current
 	val localDensity = LocalDensity.current
 
 	val title = remember(item, context) { item?.getCardName(context) }
 	val subtitle = remember(item, context) { item?.getSubText(context) }
-	val displayConfig = remember(item, imageType, uniformAspect, landscapeVideos) { item?.getDisplayConfig(imageType, uniformAspect, landscapeVideos) }
+	val displayConfig = remember(item, imageType, uniformAspect, landscapeVideos, homeTileHeight, seriesArt) {
+		item?.getDisplayConfig(imageType, uniformAspect, landscapeVideos, landscapeAll = homeTileHeight != null, seriesArt = seriesArt)
+	}
 	if (item == null || displayConfig == null) return
 
 	val image = displayConfig.image
@@ -345,6 +402,7 @@ private fun CardViewHolderContent(
 	val rowStaticHeight = if (compactRow && staticHeight == 150) 105 else staticHeight
 	val size = when {
 		isPerson -> DpSize(110.dp, 110.dp)
+		homeTileHeight != null -> DpSize(homeTileHeight.dp * aspectRatio, homeTileHeight.dp)
 		item.staticHeight -> {
 			val height = if (compactRow && aspectRatio <= 1f) 150 else rowStaticHeight
 			DpSize(height.dp * aspectRatio, height.dp)

@@ -1,5 +1,6 @@
 package org.jellyfin.androidtv.ui.browsing
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -147,6 +148,8 @@ class MainActivity : FragmentActivity() {
 	 * JellyChan: when a screen is replaced, Compose may look for the next focus starting from a view that is no
 	 * longer part of the window and throw. Drop that key press instead of crashing.
 	 */
+	// Activity.dispatchKeyEvent is public framework API; androidx.core only re-declares it as restricted
+	@SuppressLint("RestrictedApi")
 	override fun dispatchKeyEvent(event: KeyEvent): Boolean = try {
 		// A view removed with its screen may still be marked as focused (seen leaving the home rows, which sit inside
 		// Compose). Every key press would then fail: drop that stale focus so the window can focus the new screen.

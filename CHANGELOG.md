@@ -21,6 +21,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
   arrows keep following the current page after coming back from another screen.
 
 ### Changed
+- Search: an on-screen keyboard (letters, accented vowels and digits) replaces the system keyboard, which on Fire TV
+  covered the whole screen. Results update while typing, chips above them suggest matching titles, and with an empty
+  query they list the recent searches (stored on the device, per user) with a "Clear history" chip. Physical
+  keyboards still work.
+- Search: the results include a "Request on Seerr" row with the titles found on Seerr that are not in the library yet
+  (when a Seerr account is connected); the search inside Discover is gone. The result rows are drawn in Compose: the
+  focused row moves to the top and coming back from an item lands on the same card.
 - Home split into pages: the carousel fills the first page, with an arrow inviting to scroll down; the second
   page shows My media, Next up and Continue watching, the third the Recently added rows. Moving down from the
   last row of a page (or up from the first) brings in the whole next page.

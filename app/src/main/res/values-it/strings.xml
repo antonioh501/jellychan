@@ -793,4 +793,9 @@
     <string name="dovi_profile_8_description">Single-layer con fallback HDR10</string>
     <string name="tv_provider_enabled">Integra con Android TV home</string>
     <string name="lbl_3d">3D</string>
+    <string name="jc_search_space">Spazio</string>
+    <string name="jc_search_backspace">Cancella carattere</string>
+    <string name="jc_search_clear">Cancella</string>
+    <string name="jc_search_clear_history">Cancella cronologia</string>
+    <string name="jc_search_placeholder">Cerca film, serie e altro</string>
 </resources>

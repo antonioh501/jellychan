@@ -785,4 +785,9 @@
     <string name="truehd">TrueHD</string>
     <string name="eac3_atmos">DD+ Atmos</string>
     <string name="truehd_atmos">TrueHD Atmos</string>
+    <string name="jc_search_space">Space</string>
+    <string name="jc_search_backspace">Delete character</string>
+    <string name="jc_search_clear">Clear</string>
+    <string name="jc_search_clear_history">Clear history</string>
+    <string name="jc_search_placeholder">Search for movies, series and more</string>
 </resources>

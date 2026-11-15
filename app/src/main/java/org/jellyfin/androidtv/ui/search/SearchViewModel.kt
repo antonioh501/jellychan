@@ -7,18 +7,46 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerializationException
 import org.jellyfin.androidtv.R
+import org.jellyfin.androidtv.data.seerr.SeerrCatalog
+import org.jellyfin.androidtv.data.seerr.SeerrMedia
+import org.jellyfin.androidtv.data.seerr.SeerrRepository
+import org.jellyfin.androidtv.data.seerr.SeerrState
 import org.jellyfin.sdk.model.api.BaseItemKind
+import timber.log.Timber
+import java.io.IOException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 class SearchViewModel(
-	private val searchRepository: SearchRepository
+	private val searchRepository: SearchRepository,
+	private val seerrRepository: SeerrRepository,
+	private val seerrCatalog: SeerrCatalog,
 ) : ViewModel() {
 	companion object {
-		private val debounceDuration = 600.milliseconds
+		// JellyChan: shorter debounce, results follow the on-screen keyboard while typing
+		private val debounceDuration = 300.milliseconds
+		private const val MAX_SUGGESTIONS = 10
+
+		// JellyChan: Seerr searches TMDB, slower and remote: wait a bit longer and skip one-letter queries
+		private val seerrDebounceDuration = 500.milliseconds
+		private const val SEERR_MIN_QUERY_LENGTH = 2
+
+		private val suggestionKinds = setOf(
+			BaseItemKind.MOVIE,
+			BaseItemKind.SERIES,
+			BaseItemKind.BOX_SET,
+			BaseItemKind.PERSON,
+			BaseItemKind.MUSIC_ARTIST,
+			BaseItemKind.MUSIC_ALBUM,
+			BaseItemKind.PLAYLIST,
+		)
 
 		private val groups = mapOf(
 			R.string.lbl_movies to setOf(BaseItemKind.MOVIE),
@@ -39,11 +67,30 @@ class SearchViewModel(
 	}
 
 	private var searchJob: Job? = null
+	private var seerrJob: Job? = null
 
 	private var previousQuery: String? = null
 
 	private val _searchResultsFlow = MutableStateFlow<Collection<SearchResultGroup>>(emptyList())
 	val searchResultsFlow = _searchResultsFlow.asStateFlow()
+
+	/** JellyChan: title completions for the suggestion chips, taken from the current results. */
+	val suggestionsFlow = _searchResultsFlow
+		.map { groups ->
+			groups.asSequence()
+				.flatMap { it.items }
+				.filter { it.type in suggestionKinds }
+				.mapNotNull { it.name?.trim()?.takeIf(String::isNotBlank) }
+				.distinctBy { it.lowercase() }
+				.take(MAX_SUGGESTIONS)
+				.toList()
+		}
+		.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+	private val _seerrResultsFlow = MutableStateFlow<List<SeerrMedia>>(emptyList())
+
+	/** JellyChan: Seerr results that are not in the library yet (those already show up in the library rows). */
+	val seerrResultsFlow = _seerrResultsFlow.asStateFlow()
 
 	fun searchImmediately(query: String) = searchDebounced(query, 0.milliseconds)
 
@@ -53,6 +100,7 @@ class SearchViewModel(
 		previousQuery = trimmed
 
 		searchJob?.cancel()
+		searchSeerr(trimmed, if (debounce == 0.milliseconds) debounce else seerrDebounceDuration)
 
 		if (trimmed.isBlank()) {
 			_searchResultsFlow.value = emptyList()
@@ -73,5 +121,25 @@ class SearchViewModel(
 		}
 
 		return true
+	}
+
+	private fun searchSeerr(query: String, debounce: Duration) {
+		seerrJob?.cancel()
+		_seerrResultsFlow.value = emptyList()
+		if (query.length < SEERR_MIN_QUERY_LENGTH || seerrRepository.state.value !is SeerrState.Connected) return
+
+		seerrJob = viewModelScope.launch {
+			delay(debounce)
+
+			_seerrResultsFlow.value = try {
+				seerrCatalog.search(query).items.filter { it.libraryItemId == null }
+			} catch (err: IOException) {
+				Timber.w(err, "Unable to search Seerr")
+				emptyList()
+			} catch (err: SerializationException) {
+				Timber.w(err, "Unexpected Seerr search response")
+				emptyList()
+			}
+		}
 	}
 }

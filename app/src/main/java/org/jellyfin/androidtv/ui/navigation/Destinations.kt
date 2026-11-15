@@ -6,7 +6,6 @@ import org.jellyfin.androidtv.data.seerr.SeerrMediaType
 import org.jellyfin.androidtv.ui.seerr.SeerrDetailFragment
 import org.jellyfin.androidtv.ui.seerr.SeerrDiscoverFragment
 import org.jellyfin.androidtv.ui.seerr.SeerrRequestsFragment
-import org.jellyfin.androidtv.ui.seerr.SeerrSearchFragment
 import org.jellyfin.androidtv.ui.browsing.BrowseGridFragment
 import org.jellyfin.androidtv.ui.browsing.BrowseRecordingsFragment
 import org.jellyfin.androidtv.ui.browsing.BrowseScheduleFragment
@@ -44,7 +43,6 @@ object Destinations {
 
 	// JellyChan: Seerr (Discover tab, search, requests, title page)
 	val seerrDiscover = fragmentDestination<SeerrDiscoverFragment>()
-	val seerrSearch = fragmentDestination<SeerrSearchFragment>()
 	val seerrRequests = fragmentDestination<SeerrRequestsFragment>()
 	fun seerrDetails(type: SeerrMediaType, id: Int) = fragmentDestination<SeerrDetailFragment> {
 		putString(SeerrDetailFragment.EXTRA_TYPE, type.name)

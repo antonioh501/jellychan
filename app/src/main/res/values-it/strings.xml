@@ -635,8 +635,6 @@
     <string name="jc_pref_show_ratings">Mostra valutazioni</string>
     <string name="jc_pref_app_language">Lingua</string>
     <string name="jc_pref_app_language_system">Lingua del dispositivo</string>
-    <string name="jc_seerr_search">Cerca su Seerr</string>
-    <string name="jc_seerr_no_results">Nessun risultato</string>
     <string name="jc_seerr_open_settings">Apri impostazioni</string>
     <string name="jc_seerr_error_load">Impossibile caricare i contenuti da Seerr</string>
     <string name="jc_seerr_list_trending">Di tendenza</string>
@@ -797,5 +795,6 @@
     <string name="jc_search_backspace">Cancella carattere</string>
     <string name="jc_search_clear">Cancella</string>
     <string name="jc_search_clear_history">Cancella cronologia</string>
+    <string name="jc_search_seerr_row">Richiedi su Seerr</string>
     <string name="jc_search_placeholder">Cerca film, serie e altro</string>
 </resources>

@@ -527,3 +527,22 @@ private fun CardViewHolderContent(
 		card()
 	}
 }
+
+/**
+ * JellyChan: the card that [CardPresenter] (default settings) draws in a leanback row, for rows written in Compose
+ * (search results).
+ */
+@Composable
+fun BaseRowItemCard(
+	item: BaseRowItem,
+	focused: Boolean,
+) = CardViewHolderContent(
+	item = item,
+	focused = focused,
+	showInfo = true,
+	imageType = ImageType.POSTER,
+	staticHeight = 150,
+	uniformAspect = false,
+	compactRow = true,
+	landscapeVideos = false,
+)

@@ -725,8 +725,6 @@
     <string name="jc_pref_show_ratings">Show ratings</string>
     <string name="jc_pref_app_language">Language</string>
     <string name="jc_pref_app_language_system">Device language</string>
-    <string name="jc_seerr_search">Search on Seerr</string>
-    <string name="jc_seerr_no_results">No results</string>
     <string name="jc_seerr_open_settings">Open settings</string>
     <string name="jc_seerr_error_load">Can\'t load the content from Seerr</string>
     <string name="jc_seerr_list_trending">Trending</string>
@@ -789,5 +787,6 @@
     <string name="jc_search_backspace">Delete character</string>
     <string name="jc_search_clear">Clear</string>
     <string name="jc_search_clear_history">Clear history</string>
+    <string name="jc_search_seerr_row">Request on Seerr</string>
     <string name="jc_search_placeholder">Search for movies, series and more</string>
 </resources>

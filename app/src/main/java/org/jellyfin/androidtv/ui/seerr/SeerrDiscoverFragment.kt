@@ -150,7 +150,6 @@ private fun SeerrDiscoverPage(
 					shownMedia = shownMedia,
 					onFocused = { focusedMedia = it },
 					onClick = navigationRepository::openSeerrMedia,
-					onSearch = { navigationRepository.navigate(Destinations.seerrSearch) },
 					onRequests = { navigationRepository.navigate(Destinations.seerrRequests) },
 					onNearEnd = viewModel::loadMore,
 				)
@@ -194,7 +193,6 @@ private fun SeerrDiscoverContent(
 	shownMedia: SeerrMedia?,
 	onFocused: (SeerrMedia) -> Unit,
 	onClick: (SeerrMedia) -> Unit,
-	onSearch: () -> Unit,
 	onRequests: () -> Unit,
 	onNearEnd: (SeerrDiscoverList) -> Unit,
 ) {
@@ -222,18 +220,6 @@ private fun SeerrDiscoverContent(
 
 		Button(onClick = onRequests, modifier = Modifier.focusRequester(requestsButton)) {
 			Text(stringResource(R.string.jc_seerr_my_requests), fontSize = 12.sp)
-		}
-
-		Spacer(Modifier.width(8.dp))
-
-		Button(onClick = onSearch) {
-			Icon(
-				imageVector = ImageVector.vectorResource(R.drawable.ic_search),
-				contentDescription = null,
-				modifier = Modifier.size(15.dp),
-			)
-			Spacer(Modifier.width(8.dp))
-			Text(stringResource(R.string.jc_seerr_search), fontSize = 12.sp)
 		}
 	}
 

@@ -633,8 +633,6 @@
     <string name="jc_pref_show_ratings">Mostrar valoraciones</string>
     <string name="jc_pref_app_language">Idioma</string>
     <string name="jc_pref_app_language_system">Idioma del dispositivo</string>
-    <string name="jc_seerr_search">Buscar en Seerr</string>
-    <string name="jc_seerr_no_results">Sin resultados</string>
     <string name="jc_seerr_open_settings">Abrir los ajustes</string>
     <string name="jc_seerr_error_load">No se puede cargar el contenido de Seerr</string>
     <string name="jc_seerr_list_trending">Tendencias</string>

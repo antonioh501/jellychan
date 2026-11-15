@@ -188,7 +188,7 @@ class SeerrCatalog(
 						availability = info?.seasons
 							?.firstOrNull { it.seasonNumber == season.seasonNumber }
 							?.status.toAvailability()
-							?.takeIf { it != SeerrAvailability.UNKNOWN }
+							.takeIf { it != SeerrAvailability.UNKNOWN }
 							?: if (season.seasonNumber in requestedSeasons) SeerrAvailability.PENDING else SeerrAvailability.UNKNOWN,
 					)
 				},

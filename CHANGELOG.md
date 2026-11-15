@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [0.4.0-beta.1] - 2026-11-15
+
 ### Fixed
 - Item detail page: pressing up from the row below the audio/subtitle selectors no longer jumps straight to the toolbar; it now moves to the selectors and scrolls the page up.
 - Home: after coming back from a details page, the toolbar veil no longer covers the top of the carousel.
@@ -166,7 +168,8 @@ First public pre-release. Based on Jellyfin for Android TV 0.19.10.
 - Rating badges on cards.
 - Profile picture in the player overlay.
 
-[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.3.0-beta.1...HEAD
+[Unreleased]: https://github.com/antonioh501/jellychan/compare/v0.4.0-beta.1...HEAD
+[0.4.0-beta.1]: https://github.com/antonioh501/jellychan/compare/v0.3.0-beta.1...v0.4.0-beta.1
 [0.3.0-beta.1]: https://github.com/antonioh501/jellychan/compare/v0.2.0-beta.1...v0.3.0-beta.1
 [0.2.0-beta.1]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.5...v0.2.0-beta.1
 [0.1.0-alpha.5]: https://github.com/antonioh501/jellychan/compare/v0.1.0-alpha.4...v0.1.0-alpha.5

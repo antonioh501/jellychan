@@ -61,6 +61,15 @@ class BackgroundService(
 	val spotlight get() = _spotlight.asStateFlow()
 	fun setSpotlight(enabled: Boolean) {
 		_spotlight.value = enabled
+		_framed.value = false
+	}
+
+	// JellyChan: "framed" mode (home rows) shows the backdrop in the top right two thirds of the screen only, with the
+	// left side tinted from it. Any spotlight change turns it off.
+	private var _framed = MutableStateFlow(false)
+	val framed get() = _framed.asStateFlow()
+	fun setFramed(enabled: Boolean) {
+		_framed.value = enabled
 	}
 
 	// JellyChan: muted trailer played full screen behind the home spotlight (carousel)
@@ -147,6 +156,7 @@ class BackgroundService(
 		_currentIndex = 0
 		_currentBackground.value = null
 		_spotlight.value = false
+		_framed.value = false
 		_trailerUrl.value = null
 		_enabled.value = true
 	}

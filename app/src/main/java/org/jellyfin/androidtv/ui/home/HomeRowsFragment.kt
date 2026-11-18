@@ -6,6 +6,7 @@ import android.view.View
 import androidx.leanback.app.RowsSupportFragment
 import androidx.leanback.widget.BaseGridView
 import androidx.leanback.widget.ListRow
+import androidx.leanback.widget.ListRowPresenter
 import androidx.leanback.widget.OnChildViewHolderSelectedListener
 import androidx.leanback.widget.OnItemViewClickedListener
 import androidx.leanback.widget.OnItemViewSelectedListener
@@ -18,6 +19,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -25,6 +28,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.jellyfin.androidtv.auth.repository.UserRepository
@@ -52,6 +57,7 @@ import org.jellyfin.androidtv.ui.playback.AudioEventListener
 import org.jellyfin.androidtv.ui.playback.MediaManager
 import org.jellyfin.androidtv.ui.presentation.CardPresenter
 import org.jellyfin.androidtv.ui.presentation.MutableObjectAdapter
+import org.jellyfin.androidtv.ui.presentation.CARD_FOCUS_INSET
 import org.jellyfin.androidtv.ui.presentation.PositionableListRowPresenter
 import org.jellyfin.androidtv.util.KeyProcessor
 import org.jellyfin.playback.core.PlaybackManager
@@ -61,7 +67,10 @@ import org.jellyfin.sdk.model.api.LibraryChangedMessage
 import org.jellyfin.sdk.model.api.UserDataChangedMessage
 import org.koin.android.ext.android.inject
 import timber.log.Timber
-import java.util.IdentityHashMap
+import org.jellyfin.sdk.model.api.BaseItemDto
+import kotlin.math.roundToInt
+import androidx.compose.ui.unit.dp
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyListener {
@@ -91,24 +100,38 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 	private val notificationsRow by lazy { NotificationsHomeFragmentRow(lifecycleScope, notificationsRepository) }
 	private val nowPlaying by lazy { HomeFragmentNowPlayingRow(lifecycleScope, playbackManager, mediaManager) }
 
-	/** JellyChan: arrows of the current home page (a page above / below it). */
-	val pageArrows = kotlinx.coroutines.flow.MutableStateFlow(HomePageArrows())
+	/** JellyChan: what the top of the home shows for the selected card; null while the carousel is selected. */
+	val homeFocus = MutableStateFlow<HomeFocus?>(null)
 
-	/** JellyChan: home page of each row (see HomeLayout.kt); rows that are not listed form a page of their own. */
-	private val rowPages = IdentityHashMap<Row, Int>()
+	/** JellyChan: backdrop of the selected card, set once the selection settles. */
+	private var backgroundJob: Job? = null
 
-	/** JellyChan: last known distance of each row from the top of its page, for when the page start is off screen. */
-	private val rowPageTops = IdentityHashMap<Row, Int>()
+	private var focusJob: Job? = null
+
+	/** JellyChan: trailer of the selected card, started once the selection rests on it for a while. */
+	private var trailerJob: Job? = null
+
+	/** JellyChan: set by the home while its icon rail has the focus. */
+	var railFocused = false
+
+	/** JellyChan: selected row, the rows above it are hidden (unless the carousel is selected). */
+	private var selectedRow = -1
 
 	private companion object {
-		const val PAGE_FADE_MS = 200L
+		const val ROW_FADE_MS = 150L
+		const val FOCUS_RETRIES = 20
+		val FOCUS_RETRY_DELAY = 100.milliseconds
+		val BACKGROUND_DELAY = 250.milliseconds
+		val BACKGROUND_RESTORE_DELAY = 600.milliseconds
+		val TRAILER_DELAY = 2500.milliseconds
+		val TRAILER_MAX_LENGTH = 5.minutes
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
-		// JellyChan: the rows move by whole pages. The selected row is aligned at the top of the screen when it is the
-		// first one of its page, otherwise where it sits within its page, so the page stays still while moving inside it.
+		// JellyChan: continuous scrolling. The carousel sits at the top of the screen; any other selected row sits on the
+		// focus line, with the rows above it hidden so the top of the screen shows the selected card.
 		verticalGridView?.apply {
 			windowAlignment = BaseGridView.WINDOW_ALIGN_NO_EDGE
 			windowAlignmentOffsetPercent = BaseGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED
@@ -122,28 +145,12 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 					child: RecyclerView.ViewHolder?,
 					position: Int,
 					subposition: Int,
-				) = alignPage(position)
+				) = alignRow(position)
 			})
-			// Rows may change size or be laid out again (back from another screen, refreshed rows): keep the page where
-			// it belongs once the grid is idle
-			viewTreeObserver.addOnGlobalLayoutListener {
-				measurePageTops()
-				if (scrollState == RecyclerView.SCROLL_STATE_IDLE && selectedPosition >= 0) alignPage(selectedPosition, retry = false)
-			}
-			// A page reached from far away may be placed on a stale guess: once the scroll ends its rows are laid out, so
-			// place it again on their real positions
-			addOnScrollListener(object : RecyclerView.OnScrollListener() {
-				override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-					if (newState == RecyclerView.SCROLL_STATE_IDLE && selectedPosition >= 0) alignPage(selectedPosition, retry = false)
-				}
-			})
-			// Rows of the other pages stay hidden when they are laid out
 			addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
 				override fun onChildViewAttachedToWindow(view: View) {
-					val position = getChildAdapterPosition(view)
-					val key = currentPageKey
 					view.animate().cancel()
-					view.alpha = if (key == null || position == RecyclerView.NO_POSITION || pageKey(position) == key) 1f else 0f
+					view.alpha = rowAlpha(getChildAdapterPosition(view))
 				}
 
 				override fun onChildViewDetachedFromWindow(view: View) {
@@ -154,162 +161,122 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 		}
 	}
 
-	private fun pageOf(position: Int): Int? = when (val row = adapter?.get(position)) {
-		is HomeSpotlightRow -> 1
-		is Row -> rowPages[row]
-		else -> null
+	private val spotlightPosition: Int
+		get() {
+			val rows = adapter ?: return -1
+			return (0 until rows.size()).firstOrNull { rows.get(it) is HomeSpotlightRow } ?: -1
+		}
+
+	/** The carousel, and the rows above it (notifications, now playing), keep the top of the screen. */
+	private fun isOnTop(position: Int) = position <= spotlightPosition
+
+	private fun rowAlpha(position: Int): Float = when {
+		selectedRow < 0 || position == RecyclerView.NO_POSITION -> 1f
+		position < selectedRow && !isOnTop(selectedRow) -> 0f
+		else -> 1f
 	}
 
-	// JellyChan: rows such as notifications or now playing may sit above the spotlight, so compare with its position
-	private fun updateScrolledDown(position: Int) {
-		val rows = adapter ?: return
-		if (position !in 0 until rows.size()) return
-		val spotlightPosition = (0 until rows.size()).firstOrNull { rows.get(it) is HomeSpotlightRow } ?: 0
-		val key = pageKey(position)
-		pageArrows.value = HomePageArrows(
-			up = position > spotlightPosition,
-			down = (position + 1 until rows.size()).any { pageKey(it) != key },
-		)
-	}
-
-	/** Page shown right now; rows of the other pages are faded out so nothing peeks in from the next page. */
-	private var currentPageKey: Int? = null
-
-	/** Rows without a page form a page of their own. */
-	private fun pageKey(position: Int): Int = pageOf(position) ?: (-1 - position)
-
-	private fun alignPage(position: Int, retry: Boolean = true) {
+	private fun alignRow(position: Int) {
 		val grid = verticalGridView ?: return
-		val count = adapter?.size() ?: return
-		if (position !in 0 until count) return
-
-		val page = pageOf(position)
-		var first = position
-		while (page != null && first > 0 && pageOf(first - 1) == page) first--
-
-		val view = grid.layoutManager?.findViewByPosition(position)
-		// Rows are aligned on their cards, below the row title
-		val contentTop = view?.let(::rowContentTop) ?: 0
-		// The rows may use the bottom padding of the grid, and the spacing under a row does not need to be on screen
-		val available = grid.height - grid.paddingTop
-		val rowHeight = view?.let { it.height - it.paddingBottom - rowContentPaddingBottom(it) } ?: 0
-
-		val firstView = if (first != position) grid.layoutManager?.findViewByPosition(first) else view
-		// Rows not laid out yet (back from another screen, or a page far away): try again once they are
-		if (retry && (view == null || firstView == null)) {
-			grid.post { if (grid.selectedPosition == position) alignPage(position, retry = false) }
-		}
-
-		measurePageTops()
-
-		var rowTop = 0
-		if (first != position && view != null) {
-			val known = (adapter?.get(position) as? Row)?.let { rowPageTops[it] }
-			rowTop = when {
-				firstView != null -> view.top - firstView.top
-				// While moving, trust where the row was last seen; once the grid settles (retry is off) the first row of
-				// a page that fits the screen must be laid out, so if it is not that position was stale (rows refreshed
-				// while away): put the row at the bottom, which brings the page start in and gets measured again
-				known != null && retry -> known
-				else -> available - rowHeight
-			}
-			// A page taller than the screen scrolls just enough to show the selected row whole
-			if (rowTop + rowHeight > available) rowTop = (available - rowHeight).coerceAtLeast(0)
-		}
-		val offset = rowTop + contentTop
+		val focusLine = (HomeFocusLine.value * resources.displayMetrics.density).roundToInt()
+		val offset = if (position < 0 || isOnTop(position)) 0 else focusLine
 		if (grid.windowAlignmentOffset != offset) grid.windowAlignmentOffset = offset
 
-		val key = pageKey(position)
-		if (key != currentPageKey) {
-			currentPageKey = key
-			for (i in 0 until grid.childCount) {
-				val child = grid.getChildAt(i)
-				val childPosition = grid.getChildAdapterPosition(child)
-				if (childPosition != RecyclerView.NO_POSITION) {
-					child.animate().alpha(if (pageKey(childPosition) == key) 1f else 0f).setDuration(PAGE_FADE_MS).start()
-				}
-			}
+		selectedRow = position
+		for (i in 0 until grid.childCount) {
+			val child = grid.getChildAt(i)
+			val target = rowAlpha(grid.getChildAdapterPosition(child))
+			if (child.alpha != target) child.animate().alpha(target).setDuration(ROW_FADE_MS).start()
 		}
 	}
 
 	/**
-	 * Remember where the rows of every page sit, measured while the first row of their page is laid out. All pages are
-	 * measured, not only the current one: rows of a page may change size (loaded later, refreshed) while another page
-	 * is shown.
+	 * The home asks for the focus as soon as it is shown, but the rows may not be laid out yet (just loaded, or back from
+	 * another screen with a row far down selected): the focus then stays on the home itself. Hand it to the rows once
+	 * they can take it, unless the icon rail has it.
 	 */
-	private fun measurePageTops() {
-		val grid = verticalGridView ?: return
-		val layoutManager = grid.layoutManager ?: return
-		val count = adapter?.size() ?: return
-		for (i in 0 until grid.childCount) {
-			val child = grid.getChildAt(i)
-			val position = grid.getChildAdapterPosition(child)
-			if (position == RecyclerView.NO_POSITION || position >= count) continue
-			val page = pageOf(position) ?: continue
-			var first = position
-			while (first > 0 && pageOf(first - 1) == page) first--
-			val firstView = layoutManager.findViewByPosition(first) ?: continue
-			val row = adapter?.get(position) as? Row ?: continue
-			rowPageTops[row] = child.top - firstView.top
-		}
-	}
-
-	/** Empty space under the cards and titles of a row, which may fall off screen. */
-	private fun rowContentPaddingBottom(row: View): Int =
-		row.findViewById<View>(androidx.leanback.R.id.row_content)?.paddingBottom ?: 0
-
-	/** Distance from the top of a row view to its cards (the row title sits above them). */
-	private fun rowContentTop(row: View): Int {
-		var content: View? = row.findViewById(androidx.leanback.R.id.row_content) ?: return 0
-		var top = 0
-		while (content != null && content !== row) {
-			top += content.top
-			content = content.parent as? View
-		}
-		return top
-	}
-
-	override fun onCreate(savedInstanceState: Bundle?) {
-		super.onCreate(savedInstanceState)
-
-		adapter = MutableObjectAdapter<Row>(
-			androidx.leanback.widget.ClassPresenterSelector().apply {
-				addClassPresenter(ListRow::class.java, PositionableListRowPresenter().apply { keepRowHeight = true })
-				// JellyChan: full screen spotlight carousel as first row
-				addClassPresenter(HomeSpotlightRow::class.java, HomeSpotlightPresenter())
+	private fun focusRows() {
+		focusJob?.cancel()
+		focusJob = lifecycleScope.launch {
+			repeat(FOCUS_RETRIES) {
+				val grid = verticalGridView ?: return@launch
+				if (railFocused || grid.findFocus() != null && grid.findFocus() !== grid) return@launch
+				grid.requestFocus()
+				delay(FOCUS_RETRY_DELAY)
 			}
-		)
+		}
+	}
 
-		lifecycleScope.launch(Dispatchers.IO) {
+	/** Backdrop of the selected card behind the top of the home, once the selection stops moving. */
+	private fun showBackground(item: BaseItemDto?, wait: kotlin.time.Duration = BACKGROUND_DELAY) {
+		backgroundJob?.cancel()
+		stopTrailer()
+		backgroundJob = lifecycleScope.launch {
+			delay(wait)
+			if (item == null) {
+				backgroundService.clearBackgrounds()
+			} else {
+				backgroundService.setSpotlight(true)
+				backgroundService.setFramed(true)
+				backgroundService.setBackground(item)
+				// JellyChan: after a few seconds on the same card its trailer takes the place of the backdrop, once
+				startTrailer(item)
+			}
+		}
+	}
+
+	private fun startTrailer(item: BaseItemDto) {
+		trailerJob = lifecycleScope.launch {
+			delay(TRAILER_DELAY)
+			val trailer = api.homeTrailerUrl(item) ?: return@launch
+			backgroundService.setTrailer(trailer)
+			withTimeoutOrNull(TRAILER_MAX_LENGTH) { backgroundService.trailerEnded.first { it == trailer } }
+			if (backgroundService.trailerUrl.value == trailer) backgroundService.setTrailer(null)
+		}
+	}
+
+	private fun stopTrailer() {
+		if (trailerJob?.isActive == true || backgroundService.framed.value) backgroundService.setTrailer(null)
+		trailerJob?.cancel()
+		trailerJob = null
+	}
+
+	/** JellyChan: home sections the rows were built from, to rebuild them when the settings change. */
+	private var loadedSections: List<HomeSectionType>? = null
+
+	private var loadJob: Job? = null
+
+	/** JellyChan: rebuilds the rows when the home sections changed (in the settings overlay, which keeps the home alive). */
+	fun reloadIfSectionsChanged() {
+		val sections = userSettingPreferences.activeHomesections
+		if (loadedSections == null || sections == loadedSections) return
+		Timber.i("Home sections changed, rebuilding the rows")
+		loadRows()
+	}
+
+	private fun loadRows() {
+		loadJob?.cancel()
+		loadJob = lifecycleScope.launch(Dispatchers.IO) {
 			val currentUser = withTimeout(30.seconds) {
 				userRepository.currentUser.filterNotNull().first()
 			}
 
-			// JellyChan: My media, Next up and Continue watching first (second page), then the others
-			val homesections = userSettingPreferences.activeHomesections.sortedBy {
-				when (it) {
-					HomeSectionType.LIBRARY_TILES_SMALL, HomeSectionType.LIBRARY_BUTTONS -> 0
-					HomeSectionType.NEXT_UP -> 1
-					HomeSectionType.RESUME -> 2
-					else -> 3
-				}
-			}
+			val homesections = userSettingPreferences.activeHomesections
+			loadedSections = homesections
 
 			// Make sure the rows are empty
 			val rows = mutableListOf<HomeFragmentRow>()
-			// JellyChan: home page of each section's rows; the carousel is page 1
-			val sectionPages = mutableListOf<Int>()
-			var nextPage = 4
 
 			// JellyChan: spotlight carousel
 			val spotlightRow = HomeSpotlightRow.load(api)
+			// JellyChan: round genre pictures, last row of the home
+			val genresRow = HomeGenresRow.load(api)
 
 			// Check for coroutine cancellation
 			if (!isActive) return@launch
 
 			// Actually add the sections
 			for (section in homesections) {
-				val rowCount = rows.size
 				when (section) {
 					HomeSectionType.LATEST_MEDIA -> rows.add(helper.loadRecentlyAdded(userViewsRepository.views.first()))
 					HomeSectionType.LIBRARY_TILES_SMALL -> rows.add(HomeFragmentViewsRow(small = false))
@@ -327,37 +294,22 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 					HomeSectionType.NONE -> Unit
 				}
 
-				val page = when (section) {
-					HomeSectionType.LIBRARY_TILES_SMALL, HomeSectionType.LIBRARY_BUTTONS,
-					HomeSectionType.NEXT_UP, HomeSectionType.RESUME, HomeSectionType.RESUME_AUDIO -> 2
-					HomeSectionType.LATEST_MEDIA -> 3
-					else -> nextPage++
-				}
-				repeat(rows.size - rowCount) { sectionPages.add(page) }
 			}
 
 			// Add sections to layout
 			withContext(Dispatchers.Main) {
-				// JellyChan: compact cards, so three rows fit on one home page; larger ones on the page with the My media
-				// pills
+				// JellyChan: 16:9 cards in every row
 				val cardPresenter = CardPresenter().apply { homeTileHeight = HOME_TILE_HEIGHT }
-				val largeCardPresenter = CardPresenter().apply { homeTileHeight = HOME_TILE_HEIGHT_LARGE }
 
 				// Add rows in order
 				@Suppress("UNCHECKED_CAST")
 				val rowsAdapter = adapter as MutableObjectAdapter<Row>
+				rowsAdapter.clear()
 				spotlightRow.addToRowsAdapter(requireContext(), cardPresenter, rowsAdapter)
 				notificationsRow.addToRowsAdapter(requireContext(), cardPresenter, rowsAdapter)
 				nowPlaying.addToRowsAdapter(requireContext(), cardPresenter, rowsAdapter)
-				rows.forEachIndexed { index, row ->
-					val before = (0 until rowsAdapter.size()).mapTo(java.util.Collections.newSetFromMap(IdentityHashMap())) { rowsAdapter.get(it) }
-					val presenter = if (sectionPages[index] == 2) largeCardPresenter else cardPresenter
-					row.addToRowsAdapter(requireContext(), presenter, rowsAdapter)
-					for (i in 0 until rowsAdapter.size()) {
-						val added = rowsAdapter.get(i) ?: continue
-						if (added !in before) rowPages[added] = sectionPages[index]
-					}
-				}
+				rows.forEach { row -> row.addToRowsAdapter(requireContext(), cardPresenter, rowsAdapter) }
+				genresRow.addToRowsAdapter(requireContext(), cardPresenter, rowsAdapter)
 
 				// Wire up Live TV sibling rows so the On Now row removes the buttons row when empty
 				for (i in 0 until rowsAdapter.size()) {
@@ -368,8 +320,31 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 						if (previousRow != null) itemAdapter.setSiblingRow(previousRow)
 					}
 				}
+
+				// JellyChan: the rows may load after the home asked for the focus
+				focusRows()
 			}
 		}
+	}
+
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+
+		adapter = MutableObjectAdapter<Row>(
+			androidx.leanback.widget.ClassPresenterSelector().apply {
+				addClassPresenter(ListRow::class.java, PositionableListRowPresenter().apply {
+					keepRowHeight = true
+					// JellyChan: rows start right of the icon rail (the rows already have the browse start padding)
+					val railPadding = HomeContentStart - 38.dp - CARD_FOCUS_INSET
+					startPadding = (railPadding.value * resources.displayMetrics.density).roundToInt()
+					headerInset = (CARD_FOCUS_INSET.value * resources.displayMetrics.density).roundToInt()
+				})
+				// JellyChan: full screen spotlight carousel as first row
+				addClassPresenter(HomeSpotlightRow::class.java, HomeSpotlightPresenter())
+			}
+		)
+
+		loadRows()
 
 		onItemViewClickedListener = CompositeClickedListener().apply {
 			registerListener(ItemViewClickedListener())
@@ -405,6 +380,34 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 		mediaManager.addAudioEventListener(this)
 	}
 
+	/**
+	 * JellyChan: moves the selection of the focused row one card to the left. The Compose focus system around the
+	 * fragment would otherwise take every left press and jump straight to the icon rail.
+	 * Returns false on the first card (the rail takes the focus) or when no card row has the focus.
+	 */
+	fun moveLeftInSelectedRow(): Boolean {
+		val grid = verticalGridView ?: return false
+		val position = grid.selectedPosition.takeIf { it >= 0 } ?: return false
+		val holder = getRowViewHolder(position) as? ListRowPresenter.ViewHolder ?: return false
+		val row = holder.gridView ?: return false
+		if (!row.hasFocus() || row.selectedPosition <= 0) return false
+		row.setSelectedPositionSmooth(row.selectedPosition - 1)
+		return true
+	}
+
+	/**
+	 * JellyChan: gives the focus back to the selected card of the selected row (right from the icon rail). The focus
+	 * search from the rail does not always reach it, e.g. the genre cards, which are Compose views.
+	 */
+	fun focusSelectedCard(): Boolean {
+		val grid = verticalGridView ?: return false
+		val position = grid.selectedPosition.takeIf { it >= 0 } ?: return grid.requestFocus()
+		val holder = getRowViewHolder(position) as? ListRowPresenter.ViewHolder
+		val row = holder?.gridView ?: return grid.requestFocus()
+		val card = row.findViewHolderForAdapterPosition(row.selectedPosition.coerceAtLeast(0))?.itemView
+		return card?.requestFocus() ?: row.requestFocus()
+	}
+
 	override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
 		if (event?.action != KeyEvent.ACTION_UP) return false
 		return keyProcessor.handleKey(keyCode, currentItem, activity)
@@ -413,14 +416,16 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 	override fun onResume() {
 		super.onResume()
 
-		// JellyChan: back from another screen the rows are laid out again, bring the page state in line with them
+		// JellyChan: back from another screen, align the selected row again and bring back its backdrop
 		verticalGridView?.post {
 			val grid = verticalGridView ?: return@post
-			val position = grid.selectedPosition
-			if (position < 0) return@post
-			currentPageKey = null
-			alignPage(position)
-			updateScrolledDown(position)
+			if (grid.selectedPosition >= 0) alignRow(grid.selectedPosition)
+		}
+		focusRows()
+		when (val focus = homeFocus.value) {
+			is HomeFocus.Item -> showBackground(focus.item, BACKGROUND_RESTORE_DELAY)
+			is HomeFocus.Genre -> showBackground(focus.sample, BACKGROUND_RESTORE_DELAY)
+			null -> Unit
 		}
 
 		//React to deletion
@@ -470,6 +475,15 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 		adapter.refreshItem(api, this, item)
 	}
 
+	override fun onPause() {
+		super.onPause()
+
+		// JellyChan: the next screen sets its own background
+		backgroundJob?.cancel()
+		stopTrailer()
+		if (homeFocus.value != null) backgroundService.setSpotlight(false)
+	}
+
 	override fun onDestroy() {
 		super.onDestroy()
 
@@ -492,6 +506,14 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 				}
 			}
 
+			// JellyChan: all movies and series of a genre
+			if (item is HomeGenre) {
+				// Genres come without display preferences, which the grid needs: keep them per genre
+				val genre = item.genre.copy(displayPreferencesId = item.genre.displayPreferencesId ?: item.genre.id.toString())
+				navigationRepository.navigate(Destinations.libraryBrowser(genre))
+				return
+			}
+
 			if (item !is BaseRowItem) return
 			if (row !is ListRow) return
 			@Suppress("UNCHECKED_CAST")
@@ -506,18 +528,22 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 			rowViewHolder: RowPresenter.ViewHolder?,
 			row: Row?,
 		) {
-			val rows = adapter
-			val position = rows?.let { r -> (0 until r.size()).firstOrNull { r.get(it) === row } } ?: selectedPosition
-			updateScrolledDown(position)
 			// JellyChan: the spotlight row manages the background itself
 			if (row is HomeSpotlightRow) {
 				currentItem = null
+				homeFocus.value = null
+				backgroundJob?.cancel()
+				trailerJob?.cancel()
 				return
 			}
-			if (item !is BaseRowItem) {
+			if (item is HomeGenre) {
 				currentItem = null
-				//fill in default background
-				backgroundService.clearBackgrounds()
+				homeFocus.value = HomeFocus.Genre(item.genre.name.orEmpty(), item.sample)
+				showBackground(item.sample)
+			} else if (item !is BaseRowItem) {
+				currentItem = null
+				homeFocus.value = null
+				showBackground(null)
 			} else {
 				currentItem = item
 				currentRow = row as ListRow
@@ -525,8 +551,9 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 				val itemRowAdapter = row.adapter as? ItemRowAdapter
 				itemRowAdapter?.loadMoreItemsIfNeeded(itemRowAdapter.indexOf(item))
 
-				// JellyChan: below the carousel the background stays solid instead of following the selection
-				backgroundService.clearBackgrounds()
+				// JellyChan: the top of the home shows the selected card over its backdrop
+				homeFocus.value = item.baseItem?.let(HomeFocus::Item)
+				showBackground(item.baseItem)
 			}
 		}
 	}

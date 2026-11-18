@@ -1,66 +1,33 @@
 package org.jellyfin.androidtv.ui.home
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import org.jellyfin.androidtv.R
-import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbarHeight
 
 /**
- * JellyChan home layout. The home is split in pages: the carousel fills the first one, the rows below are grouped
- * in pages of their own (My media, Next up and Continue watching; then Recently added) that replace each other
- * as a whole while moving up and down.
+ * JellyChan home layout. A narrow icon rail sits on the left; the carousel fills the screen at first, with the first
+ * row peeking in at the bottom. Further down the rows scroll continuously: the selected row always sits on the same
+ * line, the rows above it are hidden and the space above shows the selected card (backdrop, logo, info).
  */
 
-/** Where the home rows start, right under the toolbar band. */
-val HomeToolbarHeight = MainToolbarHeight
+/** Width of the icon rail on the left of the home. */
+val HomeRailWidth = 80.dp
 
-/** Height (dp) of the cards in the home pages below the carousel, so three rows fit on one page. */
-const val HOME_TILE_HEIGHT = 72
+/** Where the home content (carousel info, row titles and cards) starts, right of the rail. */
+val HomeContentStart = 88.dp
 
-/** Height (dp) of the Next up and Continue watching cards, on the page where My media is a row of pills. */
-const val HOME_TILE_HEIGHT_LARGE = 98
+/** How much of the first row shows under the carousel when the home opens. */
+val HomeSpotlightPeek = 104.dp
 
-/** Arrows shown on the current home page: up when a page sits above it, down when one sits below. */
-data class HomePageArrows(val up: Boolean = false, val down: Boolean = true)
+/**
+ * Width of the zone left of the backdrop where the info about the selected card (logo, details, plot) is drawn. The
+ * backdrop starts at 230dp, but its vignette keeps the image transparent next to the zone.
+ */
+val HomeInfoWidth = 316.dp
 
-/** Arrow inviting to scroll to the next (or, pointing up, the previous) home page. */
-@Composable
-fun HomeScrollHint(visible: Boolean, modifier: Modifier = Modifier, up: Boolean = false) {
-	val alpha by animateFloatAsState(if (visible) 0.85f else 0f, tween(250), label = "HomeScrollHintAlpha")
-	val bounce by rememberInfiniteTransition(label = "HomeScrollHint").animateFloat(
-		initialValue = 0f,
-		targetValue = if (up) -6f else 6f,
-		animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
-		label = "HomeScrollHintBounce",
-	)
+/** Distance from the top of the screen to the selected row (its title, cards right below). */
+val HomeFocusLine = 336.dp
 
-	// The layer properties are read here rather than in a graphicsLayer block: back from another screen the block may no
-	// longer be invalidated, leaving the arrows stuck on their old state
-	val translation = with(LocalDensity.current) { bounce.dp.toPx() }
-	Image(
-		painter = painterResource(R.drawable.jc_ic_chevron_down),
-		contentDescription = null,
-		colorFilter = ColorFilter.tint(androidx.compose.ui.graphics.Color.White),
-		modifier = modifier
-			.size(30.dp)
-			.graphicsLayer(
-				alpha = alpha,
-				rotationZ = if (up) 180f else 0f,
-				translationY = translation,
-			),
-	)
-}
+/** Height (dp) of the 16:9 cards in the home rows. */
+const val HOME_TILE_HEIGHT = 120
+
+/** Size (dp) of the round genre cards. */
+const val HOME_GENRE_SIZE = 92

@@ -308,6 +308,14 @@ object BrowsingUtils {
 
 	@JvmStatic
 	fun createBrowseGridItemsRequest(parent: BaseItemDto): GetItemsRequest {
+		// JellyChan: a genre (home genres row) lists all movies and series of that genre
+		if (parent.type == BaseItemKind.GENRE) return GetItemsRequest(
+			fields = ItemRepository.itemFields,
+			genreIds = setOf(parent.id),
+			includeItemTypes = setOf(BaseItemKind.MOVIE, BaseItemKind.SERIES),
+			recursive = true,
+		)
+
 		val baseRequest = GetItemsRequest(
 			fields = ItemRepository.itemFields,
 			parentId = parent.id,

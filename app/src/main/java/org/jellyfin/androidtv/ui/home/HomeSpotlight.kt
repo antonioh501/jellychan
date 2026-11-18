@@ -110,14 +110,13 @@ class HomeSpotlightView @JvmOverloads constructor(
 	private var active = false
 	private var scope: CoroutineScope? = null
 	private var cycleJob: Job? = null
-	private val trailerCache = mutableMapOf<UUID, String?>()
 
 	init {
 		clipChildren = false
 		clipToPadding = false
 		descendantFocusability = FOCUS_AFTER_DESCENDANTS
 
-		binding.jcMeta.ratingsOnly = true
+		binding.jcMeta.ratingsOnly = false
 		binding.jcPlay.setOnClickListener { current()?.let { playbackHelper.retrieveAndPlay(it.id, false, context) } }
 		binding.jcDetails.setOnClickListener { current()?.let { navigationRepository.navigate(Destinations.itemDetails(it.id)) } }
 
@@ -133,26 +132,21 @@ class HomeSpotlightView @JvmOverloads constructor(
 			androidx.core.content.ContextCompat.getColorStateList(context, R.drawable.button_default_text),
 		)
 
-		// Left on the first action / right on the last action switches item (see dispatchKeyEvent)
+		// Right on an action switches to the next item (see dispatchKeyEvent); left goes to the home rail
 	}
 
 	private fun current() = items.getOrNull(index)
 
-	// The carousel fills the whole first home page, from the toolbar to the bottom of the screen, so the rows below
-	// it start off screen
+	// The carousel fills the screen but for the top of the first row, which peeks in at the bottom
 	override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-		val toolbarHeight = (HomeToolbarHeight.value * resources.displayMetrics.density).toInt()
-		val height = resources.displayMetrics.heightPixels - toolbarHeight
+		val peek = (HomeSpotlightPeek.value * resources.displayMetrics.density).toInt()
+		val height = resources.displayMetrics.heightPixels - peek
 		super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY))
 	}
 
 	override fun dispatchKeyEvent(event: KeyEvent): Boolean {
 		if (event.action == KeyEvent.ACTION_DOWN && items.size > 1) {
-			if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT && binding.jcPlay.isFocused) {
-				show(index - 1)
-				return true
-			}
-			if (event.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && binding.jcDetails.isFocused) {
+			if (event.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && (binding.jcDetails.isFocused || binding.jcPlay.isFocused)) {
 				show(index + 1)
 				return true
 			}
@@ -164,23 +158,7 @@ class HomeSpotlightView @JvmOverloads constructor(
 		if (newItems == items) return
 		items = newItems
 		index = 0
-		buildDots()
 		show(0)
-	}
-
-	private fun buildDots() {
-		binding.jcDots.removeAllViews()
-		val size = (8 * resources.displayMetrics.density).toInt()
-		val margin = (4 * resources.displayMetrics.density).toInt()
-		repeat(items.size) {
-			binding.jcDots.addView(View(context).apply {
-				setBackgroundResource(R.drawable.jc_dot)
-				layoutParams = LayoutParams(size, size).apply {
-					marginStart = margin
-					marginEnd = margin
-				}
-			})
-		}
 	}
 
 	private fun show(newIndex: Int) {
@@ -194,15 +172,10 @@ class HomeSpotlightView @JvmOverloads constructor(
 		if (logo != null) binding.jcLogo.load(logo, null, null, 1.0, 0)
 		binding.jcTitle.text = item.name
 
+		binding.jcMeta.runtime = formatMinutes(item.runTimeTicks)
 		binding.jcMeta.item = item
 		binding.jcOverview.text = item.overview.orEmpty()
 		binding.jcOverview.isVisible = !item.overview.isNullOrBlank()
-
-		for (i in 0 until binding.jcDots.childCount) {
-			val dot = binding.jcDots.getChildAt(i)
-			dot.isActivated = i == index
-			dot.alpha = if (i == index) 1f else 0.45f
-		}
 
 		if (active) startCycle()
 	}
@@ -232,25 +205,13 @@ class HomeSpotlightView @JvmOverloads constructor(
 		}
 	}
 
-	private suspend fun trailerUrlFor(item: BaseItemDto): String? {
-		if (trailerCache.containsKey(item.id)) return trailerCache[item.id]
-		val url = try {
-			val trailers = withContext(Dispatchers.IO) { api.userLibraryApi.getLocalTrailers(itemId = item.id).content }
-			trailers.firstOrNull()?.let { trailer ->
-				"${api.baseUrl}/Videos/${trailer.id}/stream?static=true&mediaSourceId=${trailer.id}&api_key=${api.accessToken}"
-			}
-		} catch (error: Exception) {
-			Timber.w(error, "JellyChan spotlight: unable to get trailers for %s", item.id)
-			null
-		}
-		trailerCache[item.id] = url
-		return url
-	}
+	private suspend fun trailerUrlFor(item: BaseItemDto): String? = api.homeTrailerUrl(item)
 
-	private fun setActive(value: Boolean) {
+	/** [keepBackground]: the home rows take over the background (backdrop of the selected card, in spotlight mode). */
+	private fun setActive(value: Boolean, keepBackground: Boolean = false) {
 		if (value == active) return
 		active = value
-		backgroundService.setSpotlight(value)
+		if (value || !keepBackground) backgroundService.setSpotlight(value)
 		if (value) {
 			startCycle()
 		} else {
@@ -267,7 +228,7 @@ class HomeSpotlightView @JvmOverloads constructor(
 		val inRows = grid != null && newFocus.isDescendantOf(grid)
 		when {
 			inside -> setActive(true)
-			inRows -> setActive(false)
+			inRows -> setActive(false, keepBackground = true)
 			else -> Unit // toolbar: keep the current state
 		}
 	}

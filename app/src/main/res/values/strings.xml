@@ -686,6 +686,8 @@
         <item quantity="other">%1$s albums</item>
     </plurals>
     <string name="jc_details">Details</string>
+    <string name="jc_home_all_genres">All genres</string>
+    <string name="jc_home_time_left">%1$s left</string>
     <string name="jc_counter">1-%1$d of %1$d</string>
     <string name="jc_media_director">Director</string>
     <string name="jc_media_writer">Writer</string>

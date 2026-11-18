@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+### Changed
+- Home redesigned: an icon rail on the left (user switch, search, home, discover, settings) replaces the top toolbar on the home screen. Moving onto it opens a dark see-through panel with the name of each section and of the user. The libraries are listed right below Discover.
+- Home rows now scroll continuously instead of by pages: the selected row always sits at the same height, and the top of the screen shows the backdrop, logo, info and plot of the selected card. The backdrop fills the top right of the screen and fades out in an oval towards the left and the bottom; on the left the logo and info sit on a fixed navy base, in a zone of their own that never runs into the image.
+- Home carousel: full height with the first row peeking in at the bottom, Details and Play buttons stacked, right on a button shows the next title.
+- Home: bigger title logo, slightly smaller text and a narrower plot next to the backdrop.
+- Home carousel: smaller Details and Play buttons; Play no longer uses the accent color.
+- Cards and genre pictures: the selection border sits a little away from the picture, with an even gap around the corners.
+- Home cards are larger 16:9 tiles without a caption; on titles being watched only the progress bar shows, at the bottom.
+- Home: narrower Details and Play buttons and narrower icon rail labels; the open rail panel has sharp edges and an even transparency.
+- Home: cards scrolled to the left fade out on the line of the titles and texts, before the icon rail, into the same navy as the background.
+
+### Fixed
+- Home carousel: trailers now play with low sound, and an audio track the device cannot play is skipped instead of leaving the trailer stuck on a black frame. Trailers pause for any other playback.
+- Home: right on the icon rail goes back to the selected card, also from the genres row.
+- Home: changes to the home sections in the settings apply as soon as the settings close (the library buttons could not be hidden).
+- Home: pressing left on a card moves to the previous card; only the first card of a row leads to the icon rail.
+
+### Added
+- Home: after a few seconds on a card its trailer plays in place of the backdrop, with the same fade and low sound. It is taken from the video in the "backdrops" folder of the title (or its series), otherwise from a local trailer; the carousel uses the same videos.
+- Home: "All genres" row at the bottom, with round pictures; opening a genre lists all its movies and series.
+
 ## [0.4.0-beta.1] - 2026-11-15
 
 ### Fixed

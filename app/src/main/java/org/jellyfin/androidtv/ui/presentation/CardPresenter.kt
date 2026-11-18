@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.leanback.widget.Presenter
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -411,10 +412,26 @@ private fun CardViewHolderContent(
 		else -> DpSize(150.dp * aspectRatio, 150.dp)
 	}
 
-	val usePreview = displayConfig.overrideShowInfo ?: showInfo
+	// JellyChan: home tiles have no caption below; titles only show on the image of items being watched
+	val homeTile = homeTileHeight != null
+	val usePreview = if (homeTile) false else displayConfig.overrideShowInfo ?: showInfo
 	val cardShape = if (isPerson) androidx.compose.foundation.shape.CircleShape else JellyfinTheme.shapes.medium
 
 	val card = @Composable {
+		// JellyChan: white selection border a little away from the thumbnail. The gap is always reserved, so the card
+		// does not move when it gets the focus.
+		Box(
+			modifier = Modifier
+				.then(
+					if (focused) Modifier.border(
+						CARD_FOCUS_BORDER,
+						androidx.compose.ui.graphics.Color.White,
+						if (isPerson) androidx.compose.foundation.shape.CircleShape
+						else androidx.compose.foundation.shape.RoundedCornerShape(CARD_FOCUS_RADIUS),
+					) else Modifier
+				)
+				.padding(CARD_FOCUS_GAP + CARD_FOCUS_BORDER),
+		) {
 		ItemCard(
 			image = {
 				if (image != null) {
@@ -449,7 +466,8 @@ private fun CardViewHolderContent(
 				}
 			},
 			overlay = {
-				val showInfo = !usePreview && item.showCardInfoOverlay
+				// JellyChan: home tiles show no title, only the progress bar at the bottom
+				val showInfo = if (homeTile) false else !usePreview && item.showCardInfoOverlay
 				item.baseItem?.let { baseItem ->
 					ItemCardBaseItemOverlay(
 						item = baseItem,
@@ -463,13 +481,21 @@ private fun CardViewHolderContent(
 								Box(
 									modifier = Modifier
 										.fillMaxWidth()
-										.background(Tokens.Color.colorBluegrey900.copy(alpha = 0.6f), JellyfinTheme.shapes.extraSmall),
+										.then(
+											if (homeTile) Modifier
+											else Modifier.background(Tokens.Color.colorBluegrey900.copy(alpha = 0.6f), JellyfinTheme.shapes.extraSmall)
+										),
 								) {
 									Text(
-										text = title,
+										text = if (homeTile) item.baseItem?.homeTileTitle() ?: title else title,
 										maxLines = 1,
 										overflow = TextOverflow.Ellipsis,
-										textAlign = TextAlign.Center,
+										textAlign = if (homeTile) TextAlign.Start else TextAlign.Center,
+										style = if (homeTile) JellyfinTheme.typography.default.copy(
+											fontSize = 13.sp,
+											fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+											shadow = androidx.compose.ui.graphics.Shadow(androidx.compose.ui.graphics.Color.Black, blurRadius = 8f),
+										) else JellyfinTheme.typography.default,
 										color = Tokens.Color.colorWhite,
 										modifier = Modifier
 											.then(focusModifier)
@@ -482,14 +508,9 @@ private fun CardViewHolderContent(
 				}
 			},
 			shape = cardShape,
-			modifier = Modifier
-				.size(size)
-				// JellyChan: white selection border, like the Seerr pages (drawn on top of the card)
-				.then(
-					if (focused) Modifier.border(3.dp, androidx.compose.ui.graphics.Color.White, cardShape)
-					else Modifier
-				)
+			modifier = Modifier.size(size)
 		)
+		}
 	}
 
 	if (usePreview) {
@@ -526,6 +547,25 @@ private fun CardViewHolderContent(
 	} else {
 		card()
 	}
+}
+
+/** JellyChan: width of the selection border of the cards, and its gap from the thumbnail. */
+val CARD_FOCUS_BORDER = 2.dp
+val CARD_FOCUS_GAP = 2.dp
+
+/** JellyChan: space around every card thumbnail, kept for its selection border. */
+val CARD_FOCUS_INSET = CARD_FOCUS_BORDER + CARD_FOCUS_GAP
+/** Corner radius of the selection border: the card's (12dp) plus the inset, so the gap is even around the corners. */
+private val CARD_FOCUS_RADIUS = 12.dp + CARD_FOCUS_INSET
+
+/** JellyChan: "Series: S1 E2" for episodes, the name otherwise (title on the home tiles of items being watched). */
+private fun BaseItemDto.homeTileTitle(): String? = when {
+	type == BaseItemKind.EPISODE && seriesName != null -> listOfNotNull(
+		parentIndexNumber?.let { "S$it" },
+		indexNumber?.let { "E$it" },
+	).joinToString(" ").let { number -> if (number.isBlank()) seriesName else "$seriesName: $number" }
+
+	else -> name
 }
 
 /**

@@ -33,7 +33,10 @@
 
     <!-- JellyChan home spotlight (carousel) height -->
     <!-- Room under the carousel info for the scroll hint arrow -->
-    <dimen name="jc_home_spotlight_info_margin_bottom">71dp</dimen>
+    <dimen name="jc_home_spotlight_info_margin_bottom">16dp</dimen>
+    <!-- Home content start, right of the icon rail (HomeContentStart) -->
+    <dimen name="jc_home_content_start">88dp</dimen>
+    <dimen name="jc_home_spotlight_button_width">118dp</dimen>
 
     <!-- JellyChan player: compact controls like the web OSD -->
     <dimen name="lb_control_button_diameter">48dp</dimen>

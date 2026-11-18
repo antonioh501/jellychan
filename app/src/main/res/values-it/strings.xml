@@ -598,6 +598,8 @@
     <string name="still_watching_label">Stai ancora guardando?</string>
     <string name="pref_subtitles_position">Distanza dal basso</string>
     <string name="jc_details">Dettagli</string>
+    <string name="jc_home_all_genres">Tutti i generi</string>
+    <string name="jc_home_time_left">%1$s rimasti</string>
     <string name="jc_counter">1-%1$d di %1$d</string>
     <string name="jc_media_director">Regia</string>
     <string name="jc_media_writer">Sceneggiatura</string>

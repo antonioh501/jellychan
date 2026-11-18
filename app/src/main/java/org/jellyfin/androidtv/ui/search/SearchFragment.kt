@@ -1,5 +1,6 @@
 package org.jellyfin.androidtv.ui.search
 
+import org.jellyfin.androidtv.ui.home.AppContentStart
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -16,6 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
@@ -29,8 +33,7 @@ import org.jellyfin.androidtv.ui.search.composable.SearchResults
 import org.jellyfin.androidtv.ui.search.composable.SearchSuggestions
 import org.jellyfin.androidtv.ui.search.composable.SearchVoiceInput
 import org.jellyfin.androidtv.ui.seerr.openSeerrMedia
-import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbar
-import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbarActiveButton
+import org.jellyfin.androidtv.ui.home.AppScreenTopInset
 import org.jellyfin.androidtv.util.speech.rememberSpeechRecognizerAvailability
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -89,9 +92,10 @@ class SearchFragment : Fragment() {
 		}
 
 		Column {
-			MainToolbar(MainToolbarActiveButton.Search)
+			// JellyChan: the app rail replaces the top bar; this band leaves room for the app clock
+			Spacer(Modifier.height(AppScreenTopInset))
 
-			Row(modifier = Modifier.fillMaxSize()) {
+			Row(modifier = Modifier.fillMaxSize().focusRestorer()) {
 				SearchKeyboard(
 					query = query,
 					// Always apply edits to the current state: key events can arrive faster than recompositions
@@ -112,7 +116,7 @@ class SearchFragment : Fragment() {
 					} else null,
 					modifier = Modifier
 						.focusRequester(keyboardFocusRequester)
-						.padding(start = 48.dp, end = 24.dp),
+						.padding(start = AppContentStart, end = 24.dp),
 				)
 
 				Column(modifier = Modifier.weight(1f)) {

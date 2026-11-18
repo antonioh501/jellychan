@@ -1,5 +1,6 @@
 package org.jellyfin.androidtv.ui.itemdetail;
 
+import org.jellyfin.androidtv.ui.home.AppSideRailKt;
 import static org.koin.java.KoinJavaComponent.inject;
 
 import android.app.AlertDialog;
@@ -513,6 +514,7 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
             ClassPresenterSelector ps = new ClassPresenterSelector();
             ps.addClassPresenter(MyDetailsOverviewRow.class, mDorPresenter);
             mListRowPresenter = new CustomListRowPresenter(Utils.convertDpToPixel(requireContext(), 10));
+            AppSideRailKt.alignToAppRail(mListRowPresenter, requireContext());
             if (mBaseItem.getType() == BaseItemKind.PERSON) {
                 // JellyChan: rows start under the text column, like the web person page
                 mListRowPresenter.setStartPadding(Utils.convertDpToPixel(requireContext(), 272));

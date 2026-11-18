@@ -1,5 +1,6 @@
 package org.jellyfin.androidtv.ui.seerr
 
+import org.jellyfin.androidtv.ui.home.AppContentStart
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -63,8 +64,7 @@ import org.jellyfin.androidtv.ui.base.button.Button
 import org.jellyfin.androidtv.ui.base.button.ButtonDefaults
 import org.jellyfin.androidtv.ui.base.modifier.autoFocus
 import org.jellyfin.androidtv.ui.navigation.NavigationRepository
-import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbar
-import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbarActiveButton
+import org.jellyfin.androidtv.ui.home.AppScreenTopInset
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import java.util.Locale
@@ -114,7 +114,8 @@ private fun SeerrDetailPage(
 		details?.backdropUrl?.let { SeerrBackdrop(it) }
 
 		Column {
-			MainToolbar(MainToolbarActiveButton.Discover)
+			// JellyChan: the app rail replaces the top bar; this band leaves room for the app clock
+			Spacer(Modifier.height(AppScreenTopInset))
 
 			when {
 				state.failed -> SeerrPageMessage(
@@ -162,7 +163,7 @@ private fun SeerrDetailContent(
 			.fillMaxWidth()
 			.onSizeChanged { headerHeight = it.height }
 			.onFocusChanged { if (it.hasFocus) recommendationsFocused = false }
-			.padding(horizontal = 48.dp, vertical = 16.dp),
+			.padding(start = AppContentStart, end = 48.dp, top = 16.dp, bottom = 16.dp),
 	) {
 		details.posterUrl?.let { poster ->
 			Image(
@@ -238,11 +239,11 @@ private fun SeerrDetailContent(
 				fontSize = 14.sp,
 				fontWeight = FontWeight.SemiBold,
 				color = Color.White,
-				modifier = Modifier.padding(start = 48.dp, top = 8.dp, bottom = 6.dp),
+				modifier = Modifier.padding(start = AppContentStart, top = 8.dp, bottom = 6.dp),
 			)
 
 			LazyRow(
-				contentPadding = PaddingValues(horizontal = 48.dp, vertical = 6.dp),
+				contentPadding = PaddingValues(start = AppContentStart, end = 48.dp, top = 6.dp, bottom = 6.dp),
 				horizontalArrangement = Arrangement.spacedBy(12.dp),
 			) {
 				itemsIndexed(state.recommendations, key = { _, media -> "${media.type}-${media.id}" }) { _, media ->

@@ -15,7 +15,7 @@
         android:id="@+id/fdHeaderRoot"
         android:layout_width="match_parent"
         android:layout_height="@dimen/jc_details_header_height"
-        android:paddingStart="56dp"
+        android:paddingStart="@dimen/jc_app_content_start"
         android:paddingEnd="56dp"
         android:paddingBottom="8dp">
 

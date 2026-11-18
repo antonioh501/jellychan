@@ -83,20 +83,6 @@ class HomeFragment : Fragment() {
 				if (!settingsVisible) rowsSupportFragment?.reloadIfSectionsChanged()
 			}
 
-			// JellyChan: over the carousel the backdrop fades into the navy base on the left, one gradient behind the
-			// rail and the info. With a card selected the backdrop sits on the right over an even navy base: no veil.
-			if (focus == null) Box(
-				modifier = Modifier
-					.fillMaxSize()
-					.background(
-						Brush.horizontalGradient(
-							0.0f to Color(0xF2111827),
-							0.3f to Color(0xB3111827),
-							0.55f to Color(0x00111827),
-						)
-					)
-			)
-
 			// Info about the focused card, right above the selected row
 			HomeFocusInfo(focus = focus, modifier = Modifier.align(Alignment.TopStart))
 

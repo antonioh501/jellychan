@@ -138,6 +138,9 @@ class JcDetailsInfoRowView @JvmOverloads constructor(
 			_ratingsOnly.value = value
 		}
 
+	/** JellyChan: soft shadow under the texts, set before the view is shown. */
+	var textShadow = false
+
 	init {
 		isFocusable = false
 		descendantFocusability = FOCUS_BLOCK_DESCENDANTS
@@ -150,6 +153,14 @@ class JcDetailsInfoRowView @JvmOverloads constructor(
 		val endTime by _endTime.collectAsState()
 		val ratingsOnly by _ratingsOnly.collectAsState()
 
-		item?.let { JcDetailsInfoRow(it, runtime, endTime, ratingsOnly) }
+		androidx.compose.runtime.CompositionLocalProvider(LocalInfoRowShadow provides if (textShadow) TextShadow else null) {
+			item?.let { JcDetailsInfoRow(it, runtime, endTime, ratingsOnly) }
+		}
 	}
 }
+
+private val TextShadow = androidx.compose.ui.graphics.Shadow(
+	color = androidx.compose.ui.graphics.Color(0xE6000000),
+	offset = androidx.compose.ui.geometry.Offset(0f, 2f),
+	blurRadius = 10f,
+)

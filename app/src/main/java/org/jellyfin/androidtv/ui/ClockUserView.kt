@@ -49,13 +49,14 @@ class ClockUserView @JvmOverloads constructor(
 	private fun updateClockVisibility() {
 		val showClock = userPreferences[UserPreferences.clockBehavior]
 
-		binding.clock.isVisible = when (showClock) {
+		// JellyChan: outside the player the app clock (top right of every screen) and the app rail take their place
+		binding.clock.isVisible = isVideoPlayer && when (showClock) {
 			ClockBehavior.ALWAYS -> true
 			ClockBehavior.NEVER -> false
 			ClockBehavior.IN_VIDEO -> isVideoPlayer
 			ClockBehavior.IN_MENUS -> !isVideoPlayer
 		}
 
-		binding.home.isVisible = !isVideoPlayer
+		binding.home.isVisible = false
 	}
 }

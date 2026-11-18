@@ -62,6 +62,14 @@ class BackgroundService(
 	fun setSpotlight(enabled: Boolean) {
 		_spotlight.value = enabled
 		_framed.value = false
+		if (!enabled) _carousel.value = false
+	}
+
+	// JellyChan: home carousel, the backdrop stays clean and only fades into navy behind the first row
+	private var _carousel = MutableStateFlow(false)
+	val carousel get() = _carousel.asStateFlow()
+	fun setCarousel(enabled: Boolean) {
+		_carousel.value = enabled
 	}
 
 	// JellyChan: "framed" mode (home rows) shows the backdrop in the top right two thirds of the screen only, with the

@@ -184,7 +184,8 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 
 		selectedRow = position
 		for (i in 0 until grid.childCount) {
-			val child = grid.getChildAt(i)
+			// The grid may call this during a layout, with a child slot still empty
+			val child = grid.getChildAt(i) ?: continue
 			val target = rowAlpha(grid.getChildAdapterPosition(child))
 			if (child.alpha != target) child.animate().alpha(target).setDuration(ROW_FADE_MS).start()
 		}
@@ -208,7 +209,11 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 	}
 
 	/** Backdrop of the selected card behind the top of the home, once the selection stops moving. */
-	private fun showBackground(item: BaseItemDto?, wait: kotlin.time.Duration = BACKGROUND_DELAY) {
+	private fun showBackground(
+		item: BaseItemDto?,
+		wait: kotlin.time.Duration = BACKGROUND_DELAY,
+		trailer: Boolean = true,
+	) {
 		backgroundJob?.cancel()
 		stopTrailer()
 		backgroundJob = lifecycleScope.launch {
@@ -220,7 +225,7 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 				backgroundService.setFramed(true)
 				backgroundService.setBackground(item)
 				// JellyChan: after a few seconds on the same card its trailer takes the place of the backdrop, once
-				startTrailer(item)
+				if (trailer) startTrailer(item)
 			}
 		}
 	}
@@ -424,7 +429,7 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 		focusRows()
 		when (val focus = homeFocus.value) {
 			is HomeFocus.Item -> showBackground(focus.item, BACKGROUND_RESTORE_DELAY)
-			is HomeFocus.Genre -> showBackground(focus.sample, BACKGROUND_RESTORE_DELAY)
+			is HomeFocus.Genre -> showBackground(focus.sample, BACKGROUND_RESTORE_DELAY, trailer = false)
 			null -> Unit
 		}
 
@@ -539,7 +544,8 @@ class HomeRowsFragment : RowsSupportFragment(), AudioEventListener, View.OnKeyLi
 			if (item is HomeGenre) {
 				currentItem = null
 				homeFocus.value = HomeFocus.Genre(item.genre.name.orEmpty(), item.sample)
-				showBackground(item.sample)
+				// JellyChan: a genre shows one of its titles as backdrop, never a trailer
+				showBackground(item.sample, trailer = false)
 			} else if (item !is BaseRowItem) {
 				currentItem = null
 				homeFocus.value = null

@@ -1,5 +1,6 @@
 package org.jellyfin.androidtv.ui.seerr
 
+import org.jellyfin.androidtv.ui.home.AppContentStart
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -72,13 +73,12 @@ import org.jellyfin.androidtv.ui.settings.compat.SettingsViewModel
 import org.koin.compose.viewmodel.koinActivityViewModel
 import org.jellyfin.androidtv.ui.navigation.Destinations
 import org.jellyfin.androidtv.ui.navigation.NavigationRepository
-import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbar
-import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbarActiveButton
+import org.jellyfin.androidtv.ui.home.AppScreenTopInset
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 private val PageBackground = Color(0xFF111827)
-private val PagePadding = 48.dp
+private val PagePadding = AppContentStart
 private const val LOAD_MORE_THRESHOLD = 5
 private const val BACKDROP_ALPHA = 0.45f
 
@@ -122,7 +122,8 @@ private fun SeerrDiscoverPage(
 		shownMedia?.backdropUrl?.let { SeerrBackdrop(it) }
 
 		Column {
-			MainToolbar(MainToolbarActiveButton.Discover)
+			// JellyChan: the app rail replaces the top bar; this band leaves room for the app clock
+			Spacer(Modifier.height(AppScreenTopInset))
 
 			when {
 				connection is SeerrState.SessionExpired -> SeerrPageMessage(
@@ -209,7 +210,7 @@ private fun SeerrDiscoverContent(
 		modifier = Modifier
 			.fillMaxWidth()
 			.height(104.dp)
-			.padding(horizontal = PagePadding),
+			.padding(start = PagePadding, end = 48.dp),
 	) {
 		SeerrMediaInfo(
 			media = shownMedia,
@@ -241,7 +242,7 @@ private fun SeerrDiscoverContent(
 				)
 
 				LazyRow(
-					contentPadding = PaddingValues(horizontal = PagePadding, vertical = 6.dp),
+					contentPadding = PaddingValues(start = PagePadding, end = 48.dp, top = 6.dp, bottom = 6.dp),
 					horizontalArrangement = Arrangement.spacedBy(12.dp),
 					modifier = Modifier
 						.focusRestorer()

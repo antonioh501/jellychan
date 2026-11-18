@@ -18,10 +18,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.data.service.BackgroundService
 import org.jellyfin.androidtv.databinding.ViewHomeSpotlightBinding
@@ -42,7 +40,6 @@ import org.jellyfin.sdk.model.api.ItemSortBy
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import timber.log.Timber
-import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -97,7 +94,6 @@ class HomeSpotlightView @JvmOverloads constructor(
 	context: Context,
 	attrs: AttributeSet? = null,
 ) : FrameLayout(context, attrs), KoinComponent {
-	private val api by inject<ApiClient>()
 	private val backgroundService by inject<BackgroundService>()
 	private val imageHelper by inject<ImageHelper>()
 	private val playbackHelper by inject<PlaybackHelper>()
@@ -117,6 +113,7 @@ class HomeSpotlightView @JvmOverloads constructor(
 		descendantFocusability = FOCUS_AFTER_DESCENDANTS
 
 		binding.jcMeta.ratingsOnly = false
+		binding.jcMeta.textShadow = true
 		binding.jcPlay.setOnClickListener { current()?.let { playbackHelper.retrieveAndPlay(it.id, false, context) } }
 		binding.jcDetails.setOnClickListener { current()?.let { navigationRepository.navigate(Destinations.itemDetails(it.id)) } }
 
@@ -191,27 +188,20 @@ class HomeSpotlightView @JvmOverloads constructor(
 			// spotlight mode off while it is torn down, after the home is back)
 			delay(0.6.seconds)
 			backgroundService.setSpotlight(true)
+			backgroundService.setCarousel(true)
 			backgroundService.setBackground(item)
-			// Give the backdrop a moment, then try a local trailer
-			delay(1.9.seconds)
-			val trailer = trailerUrlFor(item)
-			if (trailer != null) {
-				backgroundService.setTrailer(trailer)
-				withTimeoutOrNull(150.seconds) { backgroundService.trailerEnded.first { it == trailer } }
-			} else {
-				delay(10.seconds)
-			}
+			// JellyChan: the carousel never plays trailers, it moves on to the next title
+			delay(12.seconds)
 			if (items.size > 1) show(index + 1)
 		}
 	}
-
-	private suspend fun trailerUrlFor(item: BaseItemDto): String? = api.homeTrailerUrl(item)
 
 	/** [keepBackground]: the home rows take over the background (backdrop of the selected card, in spotlight mode). */
 	private fun setActive(value: Boolean, keepBackground: Boolean = false) {
 		if (value == active) return
 		active = value
 		if (value || !keepBackground) backgroundService.setSpotlight(value)
+		backgroundService.setCarousel(value)
 		if (value) {
 			startCycle()
 		} else {

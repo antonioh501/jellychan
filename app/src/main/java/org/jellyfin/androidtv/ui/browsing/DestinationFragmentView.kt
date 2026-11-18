@@ -1,5 +1,11 @@
 package org.jellyfin.androidtv.ui.browsing
 
+import android.graphics.Canvas
+import android.graphics.LinearGradient
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Shader
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
@@ -70,6 +76,45 @@ class DestinationFragmentView @JvmOverloads constructor(
 	}
 
 	private val history = Stack<HistoryEntry>()
+
+	/**
+	 * JellyChan: fades the screen out on its left side, from fully clear at the first value to fully shown at the second
+	 * (pixels), so rows scrolled sideways melt away before the app rail. A real transparency mask.
+	 */
+	var leftFade: Pair<Int, Int>? = null
+		set(value) {
+			if (field == value) return
+			field = value
+			fadeShader = value?.let { (start, end) ->
+				LinearGradient(start.toFloat(), 0f, end.toFloat(), 0f, 0x00000000, 0xFF000000.toInt(), Shader.TileMode.CLAMP)
+			}
+			invalidate()
+		}
+	private var fadeShader: Shader? = null
+	private val fadePaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN) }
+
+	override fun dispatchDraw(canvas: Canvas) {
+		val fade = leftFade
+		val shader = fadeShader
+		if (fade == null || shader == null) return super.dispatchDraw(canvas)
+		val start = fade.first.toFloat()
+		val end = fade.second.toFloat()
+		val h = height.toFloat()
+
+		// The screen right of the fade, as usual
+		canvas.save()
+		canvas.clipRect(end, 0f, width.toFloat(), h)
+		super.dispatchDraw(canvas)
+		canvas.restore()
+
+		// The fade: the same content in a layer, masked by a gradient
+		val layer = canvas.saveLayer(start, 0f, end, h, null)
+		canvas.clipRect(start, 0f, end, h)
+		super.dispatchDraw(canvas)
+		fadePaint.shader = shader
+		canvas.drawRect(start, 0f, end, h, fadePaint)
+		canvas.restoreToCount(layer)
+	}
 
 	fun navigate(action: NavigationAction.NavigateFragment) {
 		val entry = HistoryEntry(action.destination.fragment.java, action.destination.arguments)

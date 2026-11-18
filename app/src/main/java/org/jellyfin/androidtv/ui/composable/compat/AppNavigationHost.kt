@@ -2,6 +2,7 @@ package org.jellyfin.androidtv.ui.composable.compat
 
 import android.content.Context
 import android.view.View
+import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,8 +22,9 @@ import org.koin.compose.koinInject
 fun AppNavigationHost(
 	modifier: Modifier = Modifier,
 	navigationRepository: NavigationRepository = koinInject(),
+	onHostCreated: (FrameLayout, DestinationFragmentView) -> Unit = { _, _ -> },
 ) {
-	val factory = remember { AppNavigationHostViewFactory() }
+	val factory = remember { AppNavigationHostViewFactory(onHostCreated) }
 
 	val canGoBack by remember {
 		navigationRepository.currentAction.map { navigationRepository.canGoBack }.distinctUntilChanged()
@@ -46,14 +48,22 @@ fun AppNavigationHost(
 	}
 }
 
-private class AppNavigationHostViewFactory : (Context) -> View {
+private class AppNavigationHostViewFactory(
+	private val onHostCreated: (FrameLayout, DestinationFragmentView) -> Unit,
+) : (Context) -> View {
 	private var _view: DestinationFragmentView? = null
 
 	val view get() = requireNotNull(_view)
 
 	override operator fun invoke(
 		context: Context
-	): View = DestinationFragmentView(context).also { view ->
+	): View {
+		// JellyChan: the screens sit in a frame, so views can be placed next to them (the app rail)
+		val view = DestinationFragmentView(context)
 		_view = view
+		return FrameLayout(context).also { frame ->
+			frame.addView(view, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+			onHostCreated(frame, view)
+		}
 	}
 }

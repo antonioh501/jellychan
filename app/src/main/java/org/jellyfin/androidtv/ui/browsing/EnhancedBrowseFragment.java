@@ -1,5 +1,6 @@
 package org.jellyfin.androidtv.ui.browsing;
 
+import org.jellyfin.androidtv.ui.home.AppSideRailKt;
 import static org.koin.java.KoinJavaComponent.inject;
 
 import android.os.Bundle;
@@ -111,7 +112,7 @@ public class EnhancedBrowseFragment extends Fragment implements RowLoader, View.
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mRowsAdapter = new MutableObjectAdapter<Row>(new PositionableListRowPresenter());
+        mRowsAdapter = new MutableObjectAdapter<Row>(railRowPresenter());
 
         setupViews();
         setupQueries(this);
@@ -224,7 +225,7 @@ public class EnhancedBrowseFragment extends Fragment implements RowLoader, View.
     }
 
     public void loadRows(List<BrowseRowDef> rows) {
-        mRowsAdapter = new MutableObjectAdapter<Row>(new PositionableListRowPresenter());
+        mRowsAdapter = new MutableObjectAdapter<Row>(railRowPresenter());
         mCardPresenter = new CardPresenter(false, 140);
         ClassPresenterSelector ps = new ClassPresenterSelector();
         ps.addClassPresenter(GridButtonBaseRowItem.class, new GridButtonPresenter(155, 140));
@@ -491,5 +492,12 @@ public class EnhancedBrowseFragment extends Fragment implements RowLoader, View.
 
             backgroundService.getValue().setBackground(rowItem.getBaseItem());
         }
+    }
+
+    /** JellyChan: rows on the content line, right of the app rail. */
+    private PositionableListRowPresenter railRowPresenter() {
+        PositionableListRowPresenter presenter = new PositionableListRowPresenter();
+        AppSideRailKt.alignToAppRail(presenter, requireContext());
+        return presenter;
     }
 }

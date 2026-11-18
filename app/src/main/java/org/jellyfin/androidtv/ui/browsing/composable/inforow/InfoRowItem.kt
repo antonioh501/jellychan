@@ -22,6 +22,9 @@ import org.jellyfin.androidtv.ui.base.Icon
 import org.jellyfin.androidtv.ui.base.LocalTextStyle
 import org.jellyfin.androidtv.ui.base.ProvideTextStyle
 
+/** JellyChan: shadow under the texts of the info row, for rows drawn over a bright backdrop (home carousel). */
+val LocalInfoRowShadow = androidx.compose.runtime.staticCompositionLocalOf<androidx.compose.ui.graphics.Shadow?> { null }
+
 /**
  * A single item in the [BaseItemInfoRow].
  */
@@ -49,6 +52,7 @@ fun InfoRowItem(
 
 	ProvideTextStyle(
 		value = TextStyle(
+			shadow = LocalInfoRowShadow.current,
 			color = foregroundColor,
 			fontSize = if (backgroundColor.alpha > 0f) 10.sp else 16.sp,
 			fontWeight = if (backgroundColor.alpha > 0f) FontWeight.W600 else FontWeight.W500,

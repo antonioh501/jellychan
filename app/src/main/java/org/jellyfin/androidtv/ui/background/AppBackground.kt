@@ -25,7 +25,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -88,6 +89,7 @@ fun AppBackground() {
 	val spotlight by backgroundService.spotlight.collectAsState()
 	val trailerUrl by backgroundService.trailerUrl.collectAsState()
 	val framed by backgroundService.framed.collectAsState()
+	val carousel by backgroundService.carousel.collectAsState()
 
 	if (enabled) Box(modifier = Modifier.fillMaxSize()) {
 		AnimatedContent(
@@ -114,7 +116,9 @@ fun AppBackground() {
 					// JellyChan: backdrop fades into the navy base. In spotlight mode (details header)
 					// the image stays clear at the top, like the JellyChan item page.
 					val overlay by animateFloatAsState(if (spotlight) 0f else 1f, tween(400), label = "BackdropDim")
-					SpotlightGradient()
+					if (carousel) CarouselGradient() else SpotlightGradient()
+					// JellyChan: navy veil at the top and on the left, so the texts and the clock read on light images
+					BackdropVeil(left = if (carousel) CarouselLeftVeil else SpotlightLeftVeil, tint = carousel)
 					Box(
 						modifier = Modifier
 							.fillMaxSize()
@@ -151,12 +155,53 @@ fun AppBackground() {
 		if (spotlight && !framed && url != null) {
 			TrailerLayer(url, backgroundService)
 			SpotlightGradient()
+			BackdropVeil(left = SpotlightLeftVeil, tint = false)
 		} else if (framed && url != null) {
 			// JellyChan: home rows, the trailer of the selected card in the backdrop frame, with the same vignette
 			TrailerLayer(url, backgroundService, framed = true)
 		}
+
+		// JellyChan: home rows, the top of the framed backdrop (and of its trailer) is veiled under the clock
+		if (framed && currentBackground != null) BackdropVeil(left = null, tint = false)
 	}
 }
+
+/** JellyChan: the veil darkens the top band of every backdrop, where the clock is. */
+private val TopVeil = Brush.verticalGradient(
+	0.0f to Color(0xB3111827),
+	0.08f to Color(0x80111827),
+	0.2f to Color(0x26111827),
+	0.3f to Color(0x00111827),
+)
+
+/** Home carousel: the left half, under the logo, the texts and the rail icons. */
+private val CarouselLeftVeil = Brush.horizontalGradient(
+	0.0f to Color(0xD9111827),
+	0.3f to Color(0x8C111827),
+	0.55f to Color(0x26111827),
+	0.7f to Color(0x00111827),
+)
+
+/** Details page: lighter, its own gradient already darkens the bottom. */
+private val SpotlightLeftVeil = Brush.horizontalGradient(
+	0.0f to Color(0x99111827),
+	0.35f to Color(0x33111827),
+	0.55f to Color(0x00111827),
+)
+
+/** A light navy tint all over the carousel image, so the brightest spots never win over the texts. */
+private val VeilTint = Color(0x1F111827)
+
+@Composable
+private fun BackdropVeil(left: Brush?, tint: Boolean) = Box(
+	modifier = Modifier
+		.fillMaxSize()
+		.drawBehind {
+			if (tint) drawRect(VeilTint)
+			drawRect(TopVeil)
+			if (left != null) drawRect(left)
+		}
+)
 
 private val Navy = Color(0xFF111827)
 private val NavyLight = Color(0xFF1B2436)
@@ -235,6 +280,25 @@ private val VignetteMask: ImageBitmap by lazy {
 private const val FRAMED_WIDTH = 0.76f
 private const val FRAMED_HEIGHT = 0.78f
 
+/**
+ * JellyChan: home carousel. The backdrop stays clean; only the bottom fades into the navy base, from a little above the
+ * first row (it peeks in at about 83% of the height).
+ */
+@Composable
+private fun CarouselGradient() = Box(
+	modifier = Modifier
+		.fillMaxSize()
+		.background(
+			Brush.verticalGradient(
+				0.0f to Color(0x00111827),
+				0.66f to Color(0x00111827),
+				0.76f to Color(0x99111827),
+				0.84f to Color(0xEB111827),
+				1.0f to Color(0xFF111827),
+			)
+		)
+)
+
 @Composable
 private fun SpotlightGradient() = Box(
 	modifier = Modifier
@@ -292,12 +356,6 @@ private fun TrailerLayer(url: String, backgroundService: BackgroundService, fram
 				visible = true
 			}
 
-			override fun onTracksChanged(tracks: androidx.media3.common.Tracks) {
-				tracks.groups.filter { it.isSelected }.forEach { group ->
-					timber.log.Timber.i("JellyChan trailer track: %s", group.getTrackFormat(0).sampleMimeType)
-				}
-			}
-
 			override fun onPlaybackStateChanged(playbackState: Int) {
 				if (playbackState == androidx.media3.common.Player.STATE_ENDED) {
 					visible = false
@@ -330,7 +388,10 @@ private fun TrailerLayer(url: String, backgroundService: BackgroundService, fram
 	val maskAlpha by animateFloatAsState(if (framed && visible) 1f else 0f, tween(200), label = "TrailerMask")
 	val videoVisible = visible && (!framed || maskAlpha == 1f)
 	val alpha by animateFloatAsState(if (videoVisible) 1f else 0f, tween(800), label = "TrailerAlpha")
-	SideEffect { player.volume = TRAILER_VOLUME * alpha }
+	// The volume follows the fade (a snapshot flow: the animation does not recompose this function)
+	LaunchedEffect(player) {
+		snapshotFlow { alpha }.collect { player.volume = TRAILER_VOLUME * it }
+	}
 	androidx.compose.ui.viewinterop.AndroidView(
 		factory = { ctx ->
 			android.view.TextureView(ctx).also { player.setVideoTextureView(it) }

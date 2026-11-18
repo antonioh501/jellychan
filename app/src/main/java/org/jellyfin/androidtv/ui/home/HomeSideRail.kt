@@ -80,9 +80,18 @@ import org.koin.compose.viewmodel.koinActivityViewModel
  * bottom. Icons are dim, the current section is white and the focused one is a light pill. While it has the focus the
  * rail opens into a dark panel over the home, with the name of each section (and of the user) next to its icon.
  */
+/** JellyChan: section of the app highlighted in the rail. */
+enum class RailSection { Home, Search, Discover, None }
+
+/**
+ * [active]: the section on screen (its icon is white, clicking it does nothing). [focusRequester]: lets the screen move
+ * the focus into the rail (it lands on the last focused entry, or Home).
+ */
 @Composable
 fun HomeSideRail(
 	modifier: Modifier = Modifier,
+	active: RailSection = RailSection.Home,
+	focusRequester: FocusRequester? = null,
 ) {
 	val userRepository = koinInject<UserRepository>()
 	val api = koinInject<ApiClient>()
@@ -121,6 +130,7 @@ fun HomeSideRail(
 				.fillMaxHeight()
 				.padding(start = RailItemStart, top = 22.dp, bottom = 22.dp)
 				.onFocusChanged { expanded = it.hasFocus }
+				.then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
 				.focusRestorer(homeFocusRequester)
 				.focusGroup(),
 		) {
@@ -152,13 +162,22 @@ fun HomeSideRail(
 
 			Spacer(Modifier.weight(1f))
 
-			RailIcon(R.drawable.ic_search, R.string.lbl_search, expanded) {
-				navigationRepository.navigate(Destinations.search())
+			RailIcon(R.drawable.ic_search, R.string.lbl_search, expanded, active = active == RailSection.Search) {
+				if (active != RailSection.Search) navigationRepository.navigate(Destinations.search())
 			}
-			RailIcon(R.drawable.ic_house, R.string.lbl_home, expanded, Modifier.focusRequester(homeFocusRequester), active = true) {}
+			RailIcon(
+				R.drawable.ic_house,
+				R.string.lbl_home,
+				expanded,
+				Modifier.focusRequester(homeFocusRequester),
+				active = active == RailSection.Home,
+			) {
+				// Like the old home button: a fresh home, with no screens left behind it
+				if (active != RailSection.Home) navigationRepository.reset(Destinations.home, clearHistory = true)
+			}
 			if (seerrState != SeerrState.NotConfigured) {
-				RailIcon(R.drawable.jc_ic_seerr, R.string.jc_seerr_discover, expanded) {
-					navigationRepository.navigate(Destinations.seerrDiscover)
+				RailIcon(R.drawable.jc_ic_seerr, R.string.jc_seerr_discover, expanded, active = active == RailSection.Discover) {
+					if (active != RailSection.Discover) navigationRepository.navigate(Destinations.seerrDiscover)
 				}
 			}
 			// The user's libraries, right below Discover

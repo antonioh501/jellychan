@@ -1,5 +1,6 @@
 package org.jellyfin.androidtv.ui.seerr
 
+import org.jellyfin.androidtv.ui.home.AppContentStart
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -30,6 +31,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -58,8 +61,7 @@ import org.jellyfin.androidtv.ui.settings.Routes
 import org.jellyfin.androidtv.ui.settings.compat.SettingsViewModel
 import org.koin.compose.viewmodel.koinActivityViewModel
 import org.jellyfin.androidtv.ui.navigation.NavigationRepository
-import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbar
-import org.jellyfin.androidtv.ui.shared.toolbar.MainToolbarActiveButton
+import org.jellyfin.androidtv.ui.home.AppScreenTopInset
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -96,14 +98,15 @@ private fun SeerrRequestsPage(
 			.fillMaxSize()
 			.background(PageBackground),
 	) {
-		MainToolbar(MainToolbarActiveButton.Discover)
+		// JellyChan: the app rail replaces the top bar; this band leaves room for the app clock
+		Spacer(Modifier.height(AppScreenTopInset))
 
 		Text(
 			text = stringResource(R.string.jc_seerr_my_requests),
 			fontSize = 22.sp,
 			fontWeight = FontWeight.Bold,
 			color = Color.White,
-			modifier = Modifier.padding(start = 48.dp, top = 4.dp, bottom = 8.dp),
+			modifier = Modifier.padding(start = AppContentStart, top = 4.dp, bottom = 8.dp),
 		)
 
 		when {
@@ -129,12 +132,12 @@ private fun SeerrRequestsPage(
 						text = stringResource(message.text()),
 						fontSize = 12.sp,
 						color = SubtleText,
-						modifier = Modifier.padding(start = 48.dp, bottom = 4.dp),
+						modifier = Modifier.padding(start = AppContentStart, bottom = 4.dp),
 					)
 				}
 
 				LazyColumn(
-					contentPadding = PaddingValues(horizontal = 48.dp, vertical = 6.dp),
+					contentPadding = PaddingValues(start = AppContentStart, end = 48.dp, top = 6.dp, bottom = 6.dp),
 					verticalArrangement = Arrangement.spacedBy(8.dp),
 					modifier = Modifier.fillMaxSize(),
 				) {

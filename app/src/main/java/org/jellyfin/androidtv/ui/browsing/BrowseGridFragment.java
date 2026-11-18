@@ -241,8 +241,11 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
             mGridView.setPadding(titleMargin.getMarginStart(), mGridPaddingTop, clockMargin.getMarginEnd(), mGridPaddingTop); // prevent initial card cutoffs
         } else if (mGridViewHolder instanceof VerticalGridPresenter.ViewHolder) {
             mGridView = ((VerticalGridPresenter.ViewHolder) mGridViewHolder).getGridView();
-            mGridView.setGravity(Gravity.CENTER_HORIZONTAL);
-            mGridView.setPadding(mGridPaddingLeft, mGridPaddingTop, mGridPaddingLeft, mGridPaddingTop); // prevent initial card cutoffs
+            // JellyChan: the first column starts on the content line, right of the app rail
+            mGridView.setGravity(Gravity.START);
+            int contentStart = getResources().getDimensionPixelSize(R.dimen.jc_app_content_start)
+                    - Utils.convertDpToPixel(requireContext(), 4);
+            mGridView.setPadding(contentStart, mGridPaddingTop, mGridPaddingLeft, mGridPaddingTop); // prevent initial card cutoffs
         }
         // JellyChan: spacing values are computed in dp, apply them in pixels
         mGridView.setHorizontalSpacing(Utils.convertDpToPixel(requireContext(), mGridItemSpacingHorizontal));
@@ -856,6 +859,9 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
         lp.setMarginStart(m);
         lp.setMarginEnd(m);
         tab.setLayoutParams(lp);
+        // JellyChan: the tabs are the top of the screen, up stays on them (it jumped to the A-Z index)
+        tab.setId(View.generateViewId());
+        tab.setNextFocusUpId(tab.getId());
         binding.jcTabs.addView(tab);
         return tab;
     }
@@ -873,8 +879,6 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
         mLibraryTab = createTab(mainTitle);
         mLibraryTab.setActivated(!favoritesOnly);
         mLibraryTab.setOnClickListener(v -> setFavoritesOnly(false));
-        mLibraryTab.setNextFocusLeftId(R.id.jc_library_back);
-        mLibraryTab.setNextFocusUpId(R.id.jc_library_back);
 
         if (isMovies) {
             android.widget.Button suggestions = createTab(getString(R.string.lbl_suggested));

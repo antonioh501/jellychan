@@ -52,4 +52,6 @@
     <dimen name="lb_playback_controls_child_margin_biggest">28dp</dimen>
     <!-- JellyChan: web-like left margin for rows -->
     <dimen name="lb_browse_padding_start">38dp</dimen>
+    <!-- JellyChan: start of the content of the screens next to the app rail, inside them (AppContentStart) -->
+    <dimen name="jc_app_content_start">24dp</dimen>
 </resources>

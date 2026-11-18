@@ -1,5 +1,6 @@
 package org.jellyfin.androidtv.ui.browsing
 
+import org.jellyfin.androidtv.ui.home.alignToAppRail
 import android.os.Bundle
 import androidx.leanback.app.BrowseSupportFragment
 import androidx.leanback.widget.HeaderItem
@@ -77,7 +78,7 @@ abstract class BrowseFolderFragment : BrowseSupportFragment(), RowLoader {
 	protected abstract suspend fun setupQueries(rowLoader: RowLoader)
 
 	override fun loadRows(rows: MutableList<BrowseRowDef>) {
-		val mutableAdapter = MutableObjectAdapter<Row>(PositionableListRowPresenter()).also {
+		val mutableAdapter = MutableObjectAdapter<Row>(PositionableListRowPresenter().apply { alignToAppRail(requireContext()) }).also {
 			adapter = it
 		}
 
